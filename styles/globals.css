@@ -1,0 +1,19 @@
+.hero-image {
+    background-image: url("/images/concert-hero.jpg");
+    background-size: cover;
+    background-position: center;
+    height: 30vh;
+  }
+
+  .category-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover; 
+  }
+
+  .category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+  }
