@@ -182,6 +182,7 @@
                                 <p class="card-text">Category: {{ ticket.category }}</p>
                                 <p class="card-text">Date: {{ ticket.date }}</p>
                                 <p class="card-text">Time: {{ ticket.time }}</p>
+                                <p class="card-text">Location: {{ ticket.location }}</p>
                                 <p class="card-text" v-if="ticket.seatCategory">Seat Category: {{ ticket.seatCategory }}</p>
                                 <p class="card-text" v-if="ticket.section">Section: {{ ticket.section }}</p>
                                 <p class="card-text" v-if="ticket.seatNumber">Seat Number: {{ ticket.seatNumber }}</p>
@@ -201,6 +202,7 @@
                     {
                             id: 1,
                             eventName: "Concert A",
+                            location: "Singapore Indoor Stadium",
                             category: "Entertainment",
                             seatCategory: "VIP",
                             section: "A1",
@@ -213,6 +215,7 @@
                         {
                             id: 2,
                             eventName: "Sports Event B",
+                            location: "National Stadium",
                             category: "Sports",
                             seatCategory: "General",
                             section: "B2",
@@ -225,6 +228,7 @@
                         {
                             id: 3,
                             eventName: "Art Festival C",
+                            location: "Marina Bay Sands",
                             category: "Arts & Culture",
                             seatCategory: null,
                             section: null,
@@ -237,6 +241,7 @@
                         {
                             id: 4,
                             eventName: "Tech Conference D",
+                            location: "SMU",
                             category: "Conferences and Conventions",
                             seatCategory: "VIP",
                             section: "D1",
@@ -249,6 +254,7 @@
                         {
                             id: 5,
                             eventName: "Adventure Trip E",
+                            location: "Tioman Island",
                             category: "Travel and Adventure",
                             seatCategory: null,
                             section: null,
