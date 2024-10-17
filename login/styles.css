@@ -1,0 +1,117 @@
+/* Full Page Styling */
+body {
+    background: linear-gradient(135deg, #a35feb 0%, #002d7a 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    transition: background-color 0.4s ease;
+}
+
+/* Dark Mode Hover Effect on Body */
+body:hover {
+    background-color: #1b2a49; /* Adds a subtle dark effect on hover */
+}
+
+/* Smooth Entrance Animation */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    animation: fadeInUp 1s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Centered Div Styling */
+.centered {
+    background-color: #ffffff;
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 20px; /* Increased rounded corners */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* Larger shadow for more depth */
+    text-align: center;
+    position: relative;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.centered:hover {
+    transform: translateY(-5px); /* Float effect */
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.5); /* More intense shadow on hover */
+}
+
+/* Heading Styling */
+.centered h2 {
+    font-size: 26px;
+    color: #333;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+}
+
+/* Input Group Styling */
+.input-group-text {
+    background-color: #6a11cb;
+    color: white;
+    border-radius: 50%;
+    border: none;
+}
+
+.input-group .form-control {
+    border-radius: 0 30px 30px 0;
+    border-left: none;
+    padding: 15px;
+    box-shadow: none;
+}
+
+/* Focus Effect on Input */
+.form-control:focus {
+    border-color: #2575fc;
+    box-shadow: 0 0 10px rgba(37, 117, 252, 0.5);
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #2575fc;
+    border: none;
+    border-radius: 30px;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #1a5bb8;
+    box-shadow: 0 6px 15px rgba(37, 117, 252, 0.6);
+}
+
+/* Progress Bar */
+.progress-bar {
+    background-color: #6a11cb;
+}
+
+/* Text Links */
+p a {
+    color: #2575fc;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+p a:hover {
+    color: #1a5bb8;
+    text-decoration: underline;
+}
