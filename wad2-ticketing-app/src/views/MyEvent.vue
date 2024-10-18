@@ -22,7 +22,10 @@
     <div class="container mt-3 d-flex justify-content-between">
       <div class="price-section">
         <h4>Price: $50.00</h4>
-        <button class="btn btn-success">Get Tickets</button>
+        <RouterLink 
+          to="/payment" 
+          class="btn btn-success">Get Tickets
+        </RouterLink>
       </div>
       <div class="marketplace">
         <h5>Marketplace</h5>
