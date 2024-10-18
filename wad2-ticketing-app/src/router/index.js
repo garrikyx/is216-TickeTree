@@ -26,6 +26,11 @@ const router = createRouter({
       name: "myevent",
       component: () => import("../views/MyEvent.vue"),
     },
+    {
+      path: "/payment",
+      name: "payment",
+      component: () => import("../views/Payment.vue"),
+    },
   ],
 });
 
