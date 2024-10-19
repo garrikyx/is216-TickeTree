@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
 import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
@@ -13,8 +15,8 @@ app.use(express.json()); // Parse JSON bodies
 // API endpoint for fetching events
 app.get('/api/events', async (req, res) => {
     try {
-        const username = import.meta.env.EVENTFINDA_USERNAME; 
-        const password = import.meta.env.EVENTFINDA_PASSWORD; 
+        const username = process.env.EVENTFINDA_USERNAME; 
+        const password = process.env.EVENTFINDA_PASSWORD; 
         const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
 
        //req body
