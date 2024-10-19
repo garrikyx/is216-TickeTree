@@ -7,7 +7,7 @@
         <span class="like-btn" :class="{ 'is-active': isLiked }" @click="toggleLike"></span>
       </div>
       <div class="image">
-        <img src="/images/tatemcrae.jpg" width="150px" height="100px" alt="" />
+        <img :src="imageUrl" width="150px" height="100px" alt="Tate McRae" />
       </div>
       <div class="description">
         <span style="font-weight: bold; font-size: 18px">Tate McRae</span>
@@ -32,18 +32,25 @@
 </template>
 
 <script>
+import { loadStripe } from '@stripe/stripe-js';
+
 export default {
   data() {
     return {
       quantity: 1,
       isLiked: false,
       pricePerItem: 3,
+      stripe: null,
+      imageUrl: 'http://localhost:5173/images/tatemcrae.jpg', // Define the image URL here
     };
   },
   computed: {
     totalPrice() {
       return this.quantity * this.pricePerItem;
     },
+  },
+  async mounted() {
+    this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR'); // Initialize Stripe
   },
   methods: {
     increaseQuantity() {
@@ -63,21 +70,35 @@ export default {
       console.log("Item deleted");
     },
     async checkout() {
-      const stripe = Stripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR'); // Replace with your Stripe public key
-      const response = await fetch('/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          quantity: this.quantity,
-          price: this.pricePerItem,
-        }),
-      });
-      const sessionId = await response.json();
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-      if (error) {
-        console.error("Error redirecting to checkout:", error);
+      try {
+        const response = await fetch('http://localhost:3000/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            quantity: this.quantity,
+            price: this.pricePerItem,
+            imageUrl: this.imageUrl, 
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const session = await response.json();
+
+        // Redirect to checkout using the initialized Stripe instance
+        const { error } = await this.stripe.redirectToCheckout({
+          sessionId: session.id,
+        });
+
+        if (error) {
+          console.error("Error redirecting to checkout:", error);
+        }
+      } catch (error) {
+        console.error("Error creating checkout session:", error);
       }
     },
   },
