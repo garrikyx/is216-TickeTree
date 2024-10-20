@@ -2,7 +2,7 @@
     <div class="card mb-3">
       <img :src="ticket.image" class="card-img-top event-image" :alt="ticket.eventName">
       
-      <div class="card-body">
+      <div class="card-body d-flex flex-column">
         <h5 class="card-title">{{ ticket.eventName }}</h5>
         <p class="card-text">Category: {{ ticket.category }}</p>
         <p class="card-text">Date: {{ ticket.date }}</p>
@@ -12,7 +12,7 @@
         <p class="card-text" v-if="ticket.section">Section: {{ ticket.section }}</p>
         <p class="card-text" v-if="ticket.seatNumber">Seat Number: {{ ticket.seatNumber }}</p>
         <p class="card-text text-success">Price: ${{ ticket.price }}</p>
-        <button class="btn btn-primary">Buy Ticket</button>
+        <button class="mt-auto btn btn-primary">Buy Ticket</button>
       </div>
     </div>
   </template>
