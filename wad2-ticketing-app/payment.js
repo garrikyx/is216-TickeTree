@@ -4,15 +4,18 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
 const stripe = stripePackage(process.env.STRIPE_SECRET_KEY);
 const app = express();
+
 app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static(path.resolve('dist')));
 
+// Create checkout session
 app.post('/create-checkout-session', async (req, res) => {
   const { quantity, price, customerEmail } = req.body; 
   const imageUrl = 'https://via.placeholder.com/150'; 
@@ -33,7 +36,7 @@ app.post('/create-checkout-session', async (req, res) => {
             description: 'Seat: 38',
             images: [imageUrl], 
           },
-          unit_amount: price * 100,
+          unit_amount: price * 100, // Convert to cents
         },
         quantity: quantity,
       }],
@@ -52,7 +55,7 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-
+// Retrieve checkout session details
 app.get('/checkout-session', async (req, res) => {
   const { session_id } = req.query;
 
@@ -75,22 +78,40 @@ app.get('/checkout-session', async (req, res) => {
   }
 });
 
+// Send confirmation email
+app.post('/send-confirmation-email', async (req, res) => {
+  const { email, orderSummary } = req.body;
 
+  let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user: process.env.EMAIL_USER, // Use environment variable for email
+          pass: process.env.EMAIL_PASS, // Use environment variable for app-specific password
+      }
+  });
 
-/*
-app.get('/success', (req, res) => {
-  const sessionId = req.query.session_id;
-  if (sessionId) {
-    res.redirect(`http://localhost:5173/success?session_id=${sessionId}`);
-  } else {
-    res.status(400).send("Session ID is missing.");
+  let mailOptions = {
+      from: process.env.EMAIL_USER, // Use environment variable for email
+      to: email,
+      subject: 'Your Purchase Confirmation',
+      html: `
+          <h1>Thank You for Your Purchase!</h1>
+          <p>Your payment has been successfully processed.</p>
+          <h2>Order Summary:</h2>
+          <p><strong>Event:</strong> ${orderSummary.eventName}</p>
+          <p><strong>Quantity:</strong> ${orderSummary.quantity}</p>
+          <p><strong>Total Price:</strong> SGD ${(orderSummary.totalPrice / 100).toFixed(2)}</p>\
+      `
+  };
+
+  try {
+      await transporter.sendMail(mailOptions);
+      res.json({ message: 'Email sent successfully' });
+  } catch (error) {
+      console.error('Error sending email:', error);
+      res.status(500).json({ error: 'Failed to send email' });
   }
 });
 
-app.get('/error', (req, res) => {
-  const errorMessage = req.query.error || "Payment was cancelled or failed.";
-  res.redirect(`http://localhost:5173/error?message=${encodeURIComponent(errorMessage)}`);
-});
-*/
-
+// Start the server
 app.listen(3000, () => console.log('Backend server running on port 3000'));

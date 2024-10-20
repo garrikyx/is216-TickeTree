@@ -66,7 +66,7 @@ export default {
         });
 
         const session = response.data;
-        
+
         // Debug log to inspect the response data
         console.log("Fetched session details:", session);
 
@@ -75,9 +75,12 @@ export default {
           this.orderSummary = {
             eventName: item.price.product.name,
             quantity: item.quantity,
-            customerEmail: session.customer_email, // Updated to fetch from session
+            customerEmail: session.customer_email,
             totalPrice: session.amount_total,
           };
+
+          // Send confirmation email to customer
+          await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
         } else {
           console.error("No line items found in the session data.");
         }
@@ -89,6 +92,18 @@ export default {
     }
   },
   methods: {
+    async sendConfirmationEmail(email, orderSummary) {
+      try {
+          const response = await axios.post('http://localhost:3000/send-confirmation-email', {
+              email: email,
+              orderSummary: orderSummary,
+          });
+
+          console.log("Confirmation email sent:", response.data.message);
+      } catch (error) {
+          console.error("Failed to send email:", error);
+      }
+    },
     redirectToHomepage() {
       this.$router.push('/');
     },
