@@ -1,53 +1,92 @@
 <template>
   <div class="success-container">
-    <div class="success-header">
-      <div class="success-icon-text">
-        <span class="success-icon">✔</span>
-        <h1>Payment Confirmed</h1>
-      </div>
-      <p class="success-message">
-        Thank you, your payment has been successful, and your purchase is now confirmed. A confirmation email has been sent to JoeAllenPro.com.
-      </p>
+    <div v-if="isLoading">
+      <p>Loading your order summary...</p>
     </div>
-
-    <div class="order-summary">
-      <h2>Order Summary</h2>
-      <div class="order-info">
-        <div class="order-detail">
-          <p class="order-label">Event:</p>
-          <p class="order-value">Tate McRae: THINK LATER TOUR</p>
+    <div v-else-if="orderSummary">
+      <div class="success-header">
+        <div class="success-icon-text">
+          <span class="success-icon">✔</span>
+          <h1>Payment Confirmed</h1>
         </div>
-        <div class="order-detail">
-          <p class="order-label">Quantity:</p>
-          <p class="order-value">1</p>
-        </div>
-        <div class="order-detail">
-          <p class="order-label">Email:</p>
-          <p class="order-value">JoeAllenPro.com</p>
-        </div>
-        <div class="order-detail">
-          <p class="order-label">Total Price:</p>
-          <p class="order-value">SGD 3</p>
+        <p class="success-message">
+          Thank you, your payment has been successful, and your purchase is now confirmed. A confirmation email has been sent to {{ orderSummary.customerEmail }}.
+        </p>
+      </div>
+      <div class="order-summary">
+        <h2>Order Summary</h2>
+        <div class="order-info">
+          <div class="order-detail">
+            <p class="order-label">Event:</p>
+            <p class="order-value">{{ orderSummary.eventName }}</p>
+          </div>
+          <div class="order-detail">
+            <p class="order-label">Quantity:</p>
+            <p class="order-value">{{ orderSummary.quantity }}</p>
+          </div>
+          <div class="order-detail">
+            <p class="order-label">Email:</p>
+            <p class="order-value">{{ orderSummary.customerEmail }}</p>
+          </div>
+          <div class="order-detail">
+            <p class="order-label">Total Price:</p>
+            <p class="order-value">SGD {{ (orderSummary.totalPrice / 100).toFixed(2) }}</p>
+          </div>
         </div>
       </div>
+      <div class="order-summary-card">
+        <button class="return-btn" @click="redirectToHomepage">Return to Homepage</button>
+      </div>
     </div>
-
-    <div class="order-summary-card">
-      <button class="return-btn" @click="redirectToHomepage">Return to Homepage</button>
+    <div v-else>
+      <p>Failed to load order details. Please try again later.</p>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'Success',
   data() {
     return {
       sessionId: null,
+      orderSummary: null,
+      isLoading: true,
     };
   },
-  created() {
+  async created() {
     this.sessionId = this.$route.query.session_id;
+
+    if (this.sessionId) {
+      try {
+        const response = await axios.get(`http://localhost:3000/checkout-session`, {
+          params: { session_id: this.sessionId }
+        });
+
+        const session = response.data;
+        
+        // Debug log to inspect the response data
+        console.log("Fetched session details:", session);
+
+        if (session.line_items && session.line_items.data.length > 0) {
+          const item = session.line_items.data[0];
+          this.orderSummary = {
+            eventName: item.price.product.name,
+            quantity: item.quantity,
+            customerEmail: session.customer_email, // Updated to fetch from session
+            totalPrice: session.amount_total,
+          };
+        } else {
+          console.error("No line items found in the session data.");
+        }
+      } catch (error) {
+        console.error("Failed to fetch session details:", error);
+      } finally {
+        this.isLoading = false;
+      }
+    }
   },
   methods: {
     redirectToHomepage() {
