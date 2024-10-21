@@ -10,13 +10,17 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@stripe/stripe-js": "^4.8.0",
     "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
     "bootstrap": "^5.3.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "firebase": "^10.14.1",
+    "nodemailer": "^6.9.15",
     "pinia": "^2.2.4",
+    "stripe": "^17.2.1",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },
