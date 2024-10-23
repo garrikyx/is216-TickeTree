@@ -3,6 +3,13 @@ import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 import { getFirestore } from "firebase/firestore"; 
 // https://firebase.google.com/docs/web/setup#available-libraries
+import { 
+        getAuth as auth, 
+        createUserWithEmailAndPassword as createUser, 
+        signInWithEmailAndPassword as signIn, 
+        onAuthStateChanged as authState,
+
+      } from 'firebase/auth';
 
 // Initialize DB
 let db;
@@ -19,7 +26,8 @@ const firebaseConfig = {
 try {
     const app = initializeApp(firebaseConfig);
     console.log(firebaseConfig);
-    console.log("app initiated")
+    console.log("app initiated");
+
 
 
     db = getFirestore(app);
@@ -28,4 +36,4 @@ try {
     console.log("Error initializing Firebase or Firestore: ", err);
   }
   
-  export { db };
+  export { db, auth, createUser, signIn, authState};

@@ -41,6 +41,12 @@ const router = createRouter({
       name: "error",
       component: () => import("../components/payment/Error.vue"),
     },
+    {
+      path:"/register",
+      name: 'register',
+      component: () => import("../views/Register.vue"),
+      meta: { hideNavbar: true, hideFooter: true },
+    }
   ],
 });
 
