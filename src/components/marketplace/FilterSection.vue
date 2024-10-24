@@ -10,7 +10,7 @@
       >
         Filter
       </button>
-      
+
       <!-- Custom dropdown menu -->
       <div class="dropdown-menu p-3" aria-labelledby="filterDropdown">
         <div class="row gx-5">
@@ -18,11 +18,9 @@
           <div class="col-md-6">
             <h6>Categories</h6>
             <ul class="list-unstyled">
-              <!-- Select All option -->
               <li>
                 <a class="dropdown-item" @click="selectAllCategories">All Categories</a>
               </li>
-              <!-- Render categories -->
               <li v-for="category in categories" :key="category">
                 <a class="dropdown-item" @click="setCategory(category)">
                   {{ category }}
@@ -42,6 +40,16 @@
               </li>
             </ul>
           </div>
+        </div>
+
+        <!-- Price filter section -->
+        <div class="mt-4">
+          <h6>Price Range</h6>
+          <div class="d-flex justify-content-between">
+            <span>${{ priceRange[0] }}</span>
+            <span>${{ priceRange[1] }}</span>
+          </div>
+          <div ref="slider" class="slider"></div>
         </div>
       </div>
     </div>
@@ -65,7 +73,13 @@
   </div>
 </template>
 
+
 <script>
+
+import noUiSlider from 'nouislider';
+import 'nouislider/dist/nouislider.css';
+
+
 export default {
   name: 'FilterSection',
   props: {
@@ -88,23 +102,49 @@ export default {
         { label: 'Price: High to Low', event: 'setPrice', value: 'high' },
         { label: 'Date: Earliest First', event: 'setDate', value: 'ascending' },
         { label: 'Date: Latest First', event: 'setDate', value: 'descending' }
-      ]
+      ],
+      priceRange: [0, 1000] // Initial price range
     }
+  },
+  mounted() {
+    // Initialize noUiSlider
+    noUiSlider.create(this.$refs.slider, {
+      start: this.priceRange,
+      connect: true,
+      range: {
+        'min': 0,
+        'max': 1000
+      },
+      step: 1
+    });
+
+    // Event listener for slider updates
+    this.$refs.slider.noUiSlider.on('update', (values) => {
+      this.priceRange = values.map(value => parseFloat(value));
+      this.updatePriceFilter();
+    });
   },
   methods: {
     // Emit event to set a single category
     setCategory(category) {
       this.$emit('setCategory', category);
+      this.$emit('removeAllCategories');
     },
 
     // Emit event for selecting all categories
     selectAllCategories() {
       this.$emit('setAllCategories', this.categories);
+      this.$emit('removeAllCategories'); // Clear previous filters
     },
 
     // Emit event to set sort option
     setSortOption(sort) {
       this.$emit(sort.event, sort.value);
+    },
+
+    // Emit event to update the price filter
+    updatePriceFilter() {
+      this.$emit('setPriceRange', this.priceRange);
     },
 
     // Emit event to remove a filter
@@ -122,5 +162,9 @@ export default {
 
 .row.gx-5 {
   gap: 30px;
+}
+
+.slider {
+  margin-top: 10px;
 }
 </style>

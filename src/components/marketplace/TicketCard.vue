@@ -1,5 +1,5 @@
 <template>
-    <div class="card mb-3">
+    <div class="card mr-3" style="width: auto;">
       <img :src="ticket.image" class="card-img-top event-image" :alt="ticket.eventName">
       
       <div class="card-body d-flex flex-column">
@@ -32,11 +32,13 @@
   <style scoped>
   .card {
     height: 100%;
+    margin: 10px; /* Add margin to ensure spacing */
   }
   
   .event-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+    width: 100%; /* Ensures the image fills the card width */
+    height: auto; /* Maintains aspect ratio */
+    object-fit: cover; /* Ensures the image covers the space without distortion */
   }
   </style>
+  
