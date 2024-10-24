@@ -61,7 +61,7 @@ export default {
 
     if (this.sessionId) {
       try {
-        const response = await axios.get(`http://localhost:3000/checkout-session`, {
+        const response = await axios.get(`http://localhost:5001/checkout-session`, {
           params: { session_id: this.sessionId }
         });
 
@@ -94,7 +94,7 @@ export default {
   methods: {
     async sendConfirmationEmail(email, orderSummary) {
       try {
-          const response = await axios.post('http://localhost:3000/send-confirmation-email', {
+          const response = await axios.post('http://localhost:5001/send-confirmation-email', {
               email: email,
               orderSummary: orderSummary,
           });
