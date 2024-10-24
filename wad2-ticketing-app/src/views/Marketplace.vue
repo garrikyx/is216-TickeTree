@@ -1,5 +1,3 @@
-
-
 <template>
  <div class="container mt-4 marketplace-section">
     <!-- Filter dropdown from FilterSection.vue -->
