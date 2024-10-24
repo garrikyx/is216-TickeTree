@@ -7,6 +7,9 @@ import App from './App.vue'
 import router from './router'
 import { db } from '../firebase'
 
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 const app = createApp(App)
 
 app.use(createPinia())
