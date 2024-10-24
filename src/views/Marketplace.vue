@@ -3,6 +3,7 @@
     <!-- Filter dropdown from FilterSection.vue -->
     <FilterSection
       :selectedFilters="selectedFilters"
+      :categories="categories" 
       @setAllCategories="addAllCategories"
       @setCategory="filterByCategory"
       @setPrice="sortByPrice"
@@ -36,6 +37,13 @@ export default {
   data() {
     return {
       selectedFilters: [],  // Hold selected filters
+      categories: [         // Add categories here
+        'Entertainment',
+        'Sports',
+        'Arts & Culture',
+        'Conferences & Conventions',
+        'Travel & Adventure'
+      ],
       tickets: [
         { id: 1, eventName: "Tate McRae Concert", location: "The Star Theatre", category: "Entertainment", seatCategory: "VIP", section: "A1", seatNumber: 15, price: 120, date: "2024-10-31", time: "7:00 PM", image: "./marketplace-images/tatemcrae.jpg" },
         { id: 2, eventName: "HSBC Rugby Sevens 2024", location: "Singapore National Stadium", category: "Sports", seatCategory: "General", section: "B2", seatNumber: 42, price: 180, date: "2024-05-03", time: "5:00 PM", image: "./marketplace-images/rugby7.png" },
