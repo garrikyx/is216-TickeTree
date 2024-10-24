@@ -1,7 +1,0 @@
-# local files
-.env*.local
-
-
-# config
-backend/config.js
-apiConfig.js
