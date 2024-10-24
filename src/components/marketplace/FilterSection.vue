@@ -31,7 +31,7 @@
 
           <!-- Column for sort options -->
           <div class="col-md-6">
-            <h6>Sort Options</h6>
+            <h6>Sort By</h6>
             <ul class="list-unstyled">
               <li v-for="(sort, index) in sortOptions" :key="index">
                 <a class="dropdown-item" @click="setSortOption(sort)">

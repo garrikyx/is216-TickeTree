@@ -51,7 +51,7 @@ export default {
         { id: 4, eventName: "TechX Summit 2024", location: "Sands Expo & Convention Centre", category: "Conferences & Conventions", seatCategory: "VIP", section: "D1", seatNumber: 5, price: 270, date: "2024-04-03", time: "9:00 AM", image: "./marketplace-images/techsummit.jpg" },
         { id: 5, eventName: "Taiwan Adventure Trip", location: "Taiwan", category: "Travel & Adventure", seatCategory: null, section: null, seatNumber: null, price: 180, date: "2025-03-15", time: "All Day", image: "./marketplace-images/taiwan.png" },
         { id: 6, eventName: "Ed Sheeran Tour 2024", location: "Singapore National Stadium", category: "Entertainment", seatCategory: "2", section: "D", seatNumber: "68", price: 1800, date: "2024-02-16", time: "8:00 PM", image: "./marketplace-images/edsheeran.jpg" },
-        { id: 7, eventName: "Dua Lip - Radical Optimism Tour", location: "Singapore Indoor Stadium", category: "Entertainment", seatCategory: "3", section: "C", seatNumber: "12", price: 168, date: "2024-11-05", time: "7:00 PM", image: "./marketplace-images/dualipa.jpg" }
+        { id: 7, eventName: "Dua Lipa - Radical Optimism Tour", location: "Singapore Indoor Stadium", category: "Entertainment", seatCategory: "3", section: "C", seatNumber: "12", price: 168, date: "2024-11-05", time: "7:00 PM", image: "./marketplace-images/dualipa.jpg" }
       ], // Array of all ticket listings
       selectedCategory: null, // Holds selected category
       selectedSort: null,     // Holds selected sort option
