@@ -15,12 +15,12 @@
         <span>Seat: 38</span>
       </div>
       <div class="quantity">
+         <button class="minus-btn" type="button" @click="decreaseQuantity">
+          <img src="/images/minus.svg" alt="" />
+          </button>
+        <input type="text" v-model="quantity" />
         <button class="plus-btn" type="button" @click="increaseQuantity">
           <img src="/images/plus.svg" alt="" />
-        </button>
-        <input type="text" v-model="quantity" />
-        <button class="minus-btn" type="button" @click="decreaseQuantity">
-          <img src="/images/minus.svg" alt="" />
         </button>
       </div>
       <div class="total-price">${{ totalPrice }}</div>
@@ -71,7 +71,7 @@ export default {
     },
     async checkout() {
       try {
-        const response = await fetch('http://localhost:3000/create-checkout-session', {
+        const response = await fetch('http://localhost:5001/create-checkout-session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
