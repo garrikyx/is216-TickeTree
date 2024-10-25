@@ -72,7 +72,6 @@ onMounted(() => {
       auth.onAuthStateChanged((user) => {
         if (user) {
           isLoggedIn.value = true;
-          userName.value = user.displayName || 'User'; // Use the display name or a default
         } else {
           isLoggedIn.value = false;
         }
