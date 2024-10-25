@@ -61,6 +61,12 @@ const router = createRouter({
       path: '/purchase-history',
       name: 'PurchaseHistory',
       component: () => import("../views/PurhcaseHistory.vue")
+    },
+    {
+      path: '/category/:categoryId',
+      name: 'CategoryEvents',
+      component: () => import("../views/CategoryEvents.vue"),
+      props: true
     }
   ],
 });

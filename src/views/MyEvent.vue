@@ -46,7 +46,7 @@
     <!-- Location Map section -->
     <div class="container mt-3">
       <div class="location-map">
-        <h5>Map:</h5>
+        <h5>Location:</h5>
         <div id="map" style="width: 1000px; height: 300px;"></div>
       </div>
     </div>

@@ -11,12 +11,17 @@
            :key="category.id" 
            :class="category.columnClass">
         <div class="category-item">
-          <img
-            :src="category.image"
-            class="rounded-circle img-fluid category-image"
-            :alt="`${category.name} Category`"
-          />
-          <div class="mt-2 text-center">{{ category.name }}</div>
+          <router-link
+          :to="{ name: 'CategoryEvents', params: { categoryId: category.id }}"
+          class="category-item"
+        >
+        <img
+        :src="category.image"
+        class="rounded-circle img-fluid category-image"
+        :alt="`${category.name} Category`"
+        />
+      </router-link>
+        <div class="mt-2 text-center">{{ category.name }}</div>
         </div>
       </div>
 
@@ -26,6 +31,9 @@
 </template>
 
 <script setup>
+
+import { RouterLink } from 'vue-router';
+
 const categories = [
   {
     id: 1,
@@ -47,14 +55,14 @@ const categories = [
   },
   {
     id: 4,
-    name: 'Conferences & Conventions',
+    name: 'Business & Education',
     image: '/images/convention.jpg',
     columnClass: 'col-lg-2 col-sm-6 col-12 col-md-6 mb-2'
   },
   {
     id: 5,
-    name: 'Travel & Adventure',
-    image: '/images/travel.jpg',
+    name: 'Exhibitions',
+    image: '/images/exhibition.jpg',
     columnClass: 'col-lg-2 col-12 col-md-6 mb-2'
   }
 ]

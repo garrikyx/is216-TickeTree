@@ -38,7 +38,7 @@
             </p>
             <h5 class="card-title text-start">{{ event.title }}</h5>
             <p class="card-text text-start">
-              {{ event.venue }}<br />{{ event.time }}
+              {{ event.venue }}<br/>
             </p>
           </div>
         </div>
@@ -57,7 +57,6 @@
             <h5 class="card-title text-start">{{ event.name }}</h5>
             <p class="card-text text-start">
               {{ event.location_summary }}<br />
-              time
             </p>
           </div>
         </div>
@@ -78,7 +77,7 @@
 import { fetchEvents } from "@/api/eventsApi";
 import { onMounted, ref, computed } from "vue";
 
-const filters = ["Popular", "All", "Today"];
+const filters = ["Popular"];
 const currentFilter = ref("Popular");
 
 const setFilter = (filter) => {
@@ -123,7 +122,7 @@ const showAllEvents = ref(false);
 const loadEvents = async () => {
   try {
     const response = await fetchEvents({ order: "popularity", rows: 20 });
-    console.log(response);
+    // console.log(response);
     events.value = response;
   } catch (error) {
     console.error("Failed to fetch events:", error);
