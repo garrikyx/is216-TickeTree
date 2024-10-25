@@ -13,11 +13,13 @@
           <input type="password" v-model="password" placeholder="Password" required />
         </div>
         <button type="submit">Log In</button>
+        <button class="guest-button" @click="continueAsGuest">Continue as Guest</button>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </form>
       <p class="signup-link">
         Don't have an account? <a href="/signup">Sign up</a>
       </p>
+      <!-- Continue as Guest Button -->
     </div>
   </div>
 </template>
@@ -90,16 +92,20 @@ export default {
       }
     };
 
+    const continueAsGuest = () => {
+      router.push("/");
+    };
+
     return {
       email,
       password,
       errorMessage,
       signin,
+      continueAsGuest,
     };
   }
 };
 </script>
-
 
 <style scoped>
 .login-container {
@@ -191,5 +197,21 @@ button:hover:not(:disabled) {
 .signup-link a:hover {
   text-decoration: underline;
   color: #1a5bb8;
+}
+
+.guest-button {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  background-color: grey;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.guest-button:hover {
+  background-color: #218838;
 }
 </style>
