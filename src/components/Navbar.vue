@@ -36,7 +36,7 @@
       <!-- This button toggles the sidebar -->
 <div 
   v-if="isLoggedIn" 
-  class="user-info btn btn-secondary d-none d-lg-block mx-2" 
+  class="user-info btn-secondary d-none d-lg-block mx-2" 
   @click="$emit('toggleSidebar')"
 >
   <i class="fas fa-bars me-2"></i> 
@@ -92,7 +92,6 @@ const goToLogin = () => {
   align-items: center;
   color: #fff;
   cursor: pointer; /* Indicate it's clickable */
-  padding: 10px 15px; /* Adjust padding as needed */
 }
 
 .user-info i {

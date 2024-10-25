@@ -102,7 +102,7 @@ onMounted(() => {
   padding-bottom: 20px;
   border-bottom: 1px solid #e2e6ea;
   margin-top: 50px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .user-icon {
@@ -163,7 +163,7 @@ ul li i {
 }
 
 .logout-btn {
-  margin-top: auto;
+  margin-top:350px;
   background-color: #dc3545;
   color: white;
   border: none;
