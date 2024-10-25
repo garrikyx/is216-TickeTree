@@ -1,51 +1,75 @@
 <template>
-  <div class="container mt-4 marketplace-section">
-    <!-- Filter dropdown from FilterSection.vue -->
-    <FilterSection
-      :selectedFilters="selectedFilters"
-      :categories="categories" 
-      @setAllCategories="addAllCategories"
-      @setCategory="filterByCategory"
-      @setPrice="sortByPrice"
-      @setDate="sortByDate"
-      @setPriceRange="filterByPriceRange"
-      @removeFilter="removeFilter"
-    />
+  <div class="container mt-4 purchase-history-section">
+    <h1 class="text-center">Purchase History</h1>
 
-    <!-- Render the filtered tickets -->
-    <div class="row g-3 mb-3">
-      <div 
-        class="col-lg-4 col-md-6 col-sm-12" 
-        v-for="ticket in filteredTickets" 
-        :key="ticket.id"
-        :class="{ 'faded': isPastEvent(ticket.date) }"
+    <!-- Toggle Buttons for Upcoming and Past Events -->
+    <div class="toggle-buttons">
+      <button 
+        :class="{ active: currentTab === 'upcoming' }" 
+        @click="currentTab = 'upcoming'"
       >
-        <TicketCard :ticket="ticket" />
+        Upcoming Events
+      </button>
+      <button 
+        :class="{ active: currentTab === 'past' }" 
+        @click="currentTab = 'past'"
+      >
+        Past Events
+      </button>
+    </div>
+
+    <!-- Section for Upcoming Events -->
+    <div v-if="currentTab === 'upcoming'" class="purchase-list">
+      <div 
+        class="purchase-item" 
+        v-for="ticket in upcomingTickets" 
+        :key="ticket.id"
+      >
+        <div class="event-image-container">
+          <img :src="ticket.image" class="event-image">
+        </div>
+        <div class="event-details">
+          <strong>{{ ticket.eventName }}</strong> <br>
+          <small>{{ ticket.category }} | {{ ticket.date }} - {{ ticket.time }}</small> <br>
+          <small>{{ ticket.location }}</small>
+        </div>
+        <div class="event-price">
+          <span class="price">\${{ ticket.price }}</span>
+          <span class="badge-status paid">Paid</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section for Past Events -->
+    <div v-if="currentTab === 'past'" class="purchase-list">
+      <div 
+        class="purchase-item faded" 
+        v-for="ticket in pastTickets" 
+        :key="ticket.id"
+      >
+        <div class="event-image-container">
+          <img :src="ticket.image" class="event-image">
+        </div>
+        <div class="event-details">
+          <strong>{{ ticket.eventName }}</strong> <br>
+          <small>{{ ticket.category }} | {{ ticket.date }} - {{ ticket.time }}</small> <br>
+          <small>{{ ticket.location }}</small>
+        </div>
+        <div class="event-price">
+          <span class="price">\${{ ticket.price }}</span>
+          <span class="badge-status expired">Expired</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import FilterSection from '@/components/marketplace/FilterSection.vue'; // Import FilterSection component
-import TicketCard from '@/components/marketplace/TicketCard.vue'; // Import TicketCard component
-
 export default {
-  components: {
-    FilterSection,
-    TicketCard,
-  },
   data() {
     return {
-      selectedFilters: [],  // Hold selected filters
-      categories: [         // Add categories here
-        'Entertainment',
-        'Sports',
-        'Arts & Culture',
-        'Conferences & Conventions',
-        'Travel & Adventure'
-      ],
-      tickets: [
+      currentTab: 'upcoming', // Default tab is upcoming events
+      purchasedTickets: [
         { id: 1, eventName: "Tate McRae Concert", location: "The Star Theatre", category: "Entertainment", seatCategory: "VIP", section: "A1", seatNumber: 15, price: 120, date: "2024-10-31", time: "7:00 PM", image: "./marketplace-images/tatemcrae.jpg" },
         { id: 2, eventName: "HSBC Rugby Sevens 2024", location: "Singapore National Stadium", category: "Sports", seatCategory: "General", section: "B2", seatNumber: 42, price: 180, date: "2024-05-03", time: "5:00 PM", image: "./marketplace-images/rugby7.png" },
         { id: 3, eventName: "The World of Studio Ghibli", location: "ArtScience Museum", category: "Arts & Culture", seatCategory: null, section: null, seatNumber: null, price: 20, date: "2024-10-22", time: "6:00 PM", image: "./marketplace-images/studioghibli.jpg" },
@@ -53,108 +77,122 @@ export default {
         { id: 5, eventName: "Taiwan Adventure Trip", location: "Taiwan", category: "Travel & Adventure", seatCategory: null, section: null, seatNumber: null, price: 180, date: "2025-03-15", time: "All Day", image: "./marketplace-images/taiwan.png" },
         { id: 6, eventName: "Ed Sheeran Tour 2024", location: "Singapore National Stadium", category: "Entertainment", seatCategory: "2", section: "D", seatNumber: "68", price: 1800, date: "2024-02-16", time: "8:00 PM", image: "./marketplace-images/edsheeran.jpg" },
         { id: 7, eventName: "Dua Lipa - Radical Optimism Tour", location: "Singapore Indoor Stadium", category: "Entertainment", seatCategory: "3", section: "C", seatNumber: "12", price: 168, date: "2024-11-05", time: "7:00 PM", image: "./marketplace-images/dualipa.jpg" }
-      ], // Array of all ticket listings
-      selectedCategory: null, // Holds selected category
-      selectedSort: null,     // Holds selected sort option
-      priceRange: [0, 1000], // Initial price range for filtering
+      ],
     };
   },
   computed: {
-    filteredTickets() {
-      let result = this.tickets;
-
-      // Filter by selected categories
-      if (this.selectedFilters.length > 0) {
-        result = result.filter(ticket => 
-          this.selectedFilters.includes(ticket.category)
-        );
-      }
-
-      // Filter by price range
-      result = result.filter(ticket => 
-        ticket.price >= this.priceRange[0] && ticket.price <= this.priceRange[1]
-      );
-
-      // Sort by price or date if applicable
-      if (this.selectedSort) {
-        const sortType = this.selectedSort === 'low' || this.selectedSort === 'high'
-          ? 'price'
-          : 'date';
-
-        result.sort((a, b) => {
-          const comparison = sortType === 'price' 
-            ? a.price - b.price 
-            : new Date(a.date) - new Date(b.date);
-          
-          return this.selectedSort === 'high' || this.selectedSort === 'descending' ? -comparison : comparison;
-        });
-      }
-
-      return result;
-    },
-  },
-  methods: {
-    // Add all categories filter
-    addAllCategories(categories) {
-      this.selectedFilters = categories;
-      this.selectedCategory = null; // Reset the selected category when all are selected
-    },
-
-    // Remove all categories filter
-    removeAllCategories() {
-      this.selectedFilters = []; // Clear all selected filters
-      this.selectedCategory = null; // Clear the selected category
-    },
-
-    filterByCategory(category) {
-      this.selectedCategory = category; // Update selected category
-      this.selectedFilters = [category]; // Set selected filters to only the selected category
-    },
-
-    sortByPrice(order) {
-      this.selectedSort = order; // Update selected price sort order
-    },
-
-    sortByDate(order) {
-      this.selectedSort = order; // Update selected date sort order
-    },
-
-    filterByPriceRange(range) {
-      this.priceRange = range; // Update price range based on slider input
-    },
-
-    removeFilter(filter) {
-      const index = this.selectedFilters.indexOf(filter);
-      if (index !== -1) {
-        this.selectedFilters.splice(index, 1); // Remove filter from selectedFilters
-      }
-    },
-    isPastEvent(eventDate) {
+    upcomingTickets() {
       const currentDate = new Date();
-      return new Date(eventDate) < currentDate;
+      return this.purchasedTickets.filter(ticket => new Date(ticket.date) >= currentDate);
     },
-  },
+    pastTickets() {
+      const currentDate = new Date();
+      return this.purchasedTickets.filter(ticket => new Date(ticket.date) < currentDate);
+    }
+  }
 };
 </script>
+
 <style scoped>
 .purchase-history-section {
   padding: 20px;
 }
 
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.toggle-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.toggle-buttons button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-buttons button:last-child {
+  margin-right: 0;
+}
+
+.toggle-buttons button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.purchase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.purchase-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e6ea;
+  width: 100%;
+}
+
+.event-image-container {
+  flex: 0 0 120px;
+}
+
+.event-image {
+  width: auto;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.event-details {
+  flex-grow: 1;
+  margin-left: 20px;
+}
+
+.event-price {
+  text-align: right;
+  min-width: 100px;
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: block;
+}
+
+.badge-status {
+  font-size: 0.875rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+  margin-top: 5px;
+  background-color: #e0e0e0;
+  color: #fff;
+}
+
+.badge-status.paid {
+  background-color: #007bff;
+}
+
+.badge-status.expired {
+  background-color: #dc3545;
+}
+
 .faded {
   opacity: 0.5;
   filter: grayscale(50%);
-}
-
-/* Same styling as the marketplace section */
-.container {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-}
-
-.faded .TicketCard {
-  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 </style>
