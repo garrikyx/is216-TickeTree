@@ -41,34 +41,36 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
-// Create checkout session
 app.post('/create-checkout-session', async (req, res) => {
-    const { quantity, price, customerEmail } = req.body;
-    const imageUrl = 'https://via.placeholder.com/150';
+    const { cartItems } = req.body;
+
+    // Log the incoming cart items to verify the data structure
+    console.log("Received cart items:", cartItems);
+
+    if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+        return res.status(400).send({ error: 'No items in the cart' });
+    }
 
     try {
-        const customer = await stripe.customers.create({
-            email: customerEmail,
-        });
+        const lineItems = cartItems.map(item => ({
+            price_data: {
+                currency: 'sgd',
+                product_data: {
+                    name: 'Tate McRae: THINK LATER TOUR',
+                    description: 'Seat: 38',
+                    images: [item.imageUrl],
+                },
+                unit_amount: item.pricePerItem * 100,
+            },
+            quantity: item.quantity,
+        }));
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
-            line_items: [{
-                price_data: {
-                    currency: 'sgd',
-                    product_data: {
-                        name: 'Tate McRae: THINK LATER TOUR',
-                        description: 'Seat: 38',
-                        images: [imageUrl],
-                    },
-                    unit_amount: price * 100,
-                },
-                quantity: quantity,
-            }],
+            line_items: lineItems,
             mode: 'payment',
             success_url: `http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'http://localhost:5173/error',
-            customer: customer.id,
             allow_promotion_codes: true,
         });
 
@@ -79,6 +81,8 @@ app.post('/create-checkout-session', async (req, res) => {
         res.status(500).json({ error: "Failed to create checkout session" });
     }
 });
+
+
 
 // Retrieve checkout session details
 app.get('/checkout-session', async (req, res) => {
