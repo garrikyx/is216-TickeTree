@@ -1,4 +1,5 @@
 <template>
+  <div v-if="showSidebar" class="overlay" @click="$emit('close')"></div>
   <aside class="sidebar">
     <div class="user-section">
       <i class="fas fa-user user-icon"></i>
@@ -38,6 +39,7 @@ const auth = getAuth();
 const router = useRouter();
 const isLoggedIn = ref(false);
 const userName = ref('');
+const showSidebar = ref(true);
 
 const isActive = (route) => {
   return router.currentRoute.value.path === route;
@@ -87,7 +89,7 @@ onMounted(() => {
   background-color: #f8f9fa;
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
   height: 100vh;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -176,5 +178,16 @@ ul li i {
 
 .logout-btn:hover {
   background-color: #c82333;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Dark, transparent background */
+  z-index: 999; /* Just below the sidebar */
+  transition: opacity 0.3s ease;
 }
 </style>

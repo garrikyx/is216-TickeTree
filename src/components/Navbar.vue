@@ -39,7 +39,7 @@
   class="user-info btn-secondary d-none d-lg-block mx-2" 
   @click="$emit('toggleSidebar')"
 >
-  <i class="fas fa-bars me-2"></i> 
+<i class="fas fa-user"></i>
 </div>
 
 
@@ -83,7 +83,7 @@ const goToLogin = () => {
   window.location.href = '/login';
 };
 
-// No explicit return needed here in <script setup>
+
 </script>
 
 <style scoped>
