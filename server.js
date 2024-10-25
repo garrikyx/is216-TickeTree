@@ -26,8 +26,12 @@ app.get('/api/events', async (req, res) => {
         const password = process.env.EVENTFINDA_PASSWORD;
         const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
 
+        const queryParams = req.query;
+        // console.log(queryParams);
+
         const response = await axios.get('https://api.eventfinda.sg/v2/events.json', {
             headers: { Authorization: authHeader },
+            params: { ...queryParams }
         });
         
         res.json(response.data);
