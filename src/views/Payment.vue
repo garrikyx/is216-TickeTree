@@ -1,32 +1,37 @@
 <template>
   <div class="shopping-cart">
     <div class="title">Checkout</div>
-    <div class="item">
-      <div class="buttons">
-        <span class="delete-btn" @click="deleteItem"></span>
-        <span class="like-btn" :class="{ 'is-active': isLiked }" @click="toggleLike"></span>
-      </div>
-      <div class="image">
-        <img :src="imageUrl" width="150px" height="100px" alt="Tate McRae" />
-      </div>
-      <div class="description">
-        <span style="font-weight: bold; font-size: 18px">Tate McRae</span>
-        <span>THINK LATER TOUR</span>
-        <span>Seat: 38</span>
-      </div>
-      <div class="quantity">
-         <button class="minus-btn" type="button" @click="decreaseQuantity">
-          <img src="/images/minus.svg" alt="" />
-          </button>
-        <input type="text" v-model="quantity" />
-        <button class="plus-btn" type="button" @click="increaseQuantity">
-          <img src="/images/plus.svg" alt="" />
-        </button>
-      </div>
-      <div class="total-price">${{ totalPrice }}</div>
+    <div v-if="cartItems.length === 0" class="empty-cart-message">
+      <p>No items added in the cart</p>
     </div>
-    <div class="checkout-button-container">
-      <button class="checkout-btn" @click="checkout">Proceed to Payment</button>
+    <div v-else>
+      <div v-for="(item, index) in cartItems" :key="index" class="item">
+        <div class="buttons">
+          <span class="delete-btn" @click="deleteItem(index)"></span>
+          <span class="like-btn" :class="{ 'is-active': item.isLiked }" @click="toggleLike(index)"></span>
+        </div>
+        <div class="image">
+          <img :src="item.imageUrl" width="150px" height="100px" alt="Tate McRae" />
+        </div>
+        <div class="description">
+          <span style="font-weight: bold; font-size: 18px">Tate McRae</span>
+          <span>THINK LATER TOUR</span>
+          <span>Seat: 38</span>
+        </div>
+        <div class="quantity">
+          <button class="minus-btn" type="button" @click="decreaseQuantity(index)">
+            <img src="/images/minus.svg" alt="" />
+          </button>
+          <input type="text" v-model="item.quantity" />
+          <button class="plus-btn" type="button" @click="increaseQuantity(index)">
+            <img src="/images/plus.svg" alt="" />
+          </button>
+        </div>
+        <div class="total-price">${{ item.quantity * item.pricePerItem }}</div>
+      </div>
+      <div class="checkout-button-container">
+        <button class="checkout-btn" @click="checkout">Proceed to Payment</button>
+      </div>
     </div>
   </div>
 </template>
@@ -37,36 +42,36 @@ import { loadStripe } from '@stripe/stripe-js';
 export default {
   data() {
     return {
-      quantity: 1,
-      isLiked: false,
-      pricePerItem: 3,
+      cartItems: [
+        {
+          quantity: 1,
+          isLiked: false,
+          pricePerItem: 3,
+          imageUrl: 'http://localhost:5173/images/tatemcrae.jpg',
+        },
+      ],
       stripe: null,
-      imageUrl: 'http://localhost:5173/images/tatemcrae.jpg', // Define the image URL here
     };
-  },
-  computed: {
-    totalPrice() {
-      return this.quantity * this.pricePerItem;
-    },
   },
   async mounted() {
     this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR'); // Initialize Stripe
   },
   methods: {
-    increaseQuantity() {
-      if (this.quantity < 100) {
-        this.quantity += 1;
+    increaseQuantity(index) {
+      if (this.cartItems[index].quantity < 100) {
+        this.cartItems[index].quantity += 1;
       }
     },
-    decreaseQuantity() {
-      if (this.quantity > 1) {
-        this.quantity -= 1;
+    decreaseQuantity(index) {
+      if (this.cartItems[index].quantity > 1) {
+        this.cartItems[index].quantity -= 1;
       }
     },
-    toggleLike() {
-      this.isLiked = !this.isLiked;
+    toggleLike(index) {
+      this.cartItems[index].isLiked = !this.cartItems[index].isLiked;
     },
-    deleteItem() {
+    deleteItem(index) {
+      this.cartItems.splice(index, 1);
       console.log("Item deleted");
     },
     async checkout() {
@@ -77,9 +82,7 @@ export default {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            quantity: this.quantity,
-            price: this.pricePerItem,
-            imageUrl: this.imageUrl, 
+            cartItems: this.cartItems,
           }),
         });
 
@@ -106,9 +109,18 @@ export default {
 </script>
 
 <style scoped>
+
+.empty-cart-message {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+  color: #5e6977;
+}
+
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
   width: 100%;
