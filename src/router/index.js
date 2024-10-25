@@ -42,7 +42,7 @@ const router = createRouter({
     {
       path:"/register",
       name: 'register',
-      component: () => import("../views/Register.vue"),
+      component: () => import("../views/signup.vue"),
       meta: { hideNavbar: true, hideFooter: true },
     },
     {
@@ -56,6 +56,11 @@ const router = createRouter({
       name: 'sidebar',
       component: () => import("../views/SideBar.vue"),
       meta: { hideNavbar: true, hideFooter: true },
+    },
+    {
+      path: '/purchase-history',
+      name: 'PurchaseHistory',
+      component: () => import("../views/PurhcaseHistory.vue")
     }
   ],
 });
