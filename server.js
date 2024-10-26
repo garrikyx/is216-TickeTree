@@ -57,13 +57,18 @@ app.post('/create-checkout-session', async (req, res) => {
                 currency: 'sgd',
                 product_data: {
                     name: item.eventName,
-                    description: `Seat: ${item.seatNumber}\nDate: ${new Date(item.eventDate).toLocaleDateString()}\nTime: ${item.eventTime}`,
+                    description: `Seat: ${item.seatNumber}\nDate: ${item.eventDate}\nTime: ${item.eventTime}`,
                     images: [item.imageUrl],
+                    metadata: {
+                        eventDate: item.eventDate, // Include date in metadata
+                        eventTime: item.eventTime, // Include time in metadata
+                    },
                 },
                 unit_amount: Math.round(item.pricePerItem * 100),
             },
             quantity: item.quantity,
         }));
+        
         
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -93,21 +98,19 @@ app.get('/checkout-session', async (req, res) => {
             expand: ['line_items.data.price.product', 'customer'],
         });
 
-        console.log("Stripe session details:", session);
-
+        const item = session.line_items.data[0].price.product;
         res.json({
             customer_email: session.customer_details?.email || session.customer?.email,
             line_items: session.line_items,
             amount_total: session.amount_total,
-            eventDate: session.metadata.eventDate,
-            eventTime: session.metadata.eventTime,
+            eventDate: item.metadata.eventDate, // Send date back to the client
+            eventTime: item.metadata.eventTime, // Send time back to the client
         });
     } catch (error) {
         console.error("Error fetching session details:", error);
         res.status(500).send("Failed to retrieve session details.");
     }
 });
-
 
 
 // Send confirmation email
@@ -127,14 +130,15 @@ app.post('/send-confirmation-email', async (req, res) => {
         to: email,
         subject: 'Your Purchase Confirmation',
         html: `
-            <h1>Thank You for Your Purchase!</h1>
             <p>Your payment has been successfully processed.</p>
             <h2>Order Summary:</h2>
             <p><strong>Event:</strong> ${orderSummary.eventName}</p>
+            <p><strong>Date:</strong> ${new Date(orderSummary.date).toLocaleDateString()}</p>
+            <p><strong>Time:</strong> ${orderSummary.time}</p>
             <p><strong>Quantity:</strong> ${orderSummary.quantity}</p>
-            <p><strong>Total Price:</strong> SGD ${(orderSummary.totalPrice / 100).toFixed(2)}</p>\
+            <p><strong>Total Price:</strong> SGD ${(orderSummary.totalPrice / 100).toFixed(2)}</p>
         `
-    };
+    };    
 
     try {
         await transporter.sendMail(mailOptions);

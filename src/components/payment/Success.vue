@@ -52,61 +52,61 @@
 import axios from 'axios';
 
 export default {
-  name: 'Success',
   data() {
     return {
-      sessionId: null,
-      orderSummary: null,
+      sessionId: '',
+      orderSummary: {},
       isLoading: true,
     };
   },
-async created() {
+  async created() {
     this.sessionId = this.$route.query.session_id;
 
     console.log("Session ID from URL:", this.sessionId);
 
     if (this.sessionId) {
-        try {
-            const response = await axios.get(`http://localhost:5001/checkout-session`, {
-                params: { session_id: this.sessionId }
-            });
+      try {
+        const response = await axios.get(`http://localhost:5001/checkout-session`, {
+          params: { session_id: this.sessionId },
+        });
 
-           const session = response.data;
-console.log("Fetched session details:", session);
+        const session = response.data;
+        console.log("Fetched session details:", session);
 
-if (session.line_items && session.line_items.data.length > 0) {
-    const item = session.line_items.data[0];
-    this.orderSummary = {
-        eventName: item.price.product.name,
-        date: session.eventDate, // Get date from session metadata
-        time: session.eventTime, // Get time from session metadata
-        quantity: item.quantity,
-        customerEmail: session.customer_email,
-        totalPrice: session.amount_total,
-    };
-    // Send confirmation email
-    await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
-            } else {
-                console.error("No line items found in the session data.");
-            }
-        } catch (error) {
-            console.error("Failed to fetch session details:", error);
-        } finally {
-            this.isLoading = false;
+        if (session.line_items && session.line_items.data.length > 0) {
+          const item = session.line_items.data[0];
+          this.orderSummary = {
+            eventName: item.price.product.name,
+            date: session.eventDate, // Use the date from the session metadata
+            time: session.eventTime, // Use the time from the session metadata
+            quantity: item.quantity,
+            customerEmail: session.customer_email,
+            totalPrice: session.amount_total,
+          };
+
+          // Send confirmation email
+          await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
+        } else {
+          console.error("No line items found in the session data.");
         }
+      } catch (error) {
+        console.error("Failed to fetch session details:", error);
+      } finally {
+        this.isLoading = false;
+      }
     }
-},
+  },
   methods: {
     async sendConfirmationEmail(email, orderSummary) {
       try {
-          const response = await axios.post('http://localhost:5001/send-confirmation-email', {
-              email: email,
-              orderSummary: orderSummary,
-          });
+        const response = await axios.post('http://localhost:5001/send-confirmation-email', {
+          email: email,
+          orderSummary: orderSummary,
+        });
 
-          console.log("Confirmation email sent:", response.data.message);
+        console.log("Confirmation email sent:", response.data.message);
       } catch (error) {
-          console.error("Failed to send email:", error);
+        console.error("Failed to send email:", error);
       }
     },
     redirectToHomepage() {
