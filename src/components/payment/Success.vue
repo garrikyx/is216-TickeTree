@@ -56,41 +56,41 @@ export default {
       isLoading: true,
     };
   },
-  async created() {
+async created() {
     this.sessionId = this.$route.query.session_id;
 
+    console.log("Session ID from URL:", this.sessionId);
+
     if (this.sessionId) {
-      try {
-        const response = await axios.get(`http://localhost:5001/checkout-session`, {
-          params: { session_id: this.sessionId }
-        });
+        try {
+            const response = await axios.get(`http://localhost:5001/checkout-session`, {
+                params: { session_id: this.sessionId }
+            });
 
-        const session = response.data;
+           const session = response.data;
+console.log("Fetched session details:", session);
 
-        // Debug log to inspect the response data
-        console.log("Fetched session details:", session);
+if (session.line_items && session.line_items.data.length > 0) {
+    const item = session.line_items.data[0];
+    this.orderSummary = {
+        eventName: item.price.product.name,
+        quantity: item.quantity,
+        customerEmail: session.customer_email, // Ensure this key matches the backend response
+        totalPrice: session.amount_total,
+    };
 
-        if (session.line_items && session.line_items.data.length > 0) {
-          const item = session.line_items.data[0];
-          this.orderSummary = {
-            eventName: item.price.product.name,
-            quantity: item.quantity,
-            customerEmail: session.customer_email,
-            totalPrice: session.amount_total,
-          };
-
-          // Send confirmation email to customer
-          await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
-        } else {
-          console.error("No line items found in the session data.");
+    // Send confirmation email
+    await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
+            } else {
+                console.error("No line items found in the session data.");
+            }
+        } catch (error) {
+            console.error("Failed to fetch session details:", error);
+        } finally {
+            this.isLoading = false;
         }
-      } catch (error) {
-        console.error("Failed to fetch session details:", error);
-      } finally {
-        this.isLoading = false;
-      }
     }
-  },
+},
   methods: {
     async sendConfirmationEmail(email, orderSummary) {
       try {
@@ -115,18 +115,14 @@ export default {
 .success-container {
   padding: 30px;
   max-width: 600px;
-  margin: 30px auto; /* Set equal top and bottom margin */
+  margin: 30px auto;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
-/* Add this to ensure full vertical centering */
 body, html {
   height: 100%;
   display: flex;
