@@ -1,6 +1,6 @@
 <template>
   <div class="shopping-cart">
-    <div class="title">Checkout</div>
+    <div class="title">Payment Confirmation</div>
     <div v-if="cartItems.length === 0" class="empty-cart-message">
       <p>No items added in the cart</p>
     </div>
@@ -8,26 +8,26 @@
       <div v-for="(item, index) in cartItems" :key="index" class="item">
         <div class="buttons">
           <span class="delete-btn" @click="deleteItem(index)"></span>
-          <span class="like-btn" :class="{ 'is-active': item.isLiked }" @click="toggleLike(index)"></span>
         </div>
         <div class="image">
-          <img :src="item.imageUrl" width="150px" height="100px" alt="Tate McRae" />
+          <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
         </div>
         <div class="description">
-          <span style="font-weight: bold; font-size: 18px">Tate McRae</span>
-          <span>THINK LATER TOUR</span>
-          <span>Seat: 38</span>
+          <span style="font-weight: bold; font-size: 18px">{{ item.eventName }}</span>
+          <span>Seat: {{ item.seatNumber }}</span>
+          <span>Date: {{ formatDate(item.eventDate) }}</span>
+          <span>Time: {{ formatTime(item.eventTime) }}</span>
         </div>
         <div class="quantity">
           <button class="minus-btn" type="button" @click="decreaseQuantity(index)">
-            <img src="/images/minus.svg" alt="" />
+            <img src="/images/minus.svg" alt="Decrease Quantity" />
           </button>
           <input type="text" v-model="item.quantity" />
           <button class="plus-btn" type="button" @click="increaseQuantity(index)">
-            <img src="/images/plus.svg" alt="" />
+            <img src="/images/plus.svg" alt="Increase Quantity" />
           </button>
         </div>
-        <div class="total-price">${{ item.quantity * item.pricePerItem }}</div>
+        <div class="total-price">${{ (item.quantity * item.pricePerItem).toFixed(2) }}</div>
       </div>
       <div class="checkout-button-container">
         <button class="checkout-btn" @click="checkout">Proceed to Payment</button>
@@ -44,10 +44,14 @@ export default {
     return {
       cartItems: [
         {
+          eventName: "Tate McRae: THINK LATER TOUR",
+          seatNumber: 38,
+          eventDate: "2024-11-30", // Ensure date is in YYYY-MM-DD format
+          eventTime: "18:00", // Ensure time is in HH:mm (24-hour) format
           quantity: 1,
+          pricePerItem: 3.00,
+          imageUrl: "../../../images/tatemcrae.jpg",
           isLiked: false,
-          pricePerItem: 3,
-          imageUrl: 'http://localhost:5173/images/tatemcrae.jpg',
         },
       ],
       stripe: null,
@@ -66,9 +70,6 @@ export default {
       if (this.cartItems[index].quantity > 1) {
         this.cartItems[index].quantity -= 1;
       }
-    },
-    toggleLike(index) {
-      this.cartItems[index].isLiked = !this.cartItems[index].isLiked;
     },
     deleteItem(index) {
       this.cartItems.splice(index, 1);
@@ -104,12 +105,20 @@ export default {
         console.error("Error creating checkout session:", error);
       }
     },
+    formatDate(dateStr) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateStr).toLocaleDateString(undefined, options);
+    },
+    formatTime(timeStr) {
+      const [hour, minute] = timeStr.split(':');
+      const date = new Date();
+      date.setHours(hour, minute);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    },
   },
 };
 </script>
-
 <style scoped>
-
 .empty-cart-message {
   text-align: center;
   padding: 20px;
@@ -127,180 +136,164 @@ body {
   height: 100%;
   padding: 10px;
   margin: 0;
-  background-color: #4d758c;
+  background-color: #f5f7fa;
   font-family: 'Roboto', sans-serif;
 }
+
 .shopping-cart {
-  width: 750px;
-  height: 423px;
-  margin: 80px auto;
+  width: 800px;
+  margin: 50px auto;
   background: #ffffff;
-  box-shadow: 1px 2px 3px 0px rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
+
 .title {
   height: 60px;
   border-bottom: 1px solid #e1e8ee;
-  padding: 20px 30px;
-  color: #5e6977;
-  font-size: 18px;
-  font-weight: 400;
+  padding: 10px 10px;
+  color: #333;
+  font-size: 20px;
+  background-color: #f8f9fa;
+  text-align: center;
 }
+
 .item {
   padding: 20px 30px;
-  height: 120px;
   display: flex;
-}
-.item:nth-child(3) {
-  border-top: 1px solid #e1e8ee;
+  align-items: center;
   border-bottom: 1px solid #e1e8ee;
 }
+
 .buttons {
-  position: relative;
-  padding-top: 30px;
-  margin-right: 60px;
-}
-.delete-btn {
-  display: inline-block;
-  cursor: pointer;
-  width: 18px;
-  height: 17px;
-  background: url("./images/delete-icn.svg") no-repeat center;
-  margin-right: 20px;
-}
-.like-btn {
-  position: absolute;
-  top: 9px;
-  left: 15px;
-  display: inline-block;
-  background: url('./images/twitter-heart.png');
-  width: 60px;
-  height: 60px;
-  background-size: 2900%;
-  background-repeat: no-repeat;
-  cursor: pointer;
-}
-.is-active {
-  animation-name: animate;
-  animation-duration: 0.8s;
-  animation-iteration-count: 1;
-  animation-timing-function: steps(28);
-  animation-fill-mode: forwards;
-}
-@keyframes animate {
-  0% {
-    background-position: left;
-  }
-  50% {
-    background-position: right;
-  }
-  100% {
-    background-position: right;
-  }
-}
-.image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-right: 30px;
 }
-.description {
-  padding-top: 10px;
-  margin-right: 60px;
-  width: 115px;
+
+.delete-btn {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  background: url("./images/delete-icn.svg") no-repeat center;
+  background-size: contain;
+  transition: transform 0.3s;
 }
+
+.delete-btn:hover {
+  transform: scale(1.2);
+}
+
+.is-active {
+  animation: animate 0.8s steps(28) forwards;
+}
+
+@keyframes animate {
+  0% { background-position: left; }
+  100% { background-position: right; }
+}
+
+.image {
+  margin-right: 20px;
+  width: 150px;
+  height: 100px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.description {
+  flex: 2;
+  padding-left: 20px;
+  font-size: 16px;
+  color: #43484d;
+}
+
 .description span {
   display: block;
-  color: #43484d;
-  font-weight: 400;
-}
-.description span:first-child {
   margin-bottom: 5px;
 }
-.description span:last-child {
-  font-weight: 300;
-  margin-top: 8px;
-  color: #86939e;
-}
+
 .quantity {
-  padding-top: 30px;
-  margin-right: 60px;
+  display: flex;
+  align-items: center;
 }
-.quantity input {
-  border: none;
-  text-align: center;
-  width: 32px;
-  font-size: 16px;
-  color: #43484d;
-  font-weight: 300;
-}
-.minus-btn,
-.plus-btn {
+
+.quantity button {
   background-color: #e1e8ee;
-  border: none; 
-  border-radius: 6px; 
-  padding: 5px; 
-  cursor: pointer; 
-  display: inline-flex; 
-  align-items: center; 
-  justify-content: center; 
-  transition: background-color 0.3s ease; 
-  margin: 0 2px; 
+  border: none;
+  border-radius: 6px;
+  padding: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 5px;
 }
 
-.minus-btn:hover,
-.plus-btn:hover {
-  background-color: #d1d8db; /* Darker background on hover */
+.quantity button img {
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 2px;
 }
 
-.minus-btn img,
-.plus-btn img {
-  width: 10px; 
-  height: 10px; 
-}
-
-/* Remove individual margins from the images */
-.minus-btn img,
-.plus-btn img {
-  margin: 0; 
-}
-
-button:focus,
-input:focus {
-  outline: 0;
-}
-.total-price {
-  width: 83px;
-  padding-top: 35px;
+.quantity input {
+  width: 40px;
   text-align: center;
-  font-size: 16px;
-  color: #43484d;
-  font-weight: bold;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 14px;
 }
+
+.minus-btn, .plus-btn {
+  background-color: #e1e8ee;
+}
+
+.minus-btn:hover, .plus-btn:hover {
+  background-color: #d1d8db;
+}
+
+.total-price {
+  width: 90px;
+  text-align: right;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
 .checkout-button-container {
   display: flex;
   justify-content: flex-end;
   padding: 20px;
-  position: relative;
+  background-color: #f8f9fa;
 }
+
 .checkout-btn {
-  width: 200px;
-  height: 40px;
-  background-color: #5e6977;
+  width: 220px;
+  height: 45px;
+  background-color: #007bff;
   color: #ffffff;
   font-size: 16px;
+  font-weight: bold;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  text-align: center;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
 }
+
 .checkout-btn:hover {
-  background-color: #43484d;
-}
-.shopping-cart {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
+  background-color: #0056b3;
+  transform: scale(1.05);
 }
 </style>

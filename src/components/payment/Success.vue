@@ -21,12 +21,16 @@
             <p class="order-value">{{ orderSummary.eventName }}</p>
           </div>
           <div class="order-detail">
-            <p class="order-label">Quantity:</p>
-            <p class="order-value">{{ orderSummary.quantity }}</p>
+            <p class="order-label">Date:</p>
+            <p class="order-value">{{ orderSummary.date }}</p>
           </div>
           <div class="order-detail">
-            <p class="order-label">Email:</p>
-            <p class="order-value">{{ orderSummary.customerEmail }}</p>
+            <p class="order-label">Time:</p>
+            <p class="order-value">{{ orderSummary.time }}</p>
+          </div>
+          <div class="order-detail">
+            <p class="order-label">Quantity:</p>
+            <p class="order-value">{{ orderSummary.quantity }}</p>
           </div>
           <div class="order-detail">
             <p class="order-label">Total Price:</p>
@@ -74,11 +78,12 @@ if (session.line_items && session.line_items.data.length > 0) {
     const item = session.line_items.data[0];
     this.orderSummary = {
         eventName: item.price.product.name,
+        date: session.eventDate, // Get date from session metadata
+        time: session.eventTime, // Get time from session metadata
         quantity: item.quantity,
-        customerEmail: session.customer_email, // Ensure this key matches the backend response
+        customerEmail: session.customer_email,
         totalPrice: session.amount_total,
     };
-
     // Send confirmation email
     await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
             } else {

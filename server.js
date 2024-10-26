@@ -56,15 +56,15 @@ app.post('/create-checkout-session', async (req, res) => {
             price_data: {
                 currency: 'sgd',
                 product_data: {
-                    name: 'Tate McRae: THINK LATER TOUR',
-                    description: 'Seat: 38',
+                    name: item.eventName,
+                    description: `Seat: ${item.seatNumber}\nDate: ${new Date(item.eventDate).toLocaleDateString()}\nTime: ${item.eventTime}`,
                     images: [item.imageUrl],
                 },
-                unit_amount: item.pricePerItem * 100,
+                unit_amount: Math.round(item.pricePerItem * 100),
             },
             quantity: item.quantity,
         }));
-
+        
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: lineItems,
@@ -72,8 +72,12 @@ app.post('/create-checkout-session', async (req, res) => {
             success_url: `http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'http://localhost:5173/error',
             allow_promotion_codes: true,
+            metadata: {
+                eventDate: cartItems[0].eventDate, // Assuming one event at a time
+                eventTime: cartItems[0].eventTime, // Assuming one event at a time
+            }
         });
-
+        
         console.log(session);
         res.json({ id: session.id });
     } catch (error) {
@@ -81,8 +85,6 @@ app.post('/create-checkout-session', async (req, res) => {
         res.status(500).json({ error: "Failed to create checkout session" });
     }
 });
-
-
 
 app.get('/checkout-session', async (req, res) => {
     const { session_id } = req.query;
@@ -97,12 +99,15 @@ app.get('/checkout-session', async (req, res) => {
             customer_email: session.customer_details?.email || session.customer?.email,
             line_items: session.line_items,
             amount_total: session.amount_total,
+            eventDate: session.metadata.eventDate,
+            eventTime: session.metadata.eventTime,
         });
     } catch (error) {
         console.error("Error fetching session details:", error);
         res.status(500).send("Failed to retrieve session details.");
     }
 });
+
 
 
 // Send confirmation email
