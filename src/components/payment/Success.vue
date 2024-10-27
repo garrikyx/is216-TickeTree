@@ -47,9 +47,10 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
+import { db } from '../../../firebase'; // Adjust the import path if necessary
+import { collection, addDoc, updateDoc } from 'firebase/firestore';
 
 export default {
   data() {
@@ -86,6 +87,9 @@ export default {
 
           // Send confirmation email
           await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
+
+          // Save payment details to Firestore
+          await this.savePaymentDetails();
         } else {
           console.error("No line items found in the session data.");
         }
@@ -107,6 +111,24 @@ export default {
         console.log("Confirmation email sent:", response.data.message);
       } catch (error) {
         console.error("Failed to send email:", error);
+      }
+    },
+    async savePaymentDetails() {
+      try {
+        const paymentData = {
+          customerEmail: this.orderSummary.customerEmail,
+          eventName: this.orderSummary.eventName,
+          quantity: this.orderSummary.quantity,
+          price: Math.round(this.orderSummary.totalPrice / 100),
+          eventDate: this.orderSummary.date,
+          eventTiming: this.orderSummary.time,
+        };
+       const docRef = await addDoc(collection(db, 'payment'), paymentData);
+        // Update the payment data to include the document ID as orderId
+        await updateDoc(docRef, { orderId: docRef.id }); // Use the document ID as orderId
+        console.log("Payment document written with ID: ", docRef.id);
+      } catch (error) {
+        console.error("Error adding payment document: ", error);
       }
     },
     redirectToHomepage() {
