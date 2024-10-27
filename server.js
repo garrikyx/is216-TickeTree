@@ -84,27 +84,26 @@ app.post('/create-checkout-session', async (req, res) => {
 
 
 
-// Retrieve checkout session details
 app.get('/checkout-session', async (req, res) => {
     const { session_id } = req.query;
-
     try {
         const session = await stripe.checkout.sessions.retrieve(session_id, {
             expand: ['line_items.data.price.product', 'customer'],
         });
 
-        console.log("Session Details:", session);
+        console.log("Stripe session details:", session);
 
         res.json({
-            customer_email: session.customer.email,
+            customer_email: session.customer_details?.email || session.customer?.email,
             line_items: session.line_items,
             amount_total: session.amount_total,
         });
     } catch (error) {
-        console.error("Error retrieving checkout session:", error);
-        res.status(500).json({ error: "Failed to retrieve checkout session" });
+        console.error("Error fetching session details:", error);
+        res.status(500).send("Failed to retrieve session details.");
     }
 });
+
 
 // Send confirmation email
 app.post('/send-confirmation-email', async (req, res) => {
