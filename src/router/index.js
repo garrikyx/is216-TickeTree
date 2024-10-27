@@ -17,7 +17,7 @@ const router = createRouter({
     {
       path: '/login',
       component: () => import('@/views/Login.vue'),
-      meta: { hideSidebar: true, hideNavbar: true },
+      meta: { hideSidebar: true, hideNavbar: true , hideFooter: true},
     },
     {
       path: "/myevents",
@@ -49,7 +49,7 @@ const router = createRouter({
       path:"/signup",
       name: 'signup',
       component: () => import("../components/signup/SignupForm.vue"),
-      meta: { hideSidebar: true, hideNavbar: true },
+      meta: { hideSidebar: true, hideNavbar: true,  hideFooter: true},
     },
     {
       path:"/sidebar",

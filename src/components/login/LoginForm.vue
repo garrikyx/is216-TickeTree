@@ -108,11 +108,24 @@ export default {
 </script>
 
 <style scoped>
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  animation: fadeInUp 1s ease-in-out;
 }
 
 .login-form {
