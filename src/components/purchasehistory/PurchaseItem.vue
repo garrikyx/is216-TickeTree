@@ -1,21 +1,23 @@
 <template>
-  <div :class="['purchase-item', { faded: isPastEvent }]">
-    <div class="event-image-container">
-      <img :src="ticket.image" class="event-image" alt="Event Image" />
+  <RouterLink :to="{name: 'PurchaseHistoryEvent', params:{id:ticket.id}}" class="router">
+    <div :class="['purchase-item', { faded: isPastEvent }]">
+      <div class="event-image-container">
+        <img :src="ticket.image" class="event-image" alt="Event Image" />
+      </div>
+      <div class="event-details">
+        <strong>{{ ticket.eventName }}</strong> <br />
+        <small
+          >{{ ticket.category }} | {{ formattedDate }} - {{ ticket.time }}</small
+        >
+        <br />
+        <small>{{ ticket.location }}</small>
+      </div>
+      <div class="event-price">
+        <span class="price">\${{ ticket.price }}</span>
+        <span :class="['badge-status', badgeClass]">{{ badgeText }}</span>
+      </div>
     </div>
-    <div class="event-details">
-      <strong>{{ ticket.eventName }}</strong> <br />
-      <small
-        >{{ ticket.category }} | {{ formattedDate }} - {{ ticket.time }}</small
-      >
-      <br />
-      <small>{{ ticket.location }}</small>
-    </div>
-    <div class="event-price">
-      <span class="price">\${{ ticket.price }}</span>
-      <span :class="['badge-status', badgeClass]">{{ badgeText }}</span>
-    </div>
-  </div>
+  </RouterLink>
 </template>
 
 <script>
@@ -47,6 +49,11 @@ export default {
 </script>
 
 <style scoped>
+.router{
+  text-decoration: none;
+  color: inherit;
+}
+
 .purchase-item {
   display: flex;
   justify-content: space-between;

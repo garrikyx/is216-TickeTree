@@ -25,13 +25,19 @@ export default {
   props: {
     tickets: {
       type: Array,
-      required: true,
+      required: true
     },
     currentTab: {
       type: String,
-      required: true,
-    },
+      required: true
+    }
   },
+
+  /* created(){
+    console.log('eventlist');
+    console.log(this.tickets);
+  }, */
+
   computed: {
     isPastEvent() {
       return this.currentTab === "past";
