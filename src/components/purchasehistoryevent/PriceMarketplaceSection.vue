@@ -14,7 +14,11 @@
 
   <!-- Digital Ticket Modal -->
   <transition name="fade">
-    <div v-if="showTicket" class="modal-overlay" @click.self="showTicket = false">
+    <div
+      v-if="showTicket"
+      class="modal-overlay"
+      @click.self="showTicket = false"
+    >
       <div class="digital-ticket">
         <!-- Header with close button -->
         <div class="ticket-header">
@@ -25,7 +29,7 @@
         <!-- Ticket Content -->
         <div class="ticket-content">
           <h1 class="standard-ticket">{{ event.eventName }}</h1>
-          
+
           <!-- Seat Information -->
           <div class="seat-info">
             <div class="seat-detail">
@@ -42,9 +46,8 @@
             </div>
           </div>
 
-          <!-- QR Code Placeholder -->
-          <div class="qr-placeholder"></div>
-
+          <!-- QR Code -->
+          <img v-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
         </div>
       </div>
     </div>
@@ -52,32 +55,55 @@
 </template>
 
 <script>
+import QRCode from "qrcode";
+
 export default {
   name: "PriceMarketplaceSection",
   props: {
     event: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
-      showTicket: false
-    }
+      showTicket: false,
+      qrCode: null,
+    };
   },
   computed: {
     ticket() {
-      return this.event.ticket || {
-        section: "151",
-        row: "15",
-        seat: "11"
-      }
-    }
+      return (
+        this.event.ticket || {
+          section: "151",
+          row: "15",
+          seat: "11",
+        }
+      );
+    },
   },
-  mounted(){
-    console.log(this.event)
-  }
-}
+  watch: {
+    showTicket(val) {
+      if (val && !this.qrCode) {
+        this.generateQRCode();
+      }
+    },
+  },
+  methods: {
+    async generateQRCode() {
+      try {
+        this.qrCode = await QRCode.toDataURL("https://example.com", {
+          width: this.qrCodeSize,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    },
+  },
+  mounted() {
+    console.log(this.event);
+  },
+};
 </script>
 
 <style scoped>
@@ -101,7 +127,8 @@ export default {
   border-radius: 20px;
   overflow: hidden;
   color: white;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
 }
 
 .ticket-header {
@@ -142,8 +169,8 @@ export default {
 .seat-info {
   display: flex;
   justify-content: space-between;
-  padding-left:60px;
-  padding-right:60px;
+  padding-left: 60px;
+  padding-right: 60px;
 }
 
 .seat-detail {
@@ -163,19 +190,13 @@ export default {
   font-weight: bold;
 }
 
-/* QR Code Placeholder */
-.qr-placeholder {
+/* QR Code Styling */
+.qr-code {
   width: 200px;
   height: 200px;
-  background-color: teal;
+  display: block;
   margin: 24px auto;
   border-radius: 8px;
-}
-
-.entry-info {
-  text-align: center;
-  color: #888;
-  margin: 24px 0 0 0;
 }
 
 /* Transition animations */
