@@ -1,28 +1,24 @@
 <template>
-  <div class="d-flex justify-content-start align-items-center mb-3">
+  <div class="d-flex flex-wrap justify-content-start align-items-center mb-3">
     <div class="dropdown">
       <button
         class="btn btn-secondary dropdown-toggle"
         type="button"
         id="filterDropdown"
         data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
+        aria-expanded="false">
         Filter
       </button>
 
       <!-- Custom dropdown menu -->
       <div class="dropdown-menu p-3" aria-labelledby="filterDropdown">
-        <div class="row gx-5">
+        <div class="row gx-2 gy-3">
           <!-- Column for categories -->
           <div class="col-md-6">
-            <h6>Categories</h6>
+            <h6 class="fw-bold mb-3">Categories</h6>
             <ul class="list-unstyled">
-              <li>
-                <a class="dropdown-item" @click="selectAllCategories">All Categories</a>
-              </li>
               <li v-for="category in categories" :key="category">
-                <a class="dropdown-item" @click="setCategory(category)">
+                <a class="dropdown-item py-1" @click="setCategory(category)">
                   {{ category }}
                 </a>
               </li>
@@ -30,11 +26,11 @@
           </div>
 
           <!-- Column for sort options -->
-          <div class="col-md-6">
-            <h6>Sort By</h6>
+          <div class="col-12 col-md-6">
+            <h6 class="fw-bold mb-3">Sort By</h6>
             <ul class="list-unstyled">
               <li v-for="(sort, index) in sortOptions" :key="index">
-                <a class="dropdown-item" @click="setSortOption(sort)">
+                <a class="dropdown-item py-1" @click="setSortOption(sort)">
                   {{ sort.label }}
                 </a>
               </li>
@@ -44,7 +40,7 @@
 
         <!-- Price filter section -->
         <div class="mt-4">
-          <h6>Price Range</h6>
+          <h6 class="fw-bold">Price Range</h6>
           <div class="d-flex justify-content-between">
             <span>${{ priceRange[0] }}</span>
             <span>${{ priceRange[1] }}</span>
@@ -54,14 +50,14 @@
       </div>
     </div>
 
-    <!-- Selected filters badges -->
-    <div class="ms-3">
+    <!-- Selected filters and sort option badges -->
+    <div class="ms-0 ms-md-3 mt-3 mt-md-0">
       <span
-        v-for="filter in selectedFilters"
-        :key="filter"
-        class="badge bg-info me-2"
+        v-for="filter in displayedFilters"
+        :key="filter.key"
+        class="badge bg-info me-2 mb-2"
       >
-        {{ filter }}
+        {{ filter.label }}
         <button 
           type="button" 
           class="btn-close btn-close-white ms-2" 
@@ -73,12 +69,9 @@
   </div>
 </template>
 
-
 <script>
-
 import noUiSlider from 'nouislider';
 import 'nouislider/dist/nouislider.css';
-
 
 export default {
   name: 'FilterSection',
@@ -94,8 +87,7 @@ export default {
         'Entertainment',
         'Sports',
         'Arts & Culture',
-        'Conferences & Conventions',
-        'Travel & Adventure'
+        'Business & Education'
       ],
       sortOptions: [
         { label: 'Price: Low to High', event: 'setPrice', value: 'low' },
@@ -103,7 +95,27 @@ export default {
         { label: 'Date: Earliest First', event: 'setDate', value: 'ascending' },
         { label: 'Date: Latest First', event: 'setDate', value: 'descending' }
       ],
-      priceRange: [0, 1000] // Initial price range
+      priceRange: [0, 10000], // Initial price range
+      selectedSortOption: null, // Hold selected sort option for badge
+      priceRangeChanged: false // Flag to track if price range has been modified
+    };
+  },
+  computed: {
+    // Combine filters, sort option, and price range into a single array for display
+    displayedFilters() {
+      const filters = this.selectedFilters.map(filter => ({ key: filter, label: filter }));
+      
+      // Add selected sort option as a badge if selected
+      if (this.selectedSortOption) {
+        filters.push({ key: 'sort', label: `Sort: ${this.selectedSortOption.label}` });
+      }
+
+      // Display price range badge only if the range has been changed by the user
+      if (this.priceRangeChanged) {
+        filters.push({ key: 'price', label: `Price: $${this.priceRange[0]} - $${this.priceRange[1]}` });
+      }
+      
+      return filters;
     }
   },
   mounted() {
@@ -113,14 +125,20 @@ export default {
       connect: true,
       range: {
         'min': 0,
-        'max': 1000
+        'max': 10000
       },
       step: 1
     });
 
     // Event listener for slider updates
     this.$refs.slider.noUiSlider.on('update', (values) => {
-      this.priceRange = values.map(value => parseFloat(value));
+      const newRange = values.map(value => parseFloat(value));
+      this.priceRange = newRange;
+
+      // Check if the price range is different from the default, and update flag
+      this.priceRangeChanged = !(newRange[0] === 0 && newRange[1] === 10000);
+      
+      // Emit event for price range update if changed
       this.updatePriceFilter();
     });
   },
@@ -128,17 +146,11 @@ export default {
     // Emit event to set a single category
     setCategory(category) {
       this.$emit('setCategory', category);
-      this.$emit('removeAllCategories');
     },
 
-    // Emit event for selecting all categories
-    selectAllCategories() {
-      this.$emit('setAllCategories', this.categories);
-      this.$emit('removeAllCategories'); // Clear previous filters
-    },
-
-    // Emit event to set sort option
+    // Emit event to set sort option and store selected sort option
     setSortOption(sort) {
+      this.selectedSortOption = sort;
       this.$emit(sort.event, sort.value);
     },
 
@@ -147,17 +159,28 @@ export default {
       this.$emit('setPriceRange', this.priceRange);
     },
 
-    // Emit event to remove a filter
+    // Emit event to remove a filter, handle removal of sort or price filter
     removeFilter(filter) {
-      this.$emit('removeFilter', filter);
+      if (filter.key === 'sort') {
+        this.selectedSortOption = null; // Reset sort option to null when removed
+        this.$emit('setPrice', null); // Emit event to reset sorting
+      } else if (filter.key === 'price') {
+        this.priceRange = [0, 10000]; // Reset price range to default
+        this.priceRangeChanged = false; // Reset flag when price range filter is removed
+        this.$refs.slider.noUiSlider.set(this.priceRange); // Update the slider UI
+        this.updatePriceFilter();
+      } else {
+        this.$emit('removeFilter', filter.label);
+      }
     }
   }
-}
+};
 </script>
 
 <style scoped>
 .dropdown-menu {
   width: 400px;
+  max-width: 400px;
 }
 
 .row.gx-5 {
