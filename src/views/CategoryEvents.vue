@@ -57,9 +57,8 @@ import { fetchEvents } from "@/api/eventsApi";
 const categoryMapping = {
   1: [190, 6],
   2: [7],
-  3: [23, 21, 1],
+  3: [23, 21, 1, 11],
   4: [3],
-  5: [11],
 };
 
 const categoryNames = {

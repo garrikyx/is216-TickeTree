@@ -73,7 +73,13 @@ const router = createRouter({
       name: 'PurchaseHistoryEvent',
       component: () => import("@/views/PurchaseHistoryEvent.vue"),
       props: true
-    }
+    },
+    {
+      path: '/events/:id', 
+      name: 'EventDetail',
+      component:  () => import("@/views/EventDetails.vue"),
+      props: true
+    },
   ],
 });
 

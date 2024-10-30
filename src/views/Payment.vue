@@ -6,29 +6,29 @@
     </div>
     <div v-else>
       <div v-for="(item, index) in cartItems" :key="index" class="item">
-        <div class="buttons">
-          <span class="delete-btn" @click="deleteItem(index)"></span>
-        </div>
-        <div class="image">
-          <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
-        </div>
-        <div class="description">
-          <span style="font-weight: bold; font-size: 18px">{{ item.eventName }}</span>
-          <span>Seat: {{ item.seatNumber }}</span>
-          <span>Date: {{ formatDate(item.eventDate) }}</span>
-          <span>Time: {{ formatTime(item.eventTime) }}</span>
-        </div>
-        <div class="quantity">
-          <button class="minus-btn" type="button" @click="decreaseQuantity(index)">
-            <img src="/images/minus.svg" alt="Decrease Quantity" />
-          </button>
-          <input type="text" v-model="item.quantity" />
-          <button class="plus-btn" type="button" @click="increaseQuantity(index)">
-            <img src="/images/plus.svg" alt="Increase Quantity" />
-          </button>
-        </div>
-        <div class="total-price">${{ (item.quantity * item.pricePerItem).toFixed(2) }}</div>
-      </div>
+  <div class="buttons">
+    <span class="delete-btn" @click="deleteItem(index)"></span>
+  </div>
+  <div class="image">
+    <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
+  </div>
+  <div class="description">
+    <span style="font-weight: bold; font-size: 18px">{{ item.eventName }}</span>
+    <span>Seat: {{ item.seatNumber }}</span>
+    <span>Date: {{ formatDate(item.eventDate) }}</span>
+    <span>Time: no time</span>
+  </div>
+  <div class="quantity">
+    <button class="minus-btn" type="button" @click="item.quantity > 1 ? item.quantity -= 1 : deleteItem(index)">
+      <img src="/images/minus.svg" alt="Decrease Quantity" />
+    </button>
+    <input type="text" v-model="item.quantity" />
+    <button class="plus-btn" type="button" @click="item.quantity += 1">
+      <img src="/images/plus.svg" alt="Increase Quantity" />
+    </button>
+  </div>
+  <div class="total-price">${{ (item.quantity * item.pricePerItem).toFixed(2) }}</div>
+</div>
       <div class="checkout-button-container">
         <button class="checkout-btn" @click="checkout">Proceed to Payment</button>
       </div>
@@ -38,24 +38,19 @@
 
 <script>
 import { loadStripe } from '@stripe/stripe-js';
+import { useCartStore } from "@/stores/cartStore";
+import { computed } from "vue";
 
 export default {
-  data() {
-    return {
-      cartItems: [
-        {
-          eventName: "Tate McRae: THINK LATER TOUR",
-          seatNumber: 38,
-          eventDate: "2024-11-30", // Ensure date is in YYYY-MM-DD format
-          eventTime: "18:00", // Ensure time is in HH:mm (24-hour) format
-          quantity: 1,
-          pricePerItem: 3.00,
-          imageUrl: "../../../images/tatemcrae.jpg",
-          isLiked: false,
-        },
-      ],
-      stripe: null,
+  setup() {
+    const cartStore = useCartStore();
+    const cartItems = computed(() => cartStore.cartItems);
+
+    const deleteItem = (index) => {
+      cartStore.deleteItem(index);
     };
+
+    return { cartItems, deleteItem };
   },
   async mounted() {
     this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR'); // Initialize Stripe

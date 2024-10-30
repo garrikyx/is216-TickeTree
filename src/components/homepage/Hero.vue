@@ -17,7 +17,7 @@
         <div class="d-flex flex-row align-items-center w-100 pe-3">
           <input 
             type="text" 
-            placeholder="Search Events, Categories, Location, ..." 
+            placeholder="Search for Events..." 
             class="form-control border-0" 
             v-model="searchQuery"
             @input="handleSearch"

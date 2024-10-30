@@ -44,6 +44,7 @@
         </div>
       </div>
       <div v-for="event in visibleEvents" :key="event.id" class="col-md-4 mb-4">
+        <RouterLink :to="{ name: 'EventDetail', params: { id: event.id } }" class="custom-link">
         <div class="card h-100">
           <img
             :src="event.images.images[0]?.original_url || '/images/noimage.png'"
@@ -60,6 +61,7 @@
             </p>
           </div>
         </div>
+      </RouterLink>
       </div>
     </div>
 
@@ -162,4 +164,14 @@ onMounted(() => {
   background-color: var(--bs-primary);
   color: white;
 }
+
+.custom-link {
+  color: inherit;          
+  text-decoration: none;   
+}
+
+.custom-link:hover {
+  text-decoration: none;   
+}
+
 </style>

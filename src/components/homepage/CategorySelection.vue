@@ -5,7 +5,6 @@
     </div>
 
     <div class="row">
-      <div class="col-0 col-lg-1"></div>
 
       <div v-for="category in categories" 
            :key="category.id" 
@@ -39,32 +38,26 @@ const categories = [
     id: 1,
     name: 'Entertainment',
     image: '/images/entertainment.jpg',
-    columnClass: 'col-lg-2 col-md-4 col-sm-6 col-12 mb-2'
+    columnClass: 'col-lg-3 col-md-6 col-sm-6 col-12 mb-3'
   },
   {
     id: 2,
     name: 'Sports',
     image: '/images/sports.jpg',
-    columnClass: 'col-lg-2 col-md-4 col-sm-6 col-12 mb-2'
+    columnClass: 'col-lg-3 col-md-6 col-sm-6 col-12 mb-3'
   },
   {
     id: 3,
     name: 'Arts & Culture',
     image: '/images/arts.jpg',
-    columnClass: 'col-lg-2 col-md-4 col-sm-6 col-12 mb-2'
+    columnClass: 'col-lg-3 col-md-6 col-sm-6 col-12 mb-3'
   },
   {
     id: 4,
     name: 'Business & Education',
     image: '/images/convention.jpg',
-    columnClass: 'col-lg-2 col-sm-6 col-12 col-md-6 mb-2'
+    columnClass: 'col-lg-3 col-sm-6 col-12 col-md-6 mb-3'
   },
-  {
-    id: 5,
-    name: 'Exhibitions',
-    image: '/images/exhibition.jpg',
-    columnClass: 'col-lg-2 col-12 col-md-6 mb-2'
-  }
 ]
 </script>
 
