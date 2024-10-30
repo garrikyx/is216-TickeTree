@@ -47,7 +47,8 @@
           </div>
 
           <!-- QR Code -->
-          <img v-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
+          <p v-if="message" class="unavailable-message">{{ message }}</p>
+          <img v-else-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
         </div>
       </div>
     </div>
@@ -69,6 +70,8 @@ export default {
     return {
       showTicket: false,
       qrCode: null,
+      qrCodeAvailableDate: new Date("2024-11-03"),
+      message: "",
     };
   },
   computed: {
@@ -91,20 +94,26 @@ export default {
   },
   methods: {
     async generateQRCode() {
-      try {
-        this.qrCode = await QRCode.toDataURL("https://example.com", {
-          width: this.qrCodeSize,
-        });
-      } catch (err) {
-        console.error(err);
+      const currentDate = new Date();
+      if (currentDate >= this.qrCodeAvailableDate) {
+        try {
+          this.qrCode = await QRCode.toDataURL("https://example.com", {
+            width: this.qrCodeSize,
+          });
+          this.message = ""; // Reset message if QR code is available
+          console.log("QR code displayed");
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        this.message = "QR code will only be available on November 3, 2024.";
+        this.qrCode = null; // Ensure QR code is not displayed
       }
     },
   },
-  mounted() {
-    console.log(this.event);
-  },
 };
 </script>
+
 
 <style scoped>
 .modal-overlay {
@@ -208,5 +217,10 @@ export default {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.unavailable-message {
+  text-align: center;
+  margin-top: 20px;
 }
 </style>
