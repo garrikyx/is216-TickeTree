@@ -1,12 +1,14 @@
 <template>
   <div class="d-flex flex-wrap justify-content-start align-items-center mb-3">
+    <!-- Filter Dropdown Button -->
     <div class="dropdown">
       <button
         class="btn btn-secondary dropdown-toggle"
         type="button"
         id="filterDropdown"
         data-bs-toggle="dropdown"
-        aria-expanded="false">
+        aria-expanded="false"
+      >
         Filter
       </button>
 
@@ -95,7 +97,7 @@ export default {
         { label: 'Date: Earliest First', event: 'setDate', value: 'ascending' },
         { label: 'Date: Latest First', event: 'setDate', value: 'descending' }
       ],
-      priceRange: [0, 10000], // Initial price range
+      priceRange: [0, 1800], // Initial price range
       selectedSortOption: null, // Hold selected sort option for badge
       priceRangeChanged: false // Flag to track if price range has been modified
     };
@@ -125,7 +127,7 @@ export default {
       connect: true,
       range: {
         'min': 0,
-        'max': 10000
+        'max': 1800
       },
       step: 1
     });
@@ -136,7 +138,8 @@ export default {
       this.priceRange = newRange;
 
       // Check if the price range is different from the default, and update flag
-      this.priceRangeChanged = !(newRange[0] === 0 && newRange[1] === 10000);
+      this.priceRangeChanged = !(newRange[0] === 0 && newRange[1] === 1800
+      );
       
       // Emit event for price range update if changed
       this.updatePriceFilter();
@@ -165,7 +168,7 @@ export default {
         this.selectedSortOption = null; // Reset sort option to null when removed
         this.$emit('setPrice', null); // Emit event to reset sorting
       } else if (filter.key === 'price') {
-        this.priceRange = [0, 10000]; // Reset price range to default
+        this.priceRange = [0, 1800]; // Reset price range to default
         this.priceRangeChanged = false; // Reset flag when price range filter is removed
         this.$refs.slider.noUiSlider.set(this.priceRange); // Update the slider UI
         this.updatePriceFilter();
