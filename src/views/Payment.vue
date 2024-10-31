@@ -7,8 +7,8 @@
     <div v-else>
       <div v-for="(item, index) in cartItems" :key="index" class="item">
         <div class="buttons">
-          <span class="delete-btn" @click="deleteItem(index)"></span>
-        </div>
+  <i class="fas fa-times delete-btn" @click="deleteItem(index)"></i>
+</div>
         <div class="image">
           <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
         </div>
@@ -18,11 +18,11 @@
           <span>Date: {{ formatDate(item.eventDate) }}</span>
         </div>
         <div class="quantity">
-          <button class="minus-btn" type="button" @click="item.quantity > 1 ? item.quantity -= 1 : deleteItem(index)">
+          <button class="minus-btn" type="button" @click="decreaseQuantity(index)">
             <img src="/images/minus.svg" alt="Decrease Quantity" />
           </button>
-          <input type="text" v-model="item.quantity" />
-          <button class="plus-btn" type="button" @click="item.quantity += 1">
+          <input type="text" v-model="item.quantity" @change="updateCart()" />
+          <button class="plus-btn" type="button" @click="increaseQuantity(index)">
             <img src="/images/plus.svg" alt="Increase Quantity" />
           </button>
         </div>
@@ -45,66 +45,78 @@ export default {
     const cartStore = useCartStore();
     const cartItems = computed(() => cartStore.cartItems);
 
-    const deleteItem = (index) => {
-      cartStore.deleteItem(index);
+    const updateCart = () => {
+      cartStore.saveCartItems();
     };
 
-    return { cartItems, deleteItem };
+    const deleteItem = (index) => {
+      cartStore.deleteItem(index);
+      updateCart();
+    };
+
+    const increaseQuantity = (index) => {
+      cartStore.cartItems[index].quantity += 1;
+      updateCart();
+    };
+
+    const decreaseQuantity = (index) => {
+      if (cartStore.cartItems[index].quantity > 1) {
+        cartStore.cartItems[index].quantity -= 1;
+      } else {
+        deleteItem(index);
+      }
+      updateCart();
+    };
+
+    return { cartItems, deleteItem, increaseQuantity, decreaseQuantity, updateCart };
   },
   async mounted() {
-    this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR'); // Initialize Stripe
+    this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR');
   },
   methods: {
-     async checkout() {
-        try {
-            const items = this.cartItems.map(item => ({
-                eventName: item.eventName,
-                seatNumber: item.seatNumber,
-                eventDate: item.eventDate, // Include event date
-                pricePerItem: item.pricePerItem,
-                quantity: item.quantity,
-                imageUrl: item.imageUrl.startsWith('http')
-                    ? item.imageUrl
-                    : `${window.location.origin}${item.imageUrl}`,
-            }));
+    async checkout() {
+      try {
+        const items = this.cartItems.map(item => ({
+          eventName: item.eventName,
+          seatNumber: item.seatNumber,
+          eventDate: item.eventDate,
+          pricePerItem: item.pricePerItem,
+          quantity: item.quantity,
+          imageUrl: item.imageUrl.startsWith('http')
+            ? item.imageUrl
+            : `${window.location.origin}${item.imageUrl}`,
+        }));
 
-            // Store order summary (or pass to Success.vue directly if using router)
-            const orderSummary = items[0]; // Adjust if you have multiple items and need to send all
+        localStorage.setItem('orderSummary', JSON.stringify(items));
 
-            // Store orderSummary in a reactive store or local storage
-            localStorage.setItem('orderSummary', JSON.stringify(orderSummary));
+        const response = await fetch('http://localhost:5001/create-checkout-session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ cartItems: items }),
+        });
 
-            const response = await fetch('http://localhost:5001/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ cartItems: items }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error}`);
-            }
-
-            const session = await response.json();
-            const { error } = await this.stripe.redirectToCheckout({
-                sessionId: session.id,
-            });
-
-            if (error) {
-                console.error("Error redirecting to checkout:", error);
-            }
-        } catch (error) {
-            console.error("Error creating checkout session:", error);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error}`);
         }
+
+        const session = await response.json();
+        const { error } = await this.stripe.redirectToCheckout({ sessionId: session.id });
+
+        if (error) {
+          console.error("Error redirecting to checkout:", error);
+        }
+      } catch (error) {
+        console.error("Error creating checkout session:", error);
+      }
     },
     formatDate(dateStr) {
       const dates = dateStr.split(' - ');
-      const formattedDates = dates.map(date =>
+      return dates.map(date =>
         new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-      );
-      return formattedDates.join(' - ');
+      ).join(' - ');
     },
   },
 };
@@ -168,11 +180,9 @@ body {
 }
 
 .delete-btn {
-  width: 20px;
-  height: 20px;
+  font-size: 20px;
+  color: #C8C8C8; 
   cursor: pointer;
-  background: url("./images/delete-icn.svg") no-repeat center;
-  background-size: contain;
   transition: transform 0.3s;
 }
 
