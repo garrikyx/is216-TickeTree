@@ -10,7 +10,8 @@
           <h1>Payment Confirmed</h1>
         </div>
         <p class="success-message">
-          Thank you, your payment has been successful, and your purchase is now confirmed. A confirmation email has been sent to {{ orderSummary.customerEmail }}.
+          Thank you, your payment has been successful, and your purchase is now confirmed.
+          A confirmation email has been sent to {{ orderSummary.customerEmail }}.
         </p>
       </div>
       <div class="order-summary">
@@ -22,11 +23,11 @@
           </div>
           <div class="order-detail">
             <p class="order-label">Date:</p>
-            <p class="order-value">{{ orderSummary.date }}</p>
+            <p class="order-value">{{ orderSummary.eventDate }}</p>
           </div>
           <div class="order-detail">
-            <p class="order-label">Time:</p>
-            <p class="order-value">{{ orderSummary.time }}</p>
+            <p class="order-label">Seat:</p>
+            <p class="order-value">{{ orderSummary.seatNumber }}</p>
           </div>
           <div class="order-detail">
             <p class="order-label">Quantity:</p>
@@ -47,6 +48,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 import { db } from '../../../firebase'; // Adjust the import path if necessary
@@ -74,19 +76,29 @@ export default {
         const session = response.data;
         console.log("Fetched session details:", session);
 
+        // Check for line items and ensure eventDate and seatNumber are defined
         if (session.line_items && session.line_items.data.length > 0) {
           const item = session.line_items.data[0];
+
+          // Log item to inspect its structure
+          console.log("Line item details:", item);
+          console.log("Item metadata:", item.metadata); // Log the metadata
+
           this.orderSummary = {
             eventName: item.price.product.name,
-            date: session.eventDate, // Use the date from the session metadata
-            time: session.eventTime, // Use the time from the session metadata
+            eventDate: item.price.product.metadata.eventDate || 'N/A',  // Ensure to check for undefined
+            seatNumber: item.price.product.metadata.seatNumber || 'N/A', // Ensure to check for undefined
             quantity: item.quantity,
-            customerEmail: session.customer_email,
+            customerEmail: session.customer_email || 'N/A',
             totalPrice: session.amount_total,
           };
 
-          // Send confirmation email
-          await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
+          // Send confirmation email only if email is valid
+          if (this.isValidEmail(this.orderSummary.customerEmail)) {
+            await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
+          } else {
+            console.error("Invalid email format:", this.orderSummary.customerEmail);
+          }
 
           // Save payment details to Firestore
           await this.savePaymentDetails();
@@ -101,29 +113,33 @@ export default {
     }
   },
   methods: {
-    async sendConfirmationEmail(email, orderSummary) {
-      try {
-        const response = await axios.post('http://localhost:5001/send-confirmation-email', {
-          email: email,
-          orderSummary: orderSummary,
-        });
-
-        console.log("Confirmation email sent:", response.data.message);
-      } catch (error) {
-        console.error("Failed to send email:", error);
-      }
+    isValidEmail(email) {
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation regex
+      return regex.test(email);
     },
+
+async sendConfirmationEmail(email, orderSummary) {
+    try {
+        const response = await axios.post('http://localhost:5001/send-confirmation-email', {
+            email,
+            orderSummary,
+        });
+        console.log('Email sent successfully:', response.data);
+    } catch (error) {
+        console.error('Failed to send email:', error);
+    }
+},
     async savePaymentDetails() {
       try {
         const paymentData = {
           customerEmail: this.orderSummary.customerEmail,
           eventName: this.orderSummary.eventName,
+          seatNumber: this.orderSummary.seatNumber,
           quantity: this.orderSummary.quantity,
-          price: Math.round(this.orderSummary.totalPrice / 100),
-          eventDate: this.orderSummary.date,
-          eventTiming: this.orderSummary.time,
+          eventDate: this.orderSummary.eventDate,
+          totalPrice: Math.round(this.orderSummary.totalPrice / 100), // Adjust as needed
         };
-       const docRef = await addDoc(collection(db, 'payment'), paymentData);
+        const docRef = await addDoc(collection(db, 'payment'), paymentData);
         // Update the payment data to include the document ID as orderId
         await updateDoc(docRef, { orderId: docRef.id }); // Use the document ID as orderId
         console.log("Payment document written with ID: ", docRef.id);

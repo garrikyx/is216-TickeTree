@@ -27,7 +27,6 @@ app.get('/api/events', async (req, res) => {
         const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
 
         const queryParams = req.query;
-        // console.log(queryParams);
 
         const response = await axios.get('https://api.eventfinda.sg/v2/events.json', {
             headers: { Authorization: authHeader },
@@ -44,7 +43,6 @@ app.get('/api/events', async (req, res) => {
 app.post('/create-checkout-session', async (req, res) => {
     const { cartItems } = req.body;
 
-    // Log the incoming cart items to verify the data structure
     console.log("Received cart items:", cartItems);
 
     if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
@@ -57,37 +55,29 @@ app.post('/create-checkout-session', async (req, res) => {
                 currency: 'sgd',
                 product_data: {
                     name: item.eventName,
-                    description: `Seat: ${item.seatNumber}\nDate: ${item.eventDate}\nTime: ${item.eventTime}`,
                     images: [item.imageUrl],
                     metadata: {
-                        eventDate: item.eventDate, // Include date in metadata
-                        eventTime: item.eventTime, // Include time in metadata
+                        eventDate: item.eventDate, // Add event date to metadata
+                        seatNumber: item.seatNumber // Add seat number to metadata
                     },
                 },
-                unit_amount: Math.round(item.pricePerItem * 100),
+                unit_amount: item.pricePerItem * 100, // Convert to cents
             },
             quantity: item.quantity,
         }));
-        
-        
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
             success_url: `http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: 'http://localhost:5173/error',
-            allow_promotion_codes: true,
-            metadata: {
-                eventDate: cartItems[0].eventDate, // Assuming one event at a time
-                eventTime: cartItems[0].eventTime, // Assuming one event at a time
-            }
         });
-        
-        console.log(session);
+
         res.json({ id: session.id });
     } catch (error) {
         console.error("Error creating checkout session:", error);
-        res.status(500).json({ error: "Failed to create checkout session" });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -98,13 +88,27 @@ app.get('/checkout-session', async (req, res) => {
             expand: ['line_items.data.price.product', 'customer'],
         });
 
-        const item = session.line_items.data[0].price.product;
+        // Extract order summary from session
+        const items = session.line_items.data.map(item => ({
+            eventName: item.price.product.name,
+            eventDate: item.price.product.metadata.eventDate,
+            seatNumber: item.price.product.metadata.seatNumber,
+            quantity: item.quantity,
+            pricePerItem: item.price.unit_amount / 100, // Convert back to original price
+        }));
+
+        const orderSummary = items[0]; // Assuming you want to send details of the first item
+        const customerEmail = session.customer_details?.email || session.customer?.email;
+
+        // Send confirmation email
+        await sendConfirmationEmail(customerEmail, orderSummary);
+
+        // Send the order summary back to the client
         res.json({
-            customer_email: session.customer_details?.email || session.customer?.email,
+            customer_email: customerEmail,
             line_items: session.line_items,
             amount_total: session.amount_total,
-            eventDate: item.metadata.eventDate, // Send date back to the client
-            eventTime: item.metadata.eventTime, // Send time back to the client
+            orderSummary, // Send order summary with response
         });
     } catch (error) {
         console.error("Error fetching session details:", error);
@@ -113,39 +117,49 @@ app.get('/checkout-session', async (req, res) => {
 });
 
 
-// Send confirmation email
-app.post('/send-confirmation-email', async (req, res) => {
-    const { email, orderSummary } = req.body;
-
-    let transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        }
-    });
-
-    let mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Your Purchase Confirmation',
-        html: `
-            <p>Your payment has been successfully processed.</p>
-            <h2>Order Summary:</h2>
-            <p><strong>Event:</strong> ${orderSummary.eventName}</p>
-            <p><strong>Date:</strong> ${new Date(orderSummary.date).toLocaleDateString()}</p>
-            <p><strong>Time:</strong> ${orderSummary.time}</p>
-            <p><strong>Quantity:</strong> ${orderSummary.quantity}</p>
-            <p><strong>Total Price:</strong> SGD ${(orderSummary.totalPrice / 100).toFixed(2)}</p>
-        `
-    };    
-
+// Import sendConfirmationEmail function
+async function sendConfirmationEmail(email, orderSummary) {
     try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Your Purchase Confirmation',
+            html: `
+                <p>Your payment has been successfully processed.</p>
+                <h2>Order Summary:</h2>
+                <p><strong>Event:</strong> ${orderSummary.eventName}</p>
+                <p><strong>Date:</strong> ${orderSummary.eventDate}</p>
+                <p><strong>Seat:</strong> ${orderSummary.seatNumber}</p>
+                <p><strong>Quantity:</strong> ${orderSummary.quantity}</p>
+                <p><strong>Total Price:</strong> SGD ${(orderSummary.totalPrice / 100).toFixed(2)}</p>
+            `
+        };
+
         await transporter.sendMail(mailOptions);
-        res.json({ message: 'Email sent successfully' });
+        console.log(`Email sent successfully to: ${email}`);
     } catch (error) {
         console.error('Error sending email:', error);
-        res.status(500).json({ error: 'Failed to send email' });
+        throw new Error('Failed to send confirmation email.');
+    }
+}
+
+// Define the endpoint
+app.post('/send-confirmation-email', async (req, res) => {
+    const { email, orderSummary } = req.body;
+    try {
+        await sendConfirmationEmail(email, orderSummary);
+        res.status(200).json({ message: 'Email sent successfully' });
+    } catch (error) {
+        console.error('Failed to send email:', error);
+        res.status(500).json({ message: 'Failed to send email' });
     }
 });
 

@@ -26,5 +26,14 @@ export const useCartStore = defineStore('cart', () => {
     cartItems.value.splice(index, 1);
   }
 
-  return { cartItems, addItem, deleteItem };
+  function saveCartItems() {
+    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+  }
+
+  function clearCart() {
+    this.cartItems = [];
+    localStorage.removeItem('cartItems'); // Clear local storage
+  }
+
+  return { cartItems, addItem, deleteItem, saveCartItems, clearCart };
 });

@@ -6,29 +6,28 @@
     </div>
     <div v-else>
       <div v-for="(item, index) in cartItems" :key="index" class="item">
-  <div class="buttons">
-    <span class="delete-btn" @click="deleteItem(index)"></span>
-  </div>
-  <div class="image">
-    <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
-  </div>
-  <div class="description">
-    <span style="font-weight: bold; font-size: 18px">{{ item.eventName }}</span>
-    <span>Seat: {{ item.seatNumber }}</span>
-    <span>Date: {{ formatDate(item.eventDate) }}</span>
-    <span>Time: no time</span>
-  </div>
-  <div class="quantity">
-    <button class="minus-btn" type="button" @click="item.quantity > 1 ? item.quantity -= 1 : deleteItem(index)">
-      <img src="/images/minus.svg" alt="Decrease Quantity" />
-    </button>
-    <input type="text" v-model="item.quantity" />
-    <button class="plus-btn" type="button" @click="item.quantity += 1">
-      <img src="/images/plus.svg" alt="Increase Quantity" />
-    </button>
-  </div>
-  <div class="total-price">${{ (item.quantity * item.pricePerItem).toFixed(2) }}</div>
-</div>
+        <div class="buttons">
+          <span class="delete-btn" @click="deleteItem(index)"></span>
+        </div>
+        <div class="image">
+          <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
+        </div>
+        <div class="description">
+          <span style="font-weight: bold; font-size: 18px">{{ item.eventName }}</span>
+          <span>Seat: {{ item.seatNumber }}</span>
+          <span>Date: {{ formatDate(item.eventDate) }}</span>
+        </div>
+        <div class="quantity">
+          <button class="minus-btn" type="button" @click="item.quantity > 1 ? item.quantity -= 1 : deleteItem(index)">
+            <img src="/images/minus.svg" alt="Decrease Quantity" />
+          </button>
+          <input type="text" v-model="item.quantity" />
+          <button class="plus-btn" type="button" @click="item.quantity += 1">
+            <img src="/images/plus.svg" alt="Increase Quantity" />
+          </button>
+        </div>
+        <div class="total-price">${{ (item.quantity * item.pricePerItem).toFixed(2) }}</div>
+      </div>
       <div class="checkout-button-container">
         <button class="checkout-btn" @click="checkout">Proceed to Payment</button>
       </div>
@@ -56,63 +55,61 @@ export default {
     this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR'); // Initialize Stripe
   },
   methods: {
-    increaseQuantity(index) {
-      if (this.cartItems[index].quantity < 100) {
-        this.cartItems[index].quantity += 1;
-      }
-    },
-    decreaseQuantity(index) {
-      if (this.cartItems[index].quantity > 1) {
-        this.cartItems[index].quantity -= 1;
-      }
-    },
-    deleteItem(index) {
-      this.cartItems.splice(index, 1);
-      console.log("Item deleted");
-    },
-    async checkout() {
-      try {
-        const response = await fetch('http://localhost:5001/create-checkout-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            cartItems: this.cartItems,
-          }),
-        });
+     async checkout() {
+        try {
+            const items = this.cartItems.map(item => ({
+                eventName: item.eventName,
+                seatNumber: item.seatNumber,
+                eventDate: item.eventDate, // Include event date
+                pricePerItem: item.pricePerItem,
+                quantity: item.quantity,
+                imageUrl: item.imageUrl.startsWith('http')
+                    ? item.imageUrl
+                    : `${window.location.origin}${item.imageUrl}`,
+            }));
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+            // Store order summary (or pass to Success.vue directly if using router)
+            const orderSummary = items[0]; // Adjust if you have multiple items and need to send all
+
+            // Store orderSummary in a reactive store or local storage
+            localStorage.setItem('orderSummary', JSON.stringify(orderSummary));
+
+            const response = await fetch('http://localhost:5001/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ cartItems: items }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error}`);
+            }
+
+            const session = await response.json();
+            const { error } = await this.stripe.redirectToCheckout({
+                sessionId: session.id,
+            });
+
+            if (error) {
+                console.error("Error redirecting to checkout:", error);
+            }
+        } catch (error) {
+            console.error("Error creating checkout session:", error);
         }
-
-        const session = await response.json();
-
-        // Redirect to checkout using the initialized Stripe instance
-        const { error } = await this.stripe.redirectToCheckout({
-          sessionId: session.id,
-        });
-
-        if (error) {
-          console.error("Error redirecting to checkout:", error);
-        }
-      } catch (error) {
-        console.error("Error creating checkout session:", error);
-      }
     },
     formatDate(dateStr) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(dateStr).toLocaleDateString(undefined, options);
-    },
-    formatTime(timeStr) {
-      const [hour, minute] = timeStr.split(':');
-      const date = new Date();
-      date.setHours(hour, minute);
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dates = dateStr.split(' - ');
+      const formattedDates = dates.map(date =>
+        new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+      );
+      return formattedDates.join(' - ');
     },
   },
 };
 </script>
+
 <style scoped>
 .empty-cart-message {
   text-align: center;
@@ -183,15 +180,6 @@ body {
   transform: scale(1.2);
 }
 
-.is-active {
-  animation: animate 0.8s steps(28) forwards;
-}
-
-@keyframes animate {
-  0% { background-position: left; }
-  100% { background-position: right; }
-}
-
 .image {
   margin-right: 20px;
   width: 150px;
@@ -251,11 +239,13 @@ body {
   font-size: 14px;
 }
 
-.minus-btn, .plus-btn {
+.minus-btn,
+.plus-btn {
   background-color: #e1e8ee;
 }
 
-.minus-btn:hover, .plus-btn:hover {
+.minus-btn:hover,
+.plus-btn:hover {
   background-color: #d1d8db;
 }
 
