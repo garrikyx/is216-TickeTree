@@ -1,8 +1,13 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 export const useCartStore = defineStore('cart', () => {
   const cartItems = ref([]);
+
+  // Load cart items from localStorage on initialization
+  if (localStorage.getItem('cartItems')) {
+    cartItems.value = JSON.parse(localStorage.getItem('cartItems'));
+  }
 
   function addItem(event) {
     const itemIndex = cartItems.value.findIndex(item => item.id === event.id);
@@ -26,14 +31,15 @@ export const useCartStore = defineStore('cart', () => {
     cartItems.value.splice(index, 1);
   }
 
-  function saveCartItems() {
-    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-  }
-
   function clearCart() {
-    this.cartItems = [];
+    cartItems.value = [];
     localStorage.removeItem('cartItems'); // Clear local storage
   }
 
-  return { cartItems, addItem, deleteItem, saveCartItems, clearCart };
+  // Watch for changes in cartItems and save to localStorage
+  watch(cartItems, (newItems) => {
+    localStorage.setItem('cartItems', JSON.stringify(newItems));
+  }, { deep: true });
+
+  return { cartItems, addItem, deleteItem, clearCart };
 });
