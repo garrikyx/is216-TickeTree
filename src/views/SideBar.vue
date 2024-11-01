@@ -1,7 +1,7 @@
 <template>
-  <div v-if="showSidebar" class="overlay" @click="$emit('close')"></div>
-  <aside class="sidebar">
-    <div class="user-section">
+  <div v-if="isSidebarOpen" class="overlay" @click="$emit('close')"></div>
+  <aside :class="['sidebar', { open: isSidebarOpen }]" @click.stop>
+    <div class="user-section" @click="$emit('close')">
       <i class="fas fa-user user-icon"></i>
       <span class="user-name">{{ userName || 'User' }}</span> <!-- Display user's name or a fallback -->
     </div>
@@ -29,17 +29,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineProps } from 'vue';
 import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useRouter, RouterLink } from 'vue-router';
 import { db } from '../../firebase'; // Make sure this path points correctly to your Firebase config
 
+const props = defineProps({
+  isSidebarOpen: Boolean
+});
+
 const auth = getAuth();
 const router = useRouter();
 const isLoggedIn = ref(false);
 const userName = ref('');
-const showSidebar = ref(true);
 
 const isActive = (route) => {
   return router.currentRoute.value.path === route;
@@ -89,12 +92,16 @@ onMounted(() => {
   background-color: #f8f9fa;
   position: fixed;
   top: 0;
-  right: 0;
+  right: -250px; /* Initially hidden */
   height: 100vh;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   padding: 20px;
   z-index: 1000;
-  transition: transform 0.3s ease;
+  transition: right 0.3s ease;
+}
+
+.sidebar.open {
+  right: 0; /* Slide in */
 }
 
 .user-section {
@@ -111,6 +118,7 @@ onMounted(() => {
   font-size: 40px;
   color: #007bff;
   margin-bottom: 10px;
+  cursor: pointer; /* Add cursor pointer to indicate it's clickable */
 }
 
 .user-name {

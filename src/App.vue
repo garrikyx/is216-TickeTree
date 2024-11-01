@@ -6,7 +6,9 @@
             @toggleSidebar="toggleSidebar" />
     
     <!-- Sidebar is only shown when the user is logged in and it's not the login page -->
-    <Sidebar v-if="isLoggedIn && showSidebar && !$route.meta.hideSidebar" @close="toggleSidebar" />
+    <Sidebar v-if="isLoggedIn && !$route.meta.hideSidebar" 
+             :isSidebarOpen="showSidebar" 
+             @close="toggleSidebar" />
 
     <div class="content">
       <!-- Router View -->
