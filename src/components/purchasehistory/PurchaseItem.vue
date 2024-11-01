@@ -1,68 +1,61 @@
 <template>
-  <RouterLink :to="{name: 'PurchaseHistoryEvent', params:{id:ticket.id}}" class="router">
-    <div :class="['purchase-item', { faded: isPastEvent }]">
-      <div class="event-image-container">
-        <img :src="ticket.image" class="event-image" alt="Event Image" />
-      </div>
-      <div class="event-details">
-        <strong>{{ ticket.eventName }}</strong> <br />
-        <small
-          >{{ ticket.category }} | {{ formattedDate }} - {{ ticket.time }}</small
-        >
-        <br />
-        <small>{{ ticket.location }}</small>
-      </div>
-      <div class="event-price">
-        <span class="price">\${{ ticket.price }}</span>
-        <span :class="['badge-status', badgeClass]">{{ badgeText }}</span>
-      </div>
+  <div class="purchase-item">
+    <div class="event-image-container">
+      <img :src="ticket.imageUrl" alt="Event Image" class="event-image" />
     </div>
-  </RouterLink>
+    <div class="event-details">
+      <h2>{{ ticket.eventName }}</h2>
+      <p class="date">
+      Date:
+      <span v-if="ticket.endDate">
+        {{ ticket.startDate.toLocaleDateString() }} - {{ ticket.endDate.toLocaleDateString() }}
+      </span>
+      <span v-else>
+        {{ ticket.startDate.toLocaleDateString() }}
+      </span>
+    </p>
+      <p class="seat">Seat: {{ ticket.seatNumber }}</p>
+    </div>
+    <div class="event-price">
+      <span class="price">${{ ticket.price }}</span>
+      <span class="badge-status paid">Paid</span>
+    </div>
+  </div>
 </template>
 
-<script>
-export default {
-  name: "PurchaseItem",
-  props: {
-    ticket: {
-      type: Object,
-      required: true,
-    },
-    isPastEvent: {
-      type: Boolean,
-      required: true,
-    },
+<script setup>
+import { computed } from 'vue';
+
+const props = defineProps({
+  ticket: {
+    type: Object,
+    required: true,
   },
-  computed: {
-    badgeText() {
-      return this.isPastEvent ? "Expired" : "Paid";
-    },
-    badgeClass() {
-      return this.isPastEvent ? "expired" : "paid";
-    },
-    formattedDate() {
-      const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(this.ticket.date).toLocaleDateString(undefined, options);
-    },
-  },
-};
+});
+
+const ticketStatus = computed(() => {
+  const currentDate = new Date();
+  if (currentDate < props.ticket.startDate) {
+    return 'Upcoming';
+  } else if (currentDate >= props.ticket.startDate && currentDate <= props.ticket.endDate) {
+    return 'Ongoing';
+  } else {
+    return 'Past';
+  }
+});
 </script>
 
-<style scoped>
-.router{
-  text-decoration: none;
-  color: inherit;
-}
 
+<style scoped>
 .purchase-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #f8f9fa;
-  padding: 20px;
+  background-color: #f1f2f5;
+  padding: 16px;
   border-radius: 8px;
-  border: 1px solid #e2e6ea;
+  border: 1px solid #ddd;
   width: 100%;
+  gap: 16px;
 }
 
 .event-image-container {
@@ -70,47 +63,52 @@ export default {
 }
 
 .event-image {
-  width: auto;
-  height: 120px;
+  width: 120px;
+  height: 80px;
   object-fit: cover;
   border-radius: 8px;
 }
 
 .event-details {
   flex-grow: 1;
-  margin-left: 20px;
+}
+
+.event-details h2 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.date {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.seat {
+  font-size: 0.9rem;
+  color: #666;
 }
 
 .event-price {
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-width: 100px;
 }
 
 .price {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: bold;
-  display: block;
+  margin-bottom: 5px;
 }
 
 .badge-status {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   padding: 5px 10px;
   border-radius: 20px;
-  margin-top: 5px;
-  background-color: #e0e0e0;
-  color: #fff;
-}
-
-.badge-status.paid {
   background-color: #007bff;
-}
-
-.badge-status.expired {
-  background-color: #dc3545;
-}
-
-.faded {
-  opacity: 0.5;
-  filter: grayscale(50%);
+  color: #fff;
+  text-align: center;
 }
 </style>

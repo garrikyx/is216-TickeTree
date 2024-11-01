@@ -55,13 +55,13 @@ app.post('/create-checkout-session', async (req, res) => {
                 currency: 'sgd',
                 product_data: {
                     name: item.eventName,
-                    images: [item.imageUrl],
+                    images: [item.imageUrlhttp],  // Use the correctly formatted imageUrlhttp
                     metadata: {
-                        eventDate: item.eventDate, // Add event date to metadata
-                        seatNumber: item.seatNumber // Add seat number to metadata
+                        eventDate: item.eventDate,
+                        seatNumber: item.seatNumber
                     },
                 },
-                unit_amount: item.pricePerItem * 100, // Convert to cents
+                unit_amount: item.pricePerItem * 100,
             },
             quantity: item.quantity,
         }));
@@ -115,7 +115,6 @@ app.get('/checkout-session', async (req, res) => {
         res.status(500).send("Failed to retrieve session details.");
     }
 });
-
 
 // Import sendConfirmationEmail function
 async function sendConfirmationEmail(email, orderSummary) {

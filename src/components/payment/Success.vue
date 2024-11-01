@@ -48,7 +48,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 import { db } from '../../../firebase'; // Adjust the import path if necessary
@@ -76,31 +75,25 @@ export default {
         const session = response.data;
         console.log("Fetched session details:", session);
 
-        // Check for line items and ensure eventDate and seatNumber are defined
         if (session.line_items && session.line_items.data.length > 0) {
           const item = session.line_items.data[0];
 
-          // Log item to inspect its structure
-          console.log("Line item details:", item);
-          console.log("Item metadata:", item.metadata); // Log the metadata
-
           this.orderSummary = {
             eventName: item.price.product.name,
-            eventDate: item.price.product.metadata.eventDate || 'N/A',  // Ensure to check for undefined
-            seatNumber: item.price.product.metadata.seatNumber || 'N/A', // Ensure to check for undefined
+            eventDate: item.price.product.metadata.eventDate || 'N/A',
+            seatNumber: item.price.product.metadata.seatNumber || 'N/A',
             quantity: item.quantity,
             customerEmail: session.customer_email || 'N/A',
             totalPrice: session.amount_total,
+            imageUrl: item.price.product.images[0] || '/images/noimage.png', // Retrieve correct imageUrl
           };
 
-          // Send confirmation email only if email is valid
           if (this.isValidEmail(this.orderSummary.customerEmail)) {
             await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
           } else {
             console.error("Invalid email format:", this.orderSummary.customerEmail);
           }
 
-          // Save payment details to Firestore
           await this.savePaymentDetails();
         } else {
           console.error("No line items found in the session data.");
@@ -114,21 +107,21 @@ export default {
   },
   methods: {
     isValidEmail(email) {
-      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation regex
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return regex.test(email);
     },
 
-async sendConfirmationEmail(email, orderSummary) {
-    try {
-        const response = await axios.post('http://localhost:5001/send-confirmation-email', {
-            email,
-            orderSummary,
-        });
-        console.log('Email sent successfully:', response.data);
-    } catch (error) {
-        console.error('Failed to send email:', error);
-    }
-},
+    async sendConfirmationEmail(email, orderSummary) {
+      try {
+          const response = await axios.post('http://localhost:5001/send-confirmation-email', {
+              email,
+              orderSummary,
+          });
+          console.log('Email sent successfully:', response.data);
+      } catch (error) {
+          console.error('Failed to send email:', error);
+      }
+    },
     async savePaymentDetails() {
       try {
         const paymentData = {
@@ -137,11 +130,11 @@ async sendConfirmationEmail(email, orderSummary) {
           seatNumber: this.orderSummary.seatNumber,
           quantity: this.orderSummary.quantity,
           eventDate: this.orderSummary.eventDate,
-          totalPrice: Math.round(this.orderSummary.totalPrice / 100), // Adjust as needed
+          totalPrice: Math.round(this.orderSummary.totalPrice / 100),
+          imageUrl: this.orderSummary.imageUrl, // Save imageUrl in Firestore
         };
         const docRef = await addDoc(collection(db, 'payment'), paymentData);
-        // Update the payment data to include the document ID as orderId
-        await updateDoc(docRef, { orderId: docRef.id }); // Use the document ID as orderId
+        await updateDoc(docRef, { orderId: docRef.id });
         console.log("Payment document written with ID: ", docRef.id);
       } catch (error) {
         console.error("Error adding payment document: ", error);

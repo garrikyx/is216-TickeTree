@@ -82,7 +82,8 @@ export default {
           eventDate: item.eventDate,
           pricePerItem: item.pricePerItem,
           quantity: item.quantity,
-          imageUrl: item.imageUrl.startsWith('http')
+          imageUrl: item.imageUrl,
+          imageUrlhttp: item.imageUrl.startsWith('http')
             ? item.imageUrl
             : `${window.location.origin}${item.imageUrl}`,
         }));
