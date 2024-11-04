@@ -4,13 +4,12 @@
     <div class="poster-section">
       <img :src="event?.imageUrl" class="poster-img" alt="Event Poster" @error="handleImageError" />
       <div class="event-info">
-      <h1 class="event-title">{{ event.eventName }}</h1>
-        <p class="order-id">Ticket ID: <strong>{{ orderId }}</strong></p>
-        <p class="event-date">Date: <strong>{{ formattedDate }}</strong></p>
-        <p class="event-time">{{ event.time }}</p>
+      <h1 class="event-title"><strong>{{ event.eventName }}</strong></h1>
+        <p class="order-id">Ticket ID: {{ orderId }}</p>
+        <p class="event-date">Date: {{ formattedDate }}</p>
         <p class="event-location">{{ event.location }}</p>
         <p class="seat-number">
-          Seat: <strong>{{ event.ticket.seat }}</strong>
+          Seat: {{ event.ticket.seat }}
         </p>
       </div>
     </div>
@@ -191,9 +190,14 @@ function getTicket() {
   object-fit: cover;
 }
 
+.event-title{
+  margin-bottom: 15px;
+}
+
 .event-info {
   text-align: center;
-  margin-top: 15px;
+  margin-top: 20px;
+  font-size: 18px;
 }
 
 /* Ticket Section */
