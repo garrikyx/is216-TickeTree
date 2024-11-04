@@ -72,6 +72,7 @@ export default {
   },
   async mounted() {
     this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR');
+  
   },
   methods: {
     async checkout() {
@@ -83,9 +84,6 @@ export default {
           pricePerItem: item.pricePerItem,
           quantity: item.quantity,
           imageUrl: item.imageUrl,
-          imageUrlhttp: item.imageUrl.startsWith('http')
-            ? item.imageUrl
-            : `${window.location.origin}${item.imageUrl}`,
         }));
 
         localStorage.setItem('orderSummary', JSON.stringify(items));

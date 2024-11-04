@@ -14,8 +14,8 @@ const port = process.env.PORT || 5001;
 const stripe = stripePackage(process.env.STRIPE_SECRET_KEY);
 
 // Middleware
-app.use(cors()); // Enable CORS for all routes
-app.use(express.json()); // Parse JSON bodies
+app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.static(path.resolve('dist')));
 
@@ -50,21 +50,26 @@ app.post('/create-checkout-session', async (req, res) => {
     }
 
     try {
-        const lineItems = cartItems.map(item => ({
-            price_data: {
-                currency: 'sgd',
-                product_data: {
-                    name: item.eventName,
-                    images: [item.imageUrlhttp],  // Use the correctly formatted imageUrlhttp
-                    metadata: {
-                        eventDate: item.eventDate,
-                        seatNumber: item.seatNumber
+        const lineItems = cartItems.map(item => {
+            console.log("Item image URL:", item.imageUrl); // Log the image URL
+            return {
+                price_data: {
+                    currency: 'sgd',
+                    product_data: {
+                        name: item.eventName,
+                        // Note: The image URL is not included in the product data for Stripe
+                        metadata: {
+                            eventDate: item.eventDate,
+                            seatNumber: item.seatNumber,
+                            // Store the image URL in metadata if needed
+                            imageUrl: item.imageUrl, // Optionally store the image URL
+                        },
                     },
+                    unit_amount: item.pricePerItem * 100,
                 },
-                unit_amount: item.pricePerItem * 100,
-            },
-            quantity: item.quantity,
-        }));
+                quantity: item.quantity,
+            };
+        });
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -88,27 +93,26 @@ app.get('/checkout-session', async (req, res) => {
             expand: ['line_items.data.price.product', 'customer'],
         });
 
-        // Extract order summary from session
         const items = session.line_items.data.map(item => ({
             eventName: item.price.product.name,
             eventDate: item.price.product.metadata.eventDate,
             seatNumber: item.price.product.metadata.seatNumber,
             quantity: item.quantity,
-            pricePerItem: item.price.unit_amount / 100, // Convert back to original price
+            pricePerItem: item.price.unit_amount / 100,
+            imageUrl: item.price.product.metadata.imageUrl, // Keep track of the absolute image URL
         }));
 
-        const orderSummary = items[0]; // Assuming you want to send details of the first item
+        const orderSummary = items[0];
         const customerEmail = session.customer_details?.email || session.customer?.email;
 
         // Send confirmation email
         await sendConfirmationEmail(customerEmail, orderSummary);
 
-        // Send the order summary back to the client
         res.json({
             customer_email: customerEmail,
             line_items: session.line_items,
             amount_total: session.amount_total,
-            orderSummary, // Send order summary with response
+            orderSummary,
         });
     } catch (error) {
         console.error("Error fetching session details:", error);

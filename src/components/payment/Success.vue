@@ -48,6 +48,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 import { db } from '../../../firebase'; // Adjust the import path if necessary
@@ -85,7 +86,7 @@ export default {
             quantity: item.quantity,
             customerEmail: session.customer_email || 'N/A',
             totalPrice: session.amount_total,
-            imageUrl: item.price.product.images[0] || '/images/noimage.png', // Retrieve correct imageUrl
+            imageUrl: item.price.product.metadata.imageUrl || '/images/noimage.png', // Retrieve correct imageUrl
           };
 
           if (this.isValidEmail(this.orderSummary.customerEmail)) {
@@ -131,7 +132,7 @@ export default {
           quantity: this.orderSummary.quantity,
           eventDate: this.orderSummary.eventDate,
           totalPrice: Math.round(this.orderSummary.totalPrice / 100),
-          imageUrl: this.orderSummary.imageUrl, // Save imageUrl in Firestore
+          imageUrl: this.orderSummary.imageUrl,  
         };
         const docRef = await addDoc(collection(db, 'payment'), paymentData);
         await updateDoc(docRef, { orderId: docRef.id });
@@ -235,6 +236,12 @@ h2 {
 
 .order-value {
   color: #333;
+}
+
+.event-image {
+  max-width: 100%;
+  height: auto;
+  margin-top: 10px;
 }
 
 .order-summary-card {
