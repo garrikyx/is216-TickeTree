@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     redirectToEvents() {
-      this.$router.push('/myevents');
+      this.$router.push('/');
     },
   },
 };
