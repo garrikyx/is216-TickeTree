@@ -14,6 +14,9 @@
 
     <!-- Events List -->
     <div class="events-list">
+      <!-- Check if there are no tickets in the filtered list -->
+      <p v-if="filteredTickets.length === 0" class="no-tickets-message">No tickets available</p>
+      
       <router-link
         v-for="ticket in filteredTickets"
         :key="ticket.id"
@@ -217,17 +220,15 @@ h1 {
   font-size: 1.1rem;
   font-weight: bold;
   margin: 0;
+  color: black; /* Change event name color to black */
 }
 
-.date {
-  font-size: 0.9rem;
-  color: #666;
-  margin-top: 5px;
-}
-
+.date,
 .seat {
   font-size: 0.9rem;
   color: #666;
+  margin-top: 5px; /* Adjusted margin for equal spacing */
+  margin-bottom: 5px; /* Added margin-bottom for consistency */
 }
 
 .event-price {
@@ -241,14 +242,27 @@ h1 {
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 5px;
+  color: black; /* Change price color to black */
 }
 
 .badge-status {
   font-size: 0.8rem;
   padding: 5px 10px;
   border-radius: 20px;
-  background-color: #007bff;
-  color: #fff;
+  background-color: green; /* Change badge color to green */
+  color: #fff; /* Keep text color white for contrast */
   text-align: center;
 }
+
+.purchase-item-link {
+  text-decoration: none; /* Remove underline */
+}
+
+.no-tickets-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666; /* Optional: change color as needed */
+  margin-top: 20px;
+}
+
 </style>
