@@ -67,7 +67,7 @@
 
     <div class="row text-center mx-4">
       <div class="col">
-        <button class="btn btn-outline-primary" @click="toggleShowMore">
+        <button class="mb-5 mt-2 btn btn-outline-primary" @click="toggleShowMore">
           {{ showAllEvents ? 'Show Less' : 'Show More' }}
         </button>
       </div>

@@ -24,7 +24,7 @@
 
       <!-- Search Input -->
       <div class="position-relative">
-        <div class="d-flex bg-white p-3 rounded shadow">
+        <div class="d-flex bg-white p-3 rounded-5 shadow">
           <div class="d-flex align-items-center w-100">
             <i class="bi bi-search text-muted me-2"></i>
             <input

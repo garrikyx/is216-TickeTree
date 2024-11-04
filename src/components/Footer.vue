@@ -1,5 +1,5 @@
 <template>
-  <footer class="mt-5 p-4 bg-dark text-light text-center">
+  <footer class="p-4 bg-dark text-light text-center">
     <p>&copy; 2024 | About | Contact Us | FAQ | Legal | English</p>
   </footer>
 </template>
