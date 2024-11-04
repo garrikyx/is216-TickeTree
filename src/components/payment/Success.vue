@@ -53,6 +53,7 @@
 import axios from 'axios';
 import { db } from '../../../firebase'; // Adjust the import path if necessary
 import { collection, addDoc, updateDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth'; // Import Firebase Auth
 
 export default {
   data() {
@@ -95,7 +96,7 @@ export default {
             console.error("Invalid email format:", this.orderSummary.customerEmail);
           }
 
-          await this.savePaymentDetails();
+          await this.savePaymentDetails(); // Save payment details here
         } else {
           console.error("No line items found in the session data.");
         }
@@ -114,17 +115,22 @@ export default {
 
     async sendConfirmationEmail(email, orderSummary) {
       try {
-          const response = await axios.post('http://localhost:5001/send-confirmation-email', {
-              email,
-              orderSummary,
-          });
-          console.log('Email sent successfully:', response.data);
+        const response = await axios.post('http://localhost:5001/send-confirmation-email', {
+          email,
+          orderSummary,
+        });
+        console.log('Email sent successfully:', response.data);
       } catch (error) {
-          console.error('Failed to send email:', error);
+        console.error('Failed to send email:', error);
       }
     },
+
     async savePaymentDetails() {
       try {
+        const auth = getAuth(); // Get the current user
+        const currentUser = auth.currentUser; // Get the current user
+        const userId = currentUser ? currentUser.uid : null; // Get user ID
+
         const paymentData = {
           customerEmail: this.orderSummary.customerEmail,
           eventName: this.orderSummary.eventName,
@@ -132,8 +138,10 @@ export default {
           quantity: this.orderSummary.quantity,
           eventDate: this.orderSummary.eventDate,
           totalPrice: Math.round(this.orderSummary.totalPrice / 100),
-          imageUrl: this.orderSummary.imageUrl,  
+          imageUrl: this.orderSummary.imageUrl,
+          userId: userId, // Include user ID in payment data
         };
+        
         const docRef = await addDoc(collection(db, 'payment'), paymentData);
         await updateDoc(docRef, { orderId: docRef.id });
         console.log("Payment document written with ID: ", docRef.id);
@@ -141,6 +149,7 @@ export default {
         console.error("Error adding payment document: ", error);
       }
     },
+
     redirectToHomepage() {
       this.$router.push('/');
     },

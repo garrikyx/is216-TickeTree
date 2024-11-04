@@ -67,12 +67,12 @@ async function fetchTickets() {
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
-    if (!currentUser || !currentUser.email) return; // Check if the user is logged in
+    if (!currentUser || !currentUser.uid) return; // Check if the user is logged in
 
     const paymentCollectionRef = collection(db, 'payment');
     const userTicketsQuery = query(
       paymentCollectionRef,
-      where("customerEmail", "==", currentUser.email)
+      where("userId", "==", currentUser.uid)
     );
 
     const querySnapshot = await getDocs(userTicketsQuery);
