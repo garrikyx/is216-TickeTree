@@ -69,10 +69,10 @@ const router = createRouter({
       props: true
     },
     {
-      path:'/event/:id',
+      path: '/purchase-history/:orderID',
       name: 'PurchaseHistoryEvent',
       component: () => import("@/views/PurchaseHistoryEvent.vue"),
-      props: true
+      props: true,
     },
     {
       path: '/events/:id', 

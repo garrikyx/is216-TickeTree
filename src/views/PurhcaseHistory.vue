@@ -4,48 +4,80 @@
 
     <!-- Toggle Buttons for Upcoming and Past Events -->
     <div class="toggle-buttons">
-      <button
-        :class="{ active: currentTab === 'upcoming' }"
-        @click="currentTab = 'upcoming'"
-      >
+      <button :class="{ active: currentTab === 'upcoming' }" @click="currentTab = 'upcoming'">
         Upcoming Events
       </button>
-      <button
-        :class="{ active: currentTab === 'past' }"
-        @click="currentTab = 'past'"
-      >
+      <button :class="{ active: currentTab === 'past' }" @click="currentTab = 'past'">
         Past Events
       </button>
     </div>
 
-    <!-- Events List Component -->
-    <EventsList :tickets="ticketlist" :currentTab="currentTab" />
+    <!-- Events List -->
+    <div class="events-list">
+      <router-link
+        v-for="ticket in filteredTickets"
+        :key="ticket.id"
+        :to="{ name: 'PurchaseHistoryEvent', params: { orderID: ticket.id } }"
+        class="purchase-item-link"
+      >
+        <div class="purchase-item">
+          <div class="event-image-container">
+            <img :src="ticket.imageUrl" alt="Event Image" class="event-image" @error="handleImageError" />
+          </div>
+          <div class="event-details">
+            <h2>{{ ticket.eventName }}</h2>
+            <p class="date">
+              Date:
+              <span v-if="ticket.endDate">
+                {{ formatDate(ticket.startDate) }} - {{ formatDate(ticket.endDate) }}
+              </span>
+              <span v-else>
+                {{ formatDate(ticket.startDate) }}
+              </span>
+            </p>
+            <p class="seat">Seat: {{ ticket.seatNumber }}</p>
+          </div>
+          <div class="event-price">
+            <span class="price">${{ ticket.price }}</span>
+            <span class="badge-status paid">Paid</span>
+          </div>
+        </div>
+      </router-link>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import EventsList from "@/components/purchasehistory/EventList.vue"; // Adjusted import path
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase'; // Ensure this points to your Firebase config
+import { ref, computed, onMounted } from 'vue';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../firebase'; // Ensure this imports your Firebase config
+import { getAuth } from 'firebase/auth';
 
-const currentTab = ref("upcoming"); // Default tab is upcoming events
-const ticketlist = ref([]); // Initialize ticketlist
+const currentTab = ref("upcoming");
+const ticketlist = ref([]);
 
-// Fetch tickets when component mounts
+// Fetch tickets on component mount
 onMounted(fetchTickets);
 
-// Fetch tickets from Firestore
 async function fetchTickets() {
   try {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser || !currentUser.email) return; // Check if the user is logged in
+
     const paymentCollectionRef = collection(db, 'payment');
-    const querySnapshot = await getDocs(paymentCollectionRef);
-    
-    // Map through documents and add necessary fields
+    const userTicketsQuery = query(
+      paymentCollectionRef,
+      where("customerEmail", "==", currentUser.email)
+    );
+
+    const querySnapshot = await getDocs(userTicketsQuery);
+
     ticketlist.value = querySnapshot.docs.map(doc => {
       const eventData = doc.data();
       const [startDate, endDate] = parseEventDate(eventData.eventDate);
-      
+
       return {
         id: doc.id,
         eventName: eventData.eventName,
@@ -53,9 +85,8 @@ async function fetchTickets() {
         endDate,
         seatNumber: eventData.seatNumber,
         price: eventData.totalPrice,
-        customerEmail: eventData.customerEmail,
         quantity: eventData.quantity,
-        eventCategory: eventData.category // Ensure this exists in your Firestore documents
+        imageUrl: eventData.imageUrl || "/images/noimage.png",
       };
     });
   } catch (error) {
@@ -63,30 +94,54 @@ async function fetchTickets() {
   }
 }
 
-// Parse the event date string into Date objects
+// Parses event dates and returns Date objects for start and end dates
 function parseEventDate(eventDate) {
-  // Check if the eventDate contains a range (indicated by " - ")
   if (eventDate.includes(" - ")) {
     const dateParts = eventDate.split(" - ");
+    const start = new Date(`${dateParts[0]} ${new Date().getFullYear()}`);
+    const end = new Date(`${dateParts[1]} ${new Date().getFullYear()}`);
 
-    // Parse start date
-    const [startDay, startDate, startMonth] = dateParts[0].split(" ").slice(1);
-    const startDateObj = new Date(`${startDate} ${startMonth} ${new Date().getFullYear()}`);
+    // Adjust for year transition if end date is earlier than start date
+    if (end < start) {
+      end.setFullYear(end.getFullYear() + 1);
+    }
 
-    // Parse end date
-    const [endDay, endDate, endMonth] = dateParts[1].split(" ").slice(1);
-    const endDateObj = new Date(`${endDate} ${endMonth} ${new Date().getFullYear()}`);
-
-    return [startDateObj, endDateObj];
+    return [start, end];
   } else {
-    // If there's no range, parse the single date
-    const [day, date, month] = eventDate.split(" ").slice(1);
-    const singleDateObj = new Date(`${date} ${month} ${new Date().getFullYear()}`);
-    
-    return [singleDateObj, null]; // Return null for the end date
+    const singleDate = new Date(`${eventDate} ${new Date().getFullYear()}`);
+    return [singleDate, null];
   }
 }
 
+// Filter tickets based on the current tab (upcoming or past)
+const filteredTickets = computed(() => {
+  const currentDate = new Date();
+  return ticketlist.value.filter(ticket => {
+    if (currentTab.value === 'upcoming') {
+      return ticket.endDate ? ticket.endDate >= currentDate : ticket.startDate >= currentDate;
+    } else {
+      return ticket.endDate ? ticket.endDate < currentDate : ticket.startDate < currentDate;
+    }
+  });
+});
+
+// Set a fallback image if the original fails to load
+function handleImageError(event) {
+  event.target.src = "/images/noimage.png";
+}
+
+// Format date to a string
+function formatDate(date) {
+  if (date instanceof Date) {
+    return date.toLocaleDateString('en-GB', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+  return date;
+}
 </script>
 
 <style scoped>
@@ -124,5 +179,76 @@ h1 {
   background-color: #007bff;
   color: white;
   border-color: #007bff;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.purchase-item {
+  display: flex;
+  align-items: center;
+  background-color: #f1f2f5;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  gap: 16px;
+}
+
+.event-image-container {
+  flex: 0 0 120px;
+}
+
+.event-image {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.event-details {
+  flex-grow: 1;
+}
+
+.event-details h2 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.date {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.seat {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.event-price {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+}
+
+.price {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.badge-status {
+  font-size: 0.8rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background-color: #007bff;
+  color: #fff;
+  text-align: center;
 }
 </style>
