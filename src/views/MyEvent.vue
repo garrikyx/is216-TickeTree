@@ -114,35 +114,35 @@ hr {
 <script>
 export default {
   mounted() {
-    window.initMap = this.initMap;  // Ensure the callback is set globally
-    this.loadGoogleMaps();
+    // window.initMap = this.initMap;  // Ensure the callback is set globally
+    // this.loadGoogleMaps();
   },
-  methods: {
-    loadGoogleMaps() {
-      // Dynamically create and append the Google Maps script
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
-      script.async = true;
-      script.defer = true;
-      window.initMap = this.initMap; // Set initMap as a global function
-      document.head.appendChild(script);
-    },
-    initMap() {
-      const location = { lat: 1.3046849416229254, lng: 103.87609278257061 }; // Coordinates for OCBC arena
+  // methods: {
+  //   loadGoogleMaps() {
+  //     // Dynamically create and append the Google Maps script
+  //     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  //     const script = document.createElement('script');
+  //     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+  //     script.async = true;
+  //     script.defer = true;
+  //     window.initMap = this.initMap; // Set initMap as a global function
+  //     document.head.appendChild(script);
+  //   },
+  //   initMap() {
+  //     const location = { lat: 1.3046849416229254, lng: 103.87609278257061 }; // Coordinates for OCBC arena
 
-      const map = new google.maps.Map(document.getElementById("map"), {
-        center: location,
-        zoom: 15,
-      });
+  //     const map = new google.maps.Map(document.getElementById("map"), {
+  //       center: location,
+  //       zoom: 15,
+  //     });
 
-      // Add a marker to the location
-      new google.maps.Marker({
-        position: location,
-        map: map,
-      });
-    }
-  }
+  //     // Add a marker to the location
+  //     new google.maps.Marker({
+  //       position: location,
+  //       map: map,
+  //     });
+  //   }
+  // }
 }
 
 </script>

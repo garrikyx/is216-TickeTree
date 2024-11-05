@@ -4,6 +4,7 @@
       <div class="col fw-bold mb-2 fs-4 mx-4">Browse Events</div>
     </div>
 
+    <!-- Filter Buttons -->
     <div class="row mb-4 mx-4">
       <div class="col">
         <button
@@ -24,10 +25,12 @@
     </div>
 
     <div class="row text-center mx-4">
+      <!-- Display hardcoded events only for Popular filter -->
       <div
         v-for="event in hardCodeEvents"
         :key="event.id"
         class="col-md-4 mb-4"
+        v-if="currentFilter === 'Popular'"
       >
         <div class="card h-100">
           <img :src="event.image" class="card-img-top" :alt="event.title" />
@@ -38,34 +41,37 @@
             </p>
             <h5 class="card-title text-start">{{ event.title }}</h5>
             <p class="card-text text-start">
-              {{ event.venue }}<br/>
+              {{ event.venue }}<br />
             </p>
           </div>
         </div>
       </div>
-      <div v-for="event in visibleEvents" :key="event.id" class="col-md-4 mb-4">
+
+      <!-- Display events from the store based on selected filter -->
+      <div v-for="event in filteredEvents" :key="event.id" class="col-md-4 mb-4">
         <RouterLink :to="{ name: 'EventDetail', params: { id: event.id } }" class="custom-link">
-        <div class="card h-100">
-          <img
-            :src="event.images.images[0]?.original_url || '/images/noimage.png'"
-            class="card-img-top"
-            :alt="event.name"
-          />
-          <div class="card-body">
-            <p class="fw-bold text-start mb-0">
-              <span class="fs-4"> {{ event.datetime_summary }} </span>
-            </p>
-            <h5 class="card-title text-start">{{ event.name }}</h5>
-            <p class="card-text text-start">
-              {{ event.location_summary }}<br />
-            </p>
+          <div class="card h-100">
+            <img
+              :src="event.images?.images[0]?.original_url || '/images/noimage.png'"
+              class="card-img-top"
+              :alt="event.name"
+            />
+            <div class="card-body">
+              <p class="fw-bold text-start mb-0">
+                <span class="fs-4"> {{ event.datetime_summary }} </span>
+              </p>
+              <h5 class="card-title text-start">{{ event.name }}</h5>
+              <p class="card-text text-start">
+                {{ event.location_summary }}<br />
+              </p>
+            </div>
           </div>
-        </div>
-      </RouterLink>
+        </RouterLink>
       </div>
     </div>
 
-    <div class="row text-center mx-4">
+    <!-- Show More Button for Popular view only -->
+    <div class="row text-center mx-4" v-if="currentFilter === 'Popular'">
       <div class="col">
         <button class="mb-5 mt-2 btn btn-outline-primary" @click="toggleShowMore">
           {{ showAllEvents ? 'Show Less' : 'Show More' }}
@@ -76,17 +82,17 @@
 </template>
 
 <script setup>
-import { fetchEvents } from "@/api/eventsApi";
-import { onMounted, ref, computed } from "vue";
+import { ref, computed, onMounted } from 'vue';
+import { useEventStore } from '@/stores/eventStore';
 
-const filters = ["Popular"];
+const filters = ["Popular", "Recently Viewed"]; // Add "Recently Viewed" filter
 const currentFilter = ref("Popular");
 
 const setFilter = (filter) => {
   currentFilter.value = filter;
-  // Add filter logic here
 };
 
+// Define hardcoded events
 const hardCodeEvents = [
   {
     id: 1,
@@ -94,7 +100,6 @@ const hardCodeEvents = [
     date: "31",
     month: "OCTOBER",
     venue: "The Star Theatre",
-    time: "8:00PM - 10:00PM",
     image: "/images/tatemcrae.jpg",
   },
   {
@@ -103,7 +108,6 @@ const hardCodeEvents = [
     date: "5 - 6",
     month: "NOVEMBER",
     venue: "Singapore Indoor Stadium",
-    time: "8:00PM - 10:00PM",
     image: "/images/dualipa.jpg",
   },
   {
@@ -112,35 +116,34 @@ const hardCodeEvents = [
     date: "25",
     month: "NOVEMBER",
     venue: "Singapore Indoor Stadium",
-    time: "8:00PM - 10:00PM",
     image: "/images/imaginedragons.jpg",
   },
 ];
 
-const events = ref([]);
+// Initialize reactive states for event display control
 const visibleCount = ref(3);
 const showAllEvents = ref(false);
 
-const loadEvents = async () => {
-  try {
-    const response = await fetchEvents({ order: "popularity", rows: 20 });
-    // console.log(response);
-    events.value = response;
-  } catch (error) {
-    console.error("Failed to fetch events:", error);
-  }
-};
-
-const visibleEvents = computed(() => events.value.slice(0, visibleCount.value));
-
-
 const toggleShowMore = () => {
   showAllEvents.value = !showAllEvents.value;
-  visibleCount.value = showAllEvents.value ? events.value.length : 3;
+  visibleCount.value = showAllEvents.value ? eventStore.events.length : 3;
 };
 
+// Use the event store
+const eventStore = useEventStore();
+
+// Fetch events from the store when the component is mounted
 onMounted(() => {
-  loadEvents();
+  eventStore.loadEvents();
+});
+
+// Computed property to filter events based on the current filter
+const filteredEvents = computed(() => {
+  if (currentFilter.value === "Recently Viewed") {
+    return eventStore.recentlyViewed; // Show all recently viewed events
+  } else {
+    return eventStore.events.slice(0, visibleCount.value); // Show popular events with "Show More" functionality
+  }
 });
 </script>
 
@@ -166,12 +169,11 @@ onMounted(() => {
 }
 
 .custom-link {
-  color: inherit;          
-  text-decoration: none;   
+  color: inherit;
+  text-decoration: none;
 }
 
 .custom-link:hover {
-  text-decoration: none;   
+  text-decoration: none;
 }
-
 </style>

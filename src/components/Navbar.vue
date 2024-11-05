@@ -69,8 +69,6 @@
 import { ref, onMounted } from 'vue';
 import { getAuth } from 'firebase/auth';
 import { useRouter, RouterLink, useRoute } from 'vue-router';
-import { db } from '../../firebase';
-import { doc, getDoc } from 'firebase/firestore';
 
 const auth = getAuth();
 const router = useRouter();
