@@ -84,7 +84,7 @@ const hoverIndex = ref(null);
 const navItems = ref([
   { path: "/", label: "Home" },
   { path: "/marketplace", label: "Marketplace" },
-  { path: "/myevents", label: "My Events" },
+  { path: "/faqs", label: "FAQs" },
 ]);
 
 // Calculate the background position based on active/hover state
