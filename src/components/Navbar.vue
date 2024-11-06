@@ -1,7 +1,6 @@
 <template>
-  <nav class="navbar navbar-expand-lg custom-navbar">
+  <nav class="navbar navbar-expand-md custom-navbar">
     <div class="container-fluid">
-      
       <!-- Navigation Items -->
       <div class="collapse navbar-collapse justify-content-between align-items-center" id="navbarNav">
         <!-- Left section with logo -->
@@ -15,12 +14,18 @@
         </div>
 
         <!-- Center section with navigation -->
-        <ul class="navbar-nav mx-auto">
-          <li v-for="item in navItems" :key="item.path" class="nav-item">
+        <ul class="navbar-nav" ref="navContainer">
+          <div class="nav-background" :style="backgroundStyle"></div>
+          <li v-for="(item, index) in navItems" 
+              :key="item.path" 
+              class="nav-item"
+              @mouseenter="handleHover(index)"
+              @mouseleave="handleHoverExit">
             <RouterLink
               :to="item.path"
               class="nav-link"
               :class="{ active: route.path === item.path }"
+              @click="handleClick(index)"
             >
               {{ item.label }}
             </RouterLink>
@@ -31,7 +36,7 @@
         <div class="navbar-right">
           <div 
             v-if="isLoggedIn" 
-            class="user-info-wrapper d-none d-lg-flex align-items-center"
+            class="user-info-wrapper d-none d-md-flex align-items-center"
             @click="$emit('toggleSidebar')"
           >
             <div class="user-avatar">
@@ -49,7 +54,7 @@
         </div>
       </div>
 
-      <!-- Mobile Toggle Button - Outside the collapse div -->
+      <!-- Mobile Toggle Button -->
       <button
         class="navbar-toggler"
         type="button"
@@ -66,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { getAuth } from 'firebase/auth';
 import { useRouter, RouterLink, useRoute } from 'vue-router';
 import { db } from '../../firebase';
@@ -76,23 +81,56 @@ const auth = getAuth();
 const router = useRouter();
 const route = useRoute();
 const isLoggedIn = ref(false);
+const navContainer = ref(null);
+const activeIndex = ref(0);
+const hoverIndex = ref(null);
+
 const navItems = ref([
   { path: "/", label: "Home" },
   { path: "/marketplace", label: "Marketplace" },
   { path: "/myevents", label: "My Events" },
 ]);
 
+// Calculate the background position based on active/hover state
+const backgroundStyle = computed(() => {
+  const index = hoverIndex.value !== null ? hoverIndex.value : activeIndex.value;
+  const width = 150; // Width of nav-link
+  return {
+    transform: `translateX(${index * width}px)`,
+    width: `${width}px`
+  };
+});
+
 onMounted(() => {
   auth.onAuthStateChanged((user) => {
     isLoggedIn.value = !!user;
   });
+  
+  // Set initial active index based on current route
+  const currentIndex = navItems.value.findIndex(item => item.path === route.path);
+  if (currentIndex !== -1) {
+    activeIndex.value = currentIndex;
+  }
 });
+
+const handleClick = (index) => {
+  activeIndex.value = index;
+};
+
+const handleHover = (index) => {
+  hoverIndex.value = index;
+};
+
+const handleHoverExit = () => {
+  hoverIndex.value = null;
+};
 
 const goToLogin = () => {
   router.push('/login');
 };
 </script>
 
+# Template section same as before until style
 <style scoped>
 .shape{
   border-radius: 12px;
@@ -101,8 +139,7 @@ const goToLogin = () => {
 
 .custom-navbar {
   background: #B87333;
-  padding: 0.8rem 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 60px;
 }
 
 .navbar-collapse {
@@ -138,25 +175,41 @@ const goToLogin = () => {
 
 .navbar-nav {
   flex-grow: 0;
+  position: relative;
+  display: flex;
+  gap: 0;
+}
+
+.nav-background {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
 
 .nav-link {
+  font-size: 15px;
   color: #e0e0e0 !important;
   font-weight: 500;
-  padding: 0.5rem 1rem;
-  margin: 0 0.2rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  padding: 20px;
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  border-radius: 8px;
+  position: relative;
+  transition: color 0.2s ease;
 }
 
 .nav-link:hover {
   color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .nav-link.active {
   color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .user-info-wrapper {
@@ -198,28 +251,60 @@ const goToLogin = () => {
   transform: translateY(-1px);
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 768px) {
+  .custom-navbar {
+    height: auto;
+    padding: 10px 0;
+  }
+
   .navbar-collapse {
+    background: #B87333;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
     flex-direction: column;
-    align-items: stretch;
+    padding: 1rem;
+    z-index: 1000;
   }
 
   .navbar-nav {
-    margin: 1rem 0;
+    flex-direction: column;
+    width: 100%;
+    padding: 0;
+  }
+
+  .nav-background {
+    display: none;
   }
 
   .nav-link {
-    padding: 0.7rem 1rem;
-    margin: 0.2rem 0;
-  }
-  
-  .login-btn {
     width: 100%;
-    margin-top: 0.5rem;
+    padding: 15px;
+    margin: 2px 0;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
   }
 
   .navbar-right {
+    width: 100%;
     justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .login-btn {
+    width: 100%;
+  }
+
+  .user-info-wrapper {
+    margin: 1rem 0;
+  }
+
+  .navbar-brand {
+    margin-right: 0;
   }
 }
 </style>
