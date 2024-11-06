@@ -59,16 +59,27 @@ import { getAuth } from 'firebase/auth';
 const currentTab = ref("upcoming");
 const ticketlist = ref([]);
 
-// Fetch tickets on component mount
-onMounted(fetchTickets);
+// Fetch tickets when the component is mounted
+onMounted(() => {
+  const auth = getAuth();
+  
+  // Ensure we load tickets when the user is authenticated
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      fetchTickets();
+    }
+  });
+});
 
 async function fetchTickets() {
   try {
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
+    // Check if the user is authenticated
     if (!currentUser || !currentUser.uid) return;
 
+    // Query the user's tickets from the database
     const paymentCollectionRef = collection(db, 'payment');
     const userTicketsQuery = query(
       paymentCollectionRef,
@@ -77,6 +88,7 @@ async function fetchTickets() {
 
     const querySnapshot = await getDocs(userTicketsQuery);
 
+    // Map the documents to a ticket list
     ticketlist.value = querySnapshot.docs.map(doc => {
       const eventData = doc.data();
       const [startDate, endDate] = parseEventDate(eventData.eventDate);
@@ -144,7 +156,6 @@ function formatDate(date) {
   }
   return date;
 }
-
 </script>
 
 <style scoped>

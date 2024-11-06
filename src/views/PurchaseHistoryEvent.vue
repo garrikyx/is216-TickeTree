@@ -9,7 +9,6 @@
         <p class="event-date">Date: {{ formattedDate }}</p>
         <p class="event-location">{{ event.location }}</p>
         <p class="seat-number">Seat: {{ event.seat.join(', ') }}</p>
-
       </div>
     </div>
 
@@ -21,32 +20,32 @@
     </div>
 
     <!-- Digital Ticket Modal -->
-<transition name="fade">
-  <div v-if="showTicket" class="modal-overlay" @click.self="showTicket = false">
-    <div class="digital-ticket">
-      <div class="ticket-header">
-        <button class="close-btn" @click="showTicket = false">×</button> <!-- Fixed line -->
-        <h3 class="ticket-title">TickeTree</h3>
-      </div>
-      <div class="ticket-content">
-        <h1 class="standard-ticket">{{ event?.eventName }}</h1>
-        <div class="seat-info">
-          <div class="seat-detail">
-            <span class="label">SEC</span><br />
-            <span class="value">{{ event.ticket.section }}</span>
+    <transition name="fade">
+      <div v-if="showTicket" class="modal-overlay" @click.self="showTicket = false">
+        <div class="digital-ticket">
+          <div class="ticket-header">
+            <button class="close-btn" @click="showTicket = false">×</button>
+            <h3 class="ticket-title">TickeTree</h3>
           </div>
-          <div class="seat-detail">
-            <span class="label">ROW</span><br />
-            <span class="value">{{ event.ticket.row }}</span>
+          <div class="ticket-content">
+            <h1 class="standard-ticket">{{ event?.eventName }}</h1>
+            <div class="seat-info">
+              <div class="seat-detail">
+                <span class="label">SEC</span><br />
+                <span class="value">{{ event.ticket.section }}</span>
+              </div>
+              <div class="seat-detail">
+                <span class="label">ROW</span><br />
+                <span class="value">{{ event.ticket.row }}</span>
+              </div>
+            </div>
+            <br />
+            <p v-if="message" class="unavailable-message">{{ message }}</p>
+            <img v-else-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
           </div>
         </div>
-        <br />
-        <p v-if="message" class="unavailable-message">{{ message }}</p>
-        <img v-else-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
       </div>
-    </div>
-  </div>
-</transition>
+    </transition>
   </div>
 
   <div v-else>
@@ -57,18 +56,27 @@
 <script setup>
 import { ref, computed, onMounted, defineProps } from 'vue';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../firebase'; // Ensure this imports your Firebase config
+import { db } from '../../firebase';
 import { getAuth } from 'firebase/auth';
-import QRCode from "qrcode";
+import QRCode from 'qrcode';
 
 const props = defineProps(['orderID']);
 const event = ref(null);
-const showTicket = ref(false); // Controls visibility of the ticket modal
+const showTicket = ref(false);
 const qrCode = ref(null);
-const message = ref("");
+const message = ref('');
 const orderId = ref(props.orderID);
 
-onMounted(fetchEventDetails);
+onMounted(() => {
+  const auth = getAuth();
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      await fetchEventDetails();
+    } else {
+      console.log('User not authenticated, retrying...');
+    }
+  });
+});
 
 async function fetchEventDetails() {
   try {
@@ -78,7 +86,7 @@ async function fetchEventDetails() {
     if (!currentUser || !currentUser.email) return;
 
     const paymentCollectionRef = collection(db, 'payment');
-    const orderIdQuery = query(paymentCollectionRef, where("orderId", "==", props.orderID));
+    const orderIdQuery = query(paymentCollectionRef, where('orderId', '==', props.orderID));
     const orderIdSnapshot = await getDocs(orderIdQuery);
 
     if (!orderIdSnapshot.empty) {
@@ -91,51 +99,44 @@ async function fetchEventDetails() {
         date: eventData.eventDate,
         time: eventData.eventTime,
         location: eventData.eventLocation,
-        imageUrl: eventData.imageUrl || "/images/noimage.png",
-        seat: eventData.seatNumbers || [], // Retrieve and store seat numbers
-        ticket: eventData.ticket || { section: "151", row: "15"},
+        imageUrl: eventData.imageUrl || '/images/noimage.png',
+        seat: eventData.seatNumbers || [],
+        ticket: eventData.ticket || { section: '151', row: '15' },
       };
     } else {
-      console.error("No matching document found for the order ID:", props.orderID);
+      console.error('No matching document found for the order ID:', props.orderID);
     }
   } catch (error) {
-    console.error("Error fetching event details: ", error);
+    console.error('Error fetching event details: ', error);
   }
 }
 
 const formattedDate = computed(() => {
   if (!event.value || !event.value.date) return '';
-// Check if the date string contains a hyphen to denote a date range
   const dateRange = event.value.date.split('-');
+
   if (dateRange.length === 2) {
-    // Extract the start date and end date including the day
-    const startDate = dateRange[0].trim().split(' ').slice(0, 3).join(' '); // e.g., "Sat 23 Nov"
-    const endDate = dateRange[1].trim().split(' ').slice(0, 3).join(' ');   // e.g., "Sat 28 Dec"
+    const startDate = dateRange[0].trim();
+    const endDate = dateRange[1].trim();
     return `${startDate} - ${endDate}`;
   }
 
-  // If there is no hyphen, display the full date string as it is
   return event.value.date;
 });
 
 async function generateQRCode() {
   const currentDate = new Date();
-
-  // Parse the event's start date
   let qrCodeAvailableDate;
+
   if (event.value.date.includes('-')) {
-    // For a date range, extract the start date (first part before the dash)
     const startDateStr = event.value.date.split('-')[0].trim();
-    qrCodeAvailableDate = new Date(startDateStr + " " + new Date().getFullYear());
+    qrCodeAvailableDate = new Date(startDateStr + ' ' + new Date().getFullYear());
   } else {
-    // For a single date event
-    qrCodeAvailableDate = new Date(event.value.date + " " + new Date().getFullYear());
+    qrCodeAvailableDate = new Date(event.value.date + ' ' + new Date().getFullYear());
   }
 
-  // Display QR code if current date is on or after the event's start date
   if (currentDate >= qrCodeAvailableDate) {
     try {
-      // Only use essential information for QR code generation
       const qrData = {
         eventName: event.value.eventName,
         date: event.value.date,
@@ -144,7 +145,7 @@ async function generateQRCode() {
       };
 
       qrCode.value = await QRCode.toDataURL(JSON.stringify(qrData), { width: 200 });
-      message.value = "";
+      message.value = '';
     } catch (err) {
       console.error(err);
     }
@@ -154,13 +155,11 @@ async function generateQRCode() {
   }
 }
 
-
 function handleImageError(event) {
-  event.target.src = "/images/noimage.png";
+  event.target.src = '/images/noimage.png';
 }
 
 function getTicket() {
-  console.log("test")
   showTicket.value = true;
   generateQRCode();
 }
@@ -242,6 +241,7 @@ function getTicket() {
   align-items: center;
   z-index: 1000;
 }
+
 .digital-ticket {
   width: 100%;
   max-width: 380px;
