@@ -40,5 +40,9 @@
     height: auto; /* Maintains aspect ratio */
     object-fit: cover; /* Ensures the image covers the space without distortion */
   }
+
+  .btn-primary {
+    background-color: #B87333;
+  }
   </style>
   
