@@ -18,7 +18,9 @@ import Hero from '@/components/homepage/Hero.vue';
 <style scoped>
 main {
   min-height: 40vh;
-  
+  background-color: #e3dad8;
+}
+.body{
 }
 
 </style>

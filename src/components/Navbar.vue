@@ -1,6 +1,17 @@
 <template>
   <nav class="navbar navbar-expand-md custom-navbar">
     <div class="container-fluid">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
       <!-- Navigation Items -->
       <div class="collapse navbar-collapse justify-content-between align-items-center" id="navbarNav">
         <!-- Left section with logo -->
@@ -32,11 +43,12 @@
           </li>
         </ul>
 
+      </div>
         <!-- Right Side Items -->
         <div class="navbar-right">
           <div 
             v-if="isLoggedIn" 
-            class="user-info-wrapper d-none d-md-flex align-items-center"
+            class="user-info-wrapper align-items-center"
             @click="$emit('toggleSidebar')"
           >
             <div class="user-avatar">
@@ -52,20 +64,6 @@
             Login
           </button>
         </div>
-      </div>
-
-      <!-- Mobile Toggle Button -->
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
     </div>
   </nav>
 </template>
@@ -136,7 +134,7 @@ const goToLogin = () => {
 }
 
 .custom-navbar {
-  background: #B87333;
+  background: #6d161d;
   height: 60px;
 }
 
@@ -285,20 +283,6 @@ const goToLogin = () => {
   .nav-link:hover,
   .nav-link.active {
     background-color: rgba(255, 255, 255, 0.15);
-  }
-
-  .navbar-right {
-    width: 100%;
-    justify-content: center;
-    margin-top: 1rem;
-  }
-
-  .login-btn {
-    width: 100%;
-  }
-
-  .user-info-wrapper {
-    margin: 1rem 0;
   }
 
   .navbar-brand {

@@ -80,6 +80,12 @@ const router = createRouter({
       component:  () => import("@/views/EventDetails.vue"),
       props: true
     },
+    {
+      path: '/faqs', 
+      name: 'faqs',
+      component:  () => import("@/views/faq.vue"),
+      props: true
+    },
   ],
 });
 
