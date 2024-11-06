@@ -58,6 +58,7 @@ import axios from 'axios';
 import { db } from '../../../firebase';
 import { collection, addDoc, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { useCartStore } from '@/stores/cartStore'; // Import the cart store
 
 export default {
   data() {
@@ -101,6 +102,7 @@ export default {
           }
 
           await this.savePaymentDetails();
+          this.removePurchasedItems(); // Remove purchased items from the cart after successful payment
         } else {
           console.error("No line items found in the session data.");
         }
@@ -152,6 +154,16 @@ export default {
       } catch (error) {
         console.error("Error adding payment document: ", error);
       }
+    },
+
+    // Remove purchased items from the cart
+    removePurchasedItems() {
+      const cartStore = useCartStore(); // Access the cart store
+      cartStore.cartItems.forEach((item) => {
+        // Mark items as purchased after successful payment
+        item.purchased = true;
+      });
+      cartStore.removePurchasedItems(); // Remove items that are marked as purchased
     },
 
     redirectToHomepage() {

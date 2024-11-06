@@ -80,41 +80,50 @@ export default {
       return Array.from({ length: item.quantity }, (_, i) => baseSeat + i).join(', ');
     },
     async checkout() {
-      try {
-        const items = this.cartItems.map(item => ({
-          eventName: item.eventName,
-          seatNumbers: Array.from({ length: item.quantity }, (_, i) => item.seatNumber + i),
-          eventDate: item.eventDate,
-          pricePerItem: item.pricePerItem,
-          quantity: item.quantity,
-          imageUrl: item.imageUrl,
-        }));
+  try {
+    // Mark items as purchased before sending to backend
+    const items = this.cartItems.map(item => {
+      item.purchased = true; // Set purchased flag
+      return {
+        eventName: item.eventName,
+        seatNumbers: Array.from({ length: item.quantity }, (_, i) => item.seatNumber + i),
+        eventDate: item.eventDate,
+        pricePerItem: item.pricePerItem,
+        quantity: item.quantity,
+        imageUrl: item.imageUrl,
+      };
+    });
 
-        localStorage.setItem('orderSummary', JSON.stringify(items));
+    localStorage.setItem('orderSummary', JSON.stringify(items));
 
-        const response = await fetch('http://localhost:5001/create-checkout-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ cartItems: items }),
-        });
+    // Continue with checkout process
+    const response = await fetch('http://localhost:5001/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cartItems: items }),
+    });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error}`);
-        }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error}`);
+    }
 
-        const session = await response.json();
-        const { error } = await this.stripe.redirectToCheckout({ sessionId: session.id });
+    const session = await response.json();
+    const { error } = await this.stripe.redirectToCheckout({ sessionId: session.id });
 
-        if (error) {
-          console.error("Error redirecting to checkout:", error);
-        }
-      } catch (error) {
-        console.error("Error creating checkout session:", error);
-      }
-    },
+    if (error) {
+      console.error("Error redirecting to checkout:", error);
+    } else {
+      // Remove purchased items from cart after checkout
+      cartStore.cartItems = cartStore.cartItems.filter(item => !item.purchased);
+      localStorage.setItem('cartItems', JSON.stringify(cartStore.cartItems)); // Update localStorage
+    }
+  } catch (error) {
+    console.error("Error creating checkout session:", error);
+  }
+},
     formatDate(dateStr) {
       const dates = dateStr.split(' - ');
       return dates.map(date =>
