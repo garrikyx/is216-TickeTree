@@ -1,74 +1,65 @@
 <template>
-  <div id="app">
+  <div>
     <!-- Poster Section -->
     <div
-      class="blurred-background p-0 m-0 container-fluid mt-4 d-flex justify-content-center align-items-center"
-      :style="{
-        backgroundImage: `url(${event?.images?.images[0]?.original_url || '/images/noimage.png'})`
-      }"
+      class="blurred-background container-fluid mt-4 d-flex justify-content-center align-items-center"
+      :style="{ backgroundImage: `url(${event?.images?.images[0]?.original_url || '/images/noimage.png'})` }"
     >
       <div class="poster">
         <img
           :src="event?.images?.images[0]?.original_url || '/images/noimage.png'"
-          class="img-fluid"
+          class="img-fluid shadow-lg rounded poster-img"
           alt="Event Poster"
-          style="max-height: 400px"
         />
       </div>
     </div>
-    <hr />
+    <hr class="custom-hr" />
 
     <!-- Event Details -->
-    <div class="container mt-3">
-      <div class="event-details">
-        <h2>{{ event?.name || "Event Title" }}</h2>
-        <p><strong>Date:</strong> {{ event?.datetime_summary || "November 30, 2024" }}</p>
-        <p><strong>Time:</strong> {{ event?.time || "6:00 PM" }}</p>
-        <p><strong>Location:</strong> {{ event?.location_summary || "OCBC Arena" }}</p>
+    <div class="container mt-4 text-center event-details">
+      <h2 class="event-title">{{ event?.name || "Event Title" }}</h2>
+      <div class="d-flex justify-content-center gap-3 text-muted">
+        <p><i class="bi bi-calendar-event"></i> {{ event?.datetime_summary || "November 30, 2024" }}</p>
+        <p><i class="bi bi-clock"></i> {{ event?.time || "6:00 PM" }}</p>
+        <p><i class="bi bi-geo-alt"></i> {{ event?.location_summary }}</p>
       </div>
     </div>
 
     <!-- Price and Marketplace Section -->
-    <div class="container mt-3 d-flex justify-content-between">
-      <div class="price-section">
-        <h4>Price: {{ event?.price || "$50.00" }}</h4>
-        <button @click="handleTicketPurchase" class="btn btn-success">Get Tickets</button>
+    <div class="container mt-3 d-flex justify-content-around align-items-center pricing-section">
+      <div class="price-info text-center p-3 shadow-sm rounded">
+        <h4 class="text-success">Price: {{ event?.price || "$50.00" }}</h4>
+        <button @click="handleTicketPurchase" class="btn btn-success btn-lg shadow-sm animate-pulse">Get Tickets</button>
       </div>
       <div class="marketplace">
-        <h5>Marketplace</h5>
-        <button class="btn btn-outline-primary">See Resale Price</button>
+        <router-link to="/marketplace">
+          <button class="btn btn-outline-primary btn-lg shadow-sm">See Resale Price</button>
+        </router-link>
       </div>
     </div>
 
     <!-- Error Modal -->
     <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content">
-        <h5>Login to Proceed</h5>
-        <p>{{ errorMessage }}</p>
-        <button @click="closeModal" class="btn btn-primary">Go to Login</button>
-        <button @click="showModal = false" class="btn btn-close"></button>
+      <div class="modal-content animate-fade-in">
+        <h5>Login Required</h5>
+        <p class="text-muted">{{ errorMessage }}</p>
+        <div class="modal-actions">
+          <button @click="closeModal" class="btn btn-primary">Go to Login</button>
+          <button @click="showModal = false" class="btn btn-close">Close</button>
+        </div>
       </div>
     </div>
 
     <!-- About Section -->
-    <div class="container mt-3">
-      <div class="about-section">
-        <h5>About:</h5>
-        <p>
-          {{
-            event?.description ||
-            "This is a detailed description of the event. It will cover the event background, performers, and what the audience can expect."
-          }}
-        </p>
-      </div>
+    <div class="container mt-4 about-section">
+      <h5>About:</h5>
+      <p>{{ event?.description || "Detailed event description goes here." }}</p>
     </div>
 
-    <!-- Location Map section -->
-    <div class="container mt-3">
-      <div class="location-map">
-        <h5>Location:</h5>
-        <div id="map" style="width: 100%; height: 300px"></div>
-      </div>
+    <!-- Location Map Section -->
+    <div class="container mt-4 location-map">
+      <h5>Location:</h5>
+      <div id="map" class="rounded shadow" style="width: 100%; height: 300px"></div>
     </div>
   </div>
 </template>
@@ -113,6 +104,15 @@ const event = computed(() => eventStore.selectedEvent);
 // Load Google Maps dynamically
 function loadGoogleMaps() {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  // Check if the Google Maps script is already loaded
+  if (document.querySelector(`script[src*="maps.googleapis.com/maps/api/js?key=${apiKey}"]`)) {
+    if (!googleMapsLoaded.value) {
+      initMap();  
+    }
+    return;
+  }
+
   const script = document.createElement("script");
   script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
   script.async = true;
@@ -121,6 +121,7 @@ function loadGoogleMaps() {
   document.head.appendChild(script);
   googleMapsLoaded.value = true;
 }
+
 
 function initMap() {
   const { lat, lng } = event.value.location.point;
@@ -163,50 +164,47 @@ function addToCart() {
 </script>
 
 <style scoped>
-hr {
-  margin: 0;
-  padding: 0;
-  height: 2px;
+/* General Styling */
+* {
+  box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
-.blurred-background {
-  margin: 0px;
-  position: relative;
-  color: white;
-  text-align: center;
-  overflow: hidden;
-  height: 400px;
-  width: 100vw;
+hr.custom-hr {
+  border: 1px solid #ddd;
+  width: 80%;
 }
 
-.blurred-background::before {
-  margin: 0px;
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-size: cover;
-  background-position: center;
-  filter: blur(10px);
-  z-index: -1;
+.poster-img {
+  max-height: 400px;
+  border-radius: 10px;
+  transition: transform 0.5s;
 }
 
-.poster {
-  position: relative;
-  z-index: 1;
+.poster-img:hover {
+  transform: scale(1.05);
 }
 
-.price-section,
-.marketplace {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.event-title {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #333;
+  animation: fade-in 1.5s ease-in-out;
 }
-.text-danger {
-  color: #dc3545;
+
+.text-muted {
+  font-size: 0.9em;
+  color: #6c757d !important;
 }
+
+.pricing-section .price-info {
+  background-color: #f9f9f9;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -221,51 +219,54 @@ hr {
 }
 
 .modal-content {
-  width: 40%;
-  background: white;
-  padding: 20px;
+  background-color: #fff;
+  padding: 25px;
   border-radius: 8px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  position: relative;
+  animation: fade-in 0.5s;
 }
 
-.modal-content h5 {
-  margin: 0 0 10px;
+.modal-actions button {
+  margin-top: 10px;
 }
 
-.modal-content p {
-  margin: 0 0 10px;
-  font-size: 15px;
-}
-
-.modal-content button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.modal-content button:hover {
-  background-color: #0056b3;
-}
-
-.modal-content .btn-close { /* Specific class for the Close button */
-  background-color: grey;
-  position: absolute; /* Position it absolutely within the modal */
-  top: 10px; /* Adjust to position in the upper corner */
-  right: 10px; /* Adjust to position in the upper corner */
-  padding: 5px 10px;
-  color: white;
-  border-radius: 5px;
+.modal-content .btn-close {
+  background-color: #ccc;
 }
 
 .modal-content .btn-close:hover {
-  background-color: darkgrey;
+  background-color: #bbb;
 }
 
+/* Map Section */
+.location-map {
+  margin-top: 1.5rem;
+}
+
+#map {
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
 </style>

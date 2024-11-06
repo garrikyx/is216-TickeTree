@@ -5,7 +5,7 @@
     </div>
 
     <div v-else>
-        <!-- no events found -->
+      <!-- No events found -->
       <div v-if="visibleEvents.length === 0" class="text-center">
         <p>No events found for this category.</p>
       </div>
@@ -19,17 +19,16 @@
         </div>
 
         <div class="row">
-          <div
+          <router-link
             v-for="event in visibleEvents"
             :key="event.id"
+            :to="{ name: 'EventDetail', params: { id: event.id } }"
             class="col-md-4 mb-4"
+            style="text-decoration: none; color: inherit;"
           >
             <div class="card h-100">
               <img
-                :src="
-                  event.images?.images?.[0]?.original_url ||
-                  '/images/noimage.png'
-                "
+                :src="event.images?.images?.[0]?.original_url || '/images/noimage.png'"
                 class="card-img-top"
                 :alt="event.name"
               />
@@ -43,7 +42,7 @@
                 </p>
               </div>
             </div>
-          </div>
+          </router-link>
         </div>
       </div>
     </div>
@@ -51,8 +50,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import { fetchEvents } from "@/api/eventsApi";
+import { onMounted, ref } from 'vue';
+import { fetchEvents } from '@/api/eventsApi';
+import { useEventStore } from '@/stores/eventStore';
 
 const categoryMapping = {
   1: [190, 6],
@@ -74,18 +74,26 @@ const visibleEvents = ref([]);
 const categoryName = ref("");
 const loading = ref(true);
 
+const eventStore = useEventStore(); // Access the event store
+
 // Fetch events based on the mapped category IDs
 const fetchEventsForCategory = async (categoryIds) => {
   try {
     loading.value = true;
     const categoryParam = categoryIds.join(",");
-    // console.log(categoryParam);
     const events = await fetchEvents({
       category: categoryParam,
       order: "popularity",
       rows: 20,
     });
+
+    // Update visible events for the category view
     visibleEvents.value = events;
+
+    // Add each fetched event to the store if it's not already there
+    events.forEach(event => {
+      eventStore.addEventIfNotExists(event);
+    });
   } catch (error) {
     console.error("Error fetching events:", error);
   } finally {
@@ -95,11 +103,11 @@ const fetchEventsForCategory = async (categoryIds) => {
 
 onMounted(() => {
   const apiCategoryIds = categoryMapping[props.categoryId] || [];
-  categoryName.value = categoryNames[props.categoryId]
-  //   console.log(apiCategoryIds);
+  categoryName.value = categoryNames[props.categoryId];
   fetchEventsForCategory(apiCategoryIds);
 });
 </script>
+
 
 <style scoped>
 .card {

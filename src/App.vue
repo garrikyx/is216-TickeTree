@@ -29,7 +29,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Navbar from '@/components/Navbar.vue';
-import Sidebar from '@/views/Sidebar.vue';  
+import Sidebar from '@/views/SideBar.vue';  
 import Footer from '@/components/Footer.vue';
 
 const auth = getAuth();

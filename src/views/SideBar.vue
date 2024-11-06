@@ -1,31 +1,31 @@
 <template>
   <div v-if="isSidebarOpen" class="overlay" @click="$emit('close')"></div>
   <aside :class="['sidebar', { open: isSidebarOpen, dark: isDarkMode }]" @click.stop>
-    <div class="user-section" @click="$emit('close')">
+    <div class="user-section">
       <i class="fas fa-user user-icon"></i>
       <span class="user-name">{{ userName || 'User' }}</span>
     </div>
-    <button @click="$emit('close')" class="close-btn" aria-label="Close sidebar">&times;</button>
     <ul>
-      <li :class="{ active: isActive('/profile') }">
-        <i class="fas fa-user-circle"></i>
+      <li :class="{ active: isActive('/profile') }" @click="setActiveIcon($event, 'profile')">
+        <i :class="getIconClass('profile')"></i>
         <RouterLink to="/profile">Profile</RouterLink>
       </li>
-      <li :class="{ active: isActive('/purchase-history') }">
-        <i class="fas fa-history"></i>
+      <li :class="{ active: isActive('/payment') }" @click="setActiveIcon($event, 'payment')">
+        <i :class="getIconClass('payment')"></i>
+        <RouterLink to="/payment">Checkout</RouterLink>
+      </li>
+      <li :class="{ active: isActive('/purchase-history') }" @click="setActiveIcon($event, 'purchase-history')">
+        <i :class="getIconClass('purchase-history')"></i>
         <RouterLink to="/purchase-history">Purchase History</RouterLink>
       </li>
-      <li :class="{ active: isActive('/faqs') }">
-        <i class="fas fa-question-circle"></i>
-        <RouterLink to="/faqs">FAQs</RouterLink>
-      </li>
-      <li :class="{ active: isActive('/settings') }">
-        <i class="fas fa-cog"></i>
+      <li :class="{ active: isActive('/settings') }" @click="setActiveIcon($event, 'settings')">
+        <i :class="getIconClass('settings')"></i>
         <RouterLink to="/settings">Settings</RouterLink>
       </li>
     </ul>
     <div class="toggle-container">
-    <span class="toggle-label-text">Dark Mode</span> 
+      <i :class="isDarkMode ? 'fas fa-moon dark-icon' : 'fas fa-sun yellow-icon'"></i>
+      <span class="toggle-label-text">Dark Mode</span>
       <input 
         type="checkbox" 
         id="toggle" 
@@ -36,7 +36,9 @@
         <span class="slider"></span>
       </label>
     </div>
-    <button class="logout-btn" @click="logout" aria-label="Log out">Log Out</button>
+    <button class="logout-btn" @click="logout" aria-label="Log out">
+      <i class="fas fa-sign-out-alt logout-icon"></i> Logout
+    </button>
   </aside>
 </template>
 
@@ -49,15 +51,27 @@ import { db } from '../../firebase';
 
 const props = defineProps({
   isSidebarOpen: Boolean,
-  isDarkMode: Boolean // Accept the dark mode state as a prop
+  isDarkMode: Boolean
 });
 
 const auth = getAuth();
 const router = useRouter();
 const userName = ref('');
+const activeIcon = ref('');
 
 const isActive = (route) => {
   return router.currentRoute.value.path === route;
+};
+
+const setActiveIcon = (event, iconName) => {
+  activeIcon.value = iconName;
+};
+
+const getIconClass = (iconName) => {
+  if (activeIcon.value === iconName) {
+    return 'fas fa-' + (iconName === 'profile' ? 'user-circle' : iconName === 'payment' ? 'shopping-cart' : iconName === 'purchase-history' ? 'history' : 'cog') + ' active-icon';
+  }
+  return 'fas fa-' + (iconName === 'profile' ? 'user-circle' : iconName === 'payment' ? 'shopping-cart' : iconName === 'purchase-history' ? 'history' : 'cog');
 };
 
 const fetchUserName = async (userId) => {
@@ -100,56 +114,59 @@ onMounted(() => {
   background-color: #f8f9fa;
   position: fixed;
   top: 0;
-  right: -250px; /* Initially hidden */
+  right: -250px;
   height: 100vh;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   z-index: 1000;
   transition: right 0.3s ease;
   display: flex;
-  flex-direction: column; /* Align items vertically */
-  justify-content: space-between; /* Space out content */
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 2px;
 }
 
 .sidebar.open {
-  right: 0; /* Slide in */
+  right: 0;
 }
 
-/* User section styles */
 .user-section {
   display: flex;
   align-items: center;
-  flex-direction: column;
   padding-bottom: 20px;
   border-bottom: 1px solid #e2e6ea;
-  margin-top: 50px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  margin-left: 13px;
 }
 
 .user-icon {
-  font-size: 40px;
+  font-size: 36px;
   color: #007bff;
-  margin-bottom: 10px;
-  cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+  margin-right: 15px;
 }
 
 .user-name {
   font-size: 18px;
+  font-weight: 600;
   color: #333;
 }
 
 ul {
   list-style: none;
   padding: 0;
-  flex-grow: 1; /* Allow this section to grow */
+  flex-grow: 1;
 }
 
 ul li {
   display: flex;
   align-items: center;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 12px;
+  font-size: 16px;
+  color: #333;
+  border-radius: 8px;
   transition: background-color 0.3s ease;
+  cursor: pointer;
 }
 
 ul li:hover {
@@ -166,40 +183,89 @@ ul li.active a {
 }
 
 ul li a {
-  color: #333;
+  color: inherit;
   text-decoration: none;
   margin-left: 10px;
+  font-weight: 500;
 }
 
 ul li i {
   font-size: 20px;
+  color: gray; /* Default color for icons */
 }
 
-.close-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
+ul li.active i {
+  color: white; /* Change color of active icon to white */
 }
 
 .logout-btn {
-  margin-top: 20px; /* Adjusted margin to separate from menu items */
-  background-color: #dc3545;
+  margin-top: 20px;
+  background-color: #6c757d;
   color: white;
   border: none;
   padding: 10px;
   width: 100%;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 16px;
   transition: background-color 0.3s ease;
 }
 
 .logout-btn:hover {
-  background-color: #c82333;
+  background-color: #5a6268;
 }
+.toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align items to the left */
+  margin-top: 20px;
+}
+
+.toggle-container i {
+  color: gray;
+  margin-right: 10px; /* Adjusted for better spacing */
+}
+
+.toggle-label-text {
+  font-size: 18px;
+  color: #333;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+#toggle {
+  appearance: none;
+  width: 50px;
+  height: 25px;
+  border-radius: 15px;
+  background-color: #ccc;
+  position: relative;
+  cursor: pointer;
+  margin-left: auto; /* Spread the toggle button to the left */
+  transition: background-color 0.5s ease-in;
+}
+
+#toggle:checked {
+  background-color: #007bff;
+}
+
+#toggle::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  transition: left 0.5s ease-in;
+}
+
+#toggle:checked::before {
+  left: 25px;
+}
+
 
 .overlay {
   position: fixed;
@@ -207,59 +273,27 @@ ul li i {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); 
-  z-index: 999; /* Just below the sidebar */
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
 }
 
-/* Toggle Switch Styles */
-.toggle-container {
-  display: flex; /* Align items in a row */
-  align-items: center; /* Center vertically */
-  justify-content: center; /* Center horizontally */
-  margin-top: 20px; /* Space above the toggle section */
+.fas {
+  color: gray;
 }
 
-.toggle-label-text {
-  margin-right: 10px; /* Space between the label and toggle */
-  font-size: 16px; /* Match the font size with sidebar items */
-  color: #333; /* Match your theme color */
+.dark-icon {
+  color: black; /* Moon icon color */
 }
 
-/* Toggle button styles */
-#toggle {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 60px;
-  height: 30px;
-  border-radius: 30px;
-  background-color: #ccc; /* Light color for the toggle */
-  position: relative; /* Position relative for the slider */
-  cursor: pointer;
-  transition: background-color 0.5s ease-in;
+.yellow-icon {
+  color: yellow; /* Sun icon color */
 }
 
-/* Slider inside the toggle button */
-#toggle::before {
-  content: "";
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #fff; /* White dot for the toggle */
-  position: absolute;
-  top: 50%;
-  left: 3px;
-  transform: translateY(-50%);
-  transition: all 0.5s ease-in;
+.logout-icon {
+  color: white; /* Logout icon color */
 }
 
-/* Toggle button checked styles */
-#toggle:checked {
-  background: #333; /* Dark color when checked */
-}
-
-#toggle:checked::before {
-  background: #fff; /* Keep the dot white when checked */
-  left: 32px; /* Move the dot to the right */
+.active-icon {
+  color: white; /* Active icon color */
 }
 </style>
