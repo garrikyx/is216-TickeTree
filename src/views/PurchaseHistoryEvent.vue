@@ -8,7 +8,8 @@
         <p class="order-id">Ticket ID: {{ orderId }}</p>
         <p class="event-date">Date: {{ formattedDate }}</p>
         <p class="event-location">{{ event.location }}</p>
-        <p class="seat-number">Seat: {{ event.ticket.seat }}</p>
+        <p class="seat-number">Seat: {{ event.seat.join(', ') }}</p>
+
       </div>
     </div>
 
@@ -20,36 +21,32 @@
     </div>
 
     <!-- Digital Ticket Modal -->
-    <transition name="fade">
-      <div v-if="showTicket" class="modal-overlay" @click.self="showTicket = false">
-        <div class="digital-ticket">
-          <div class="ticket-header">
-            <button class="close-btn" @click="showTicket = false">×</button>
-            <h3 class="ticket-title">TickeTree</h3>
+<transition name="fade">
+  <div v-if="showTicket" class="modal-overlay" @click.self="showTicket = false">
+    <div class="digital-ticket">
+      <div class="ticket-header">
+        <button class="close-btn" @click="showTicket = false">×</button> <!-- Fixed line -->
+        <h3 class="ticket-title">TickeTree</h3>
+      </div>
+      <div class="ticket-content">
+        <h1 class="standard-ticket">{{ event?.eventName }}</h1>
+        <div class="seat-info">
+          <div class="seat-detail">
+            <span class="label">SEC</span><br />
+            <span class="value">{{ event.ticket.section }}</span>
           </div>
-          <div class="ticket-content">
-            <h1 class="standard-ticket">{{ event?.eventName }}</h1>
-            <div class="seat-info">
-              <div class="seat-detail">
-                <span class="label">SEC</span><br />
-                <span class="value">{{ event.ticket.section }}</span>
-              </div>
-              <div class="seat-detail">
-                <span class="label">ROW</span><br />
-                <span class="value">{{ event.ticket.row }}</span>
-              </div>
-              <div class="seat-detail">
-                <span class="label">SEAT</span><br />
-                <span class="value">{{ event.ticket.seat }}</span>
-              </div>
-            </div>
-            <br>
-            <p v-if="message" class="unavailable-message">{{ message }}</p>
-            <img v-else-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
+          <div class="seat-detail">
+            <span class="label">ROW</span><br />
+            <span class="value">{{ event.ticket.row }}</span>
           </div>
         </div>
+        <br />
+        <p v-if="message" class="unavailable-message">{{ message }}</p>
+        <img v-else-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
       </div>
-    </transition>
+    </div>
+  </div>
+</transition>
   </div>
 
   <div v-else>
@@ -95,7 +92,8 @@ async function fetchEventDetails() {
         time: eventData.eventTime,
         location: eventData.eventLocation,
         imageUrl: eventData.imageUrl || "/images/noimage.png",
-        ticket: eventData.ticket || { section: "151", row: "15", seat: "11" },
+        seat: eventData.seatNumbers || [], // Retrieve and store seat numbers
+        ticket: eventData.ticket || { section: "151", row: "15"},
       };
     } else {
       console.error("No matching document found for the order ID:", props.orderID);
@@ -107,8 +105,7 @@ async function fetchEventDetails() {
 
 const formattedDate = computed(() => {
   if (!event.value || !event.value.date) return '';
-
-  // Check if the date string contains a hyphen to denote a date range
+// Check if the date string contains a hyphen to denote a date range
   const dateRange = event.value.date.split('-');
   if (dateRange.length === 2) {
     // Extract the start date and end date including the day
@@ -138,7 +135,15 @@ async function generateQRCode() {
   // Display QR code if current date is on or after the event's start date
   if (currentDate >= qrCodeAvailableDate) {
     try {
-      qrCode.value = await QRCode.toDataURL("https://example.com", { width: 200 });
+      // Only use essential information for QR code generation
+      const qrData = {
+        eventName: event.value.eventName,
+        date: event.value.date,
+        location: event.value.location,
+        orderId: props.orderID,
+      };
+
+      qrCode.value = await QRCode.toDataURL(JSON.stringify(qrData), { width: 200 });
       message.value = "";
     } catch (err) {
       console.error(err);
@@ -149,11 +154,13 @@ async function generateQRCode() {
   }
 }
 
+
 function handleImageError(event) {
   event.target.src = "/images/noimage.png";
 }
 
 function getTicket() {
+  console.log("test")
   showTicket.value = true;
   generateQRCode();
 }

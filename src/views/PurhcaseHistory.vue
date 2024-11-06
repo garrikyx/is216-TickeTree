@@ -38,7 +38,7 @@
                 {{ formatDate(ticket.startDate) }}
               </span>
             </p>
-            <p class="seat">Seat: {{ ticket.seatNumber }}</p>
+            <p class="seat">Seat: {{ ticket.seatNumbers.join(', ') }}</p>
           </div>
           <div class="event-price">
             <span class="price">${{ ticket.price }}</span>
@@ -86,7 +86,7 @@ async function fetchTickets() {
         eventName: eventData.eventName,
         startDate,
         endDate,
-        seatNumber: eventData.seatNumber,
+        seatNumbers: eventData.seatNumbers || [], 
         price: eventData.totalPrice,
         quantity: eventData.quantity,
         imageUrl: eventData.imageUrl || "/images/noimage.png",

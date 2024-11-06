@@ -7,14 +7,14 @@
     <div v-else>
       <div v-for="(item, index) in cartItems" :key="index" class="item">
         <div class="buttons">
-  <i class="fas fa-times delete-btn" @click="deleteItem(index)"></i>
-</div>
+          <i class="fas fa-times delete-btn" @click="deleteItem(index)"></i>
+        </div>
         <div class="image">
           <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
         </div>
         <div class="description">
           <span style="font-weight: bold; font-size: 18px">{{ item.eventName }}</span>
-          <span>Seat: {{ item.seatNumber }}</span>
+          <span>Seats: {{ formatSeatNumbers(item) }}</span>
           <span>Date: {{ formatDate(item.eventDate) }}</span>
         </div>
         <div class="quantity">
@@ -72,14 +72,18 @@ export default {
   },
   async mounted() {
     this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR');
-  
   },
   methods: {
+    formatSeatNumbers(item) {
+      // Generate seat numbers based on quantity
+      const baseSeat = item.seatNumber;
+      return Array.from({ length: item.quantity }, (_, i) => baseSeat + i).join(', ');
+    },
     async checkout() {
       try {
         const items = this.cartItems.map(item => ({
           eventName: item.eventName,
-          seatNumber: item.seatNumber,
+          seatNumbers: Array.from({ length: item.quantity }, (_, i) => item.seatNumber + i),
           eventDate: item.eventDate,
           pricePerItem: item.pricePerItem,
           quantity: item.quantity,
@@ -120,6 +124,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .empty-cart-message {

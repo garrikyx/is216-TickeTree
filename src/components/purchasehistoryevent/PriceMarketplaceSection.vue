@@ -80,7 +80,7 @@ export default {
         this.event.ticket || {
           section: "151",
           row: "15",
-          seat: "11",
+          seat: "15",
         }
       );
     },
