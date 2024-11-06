@@ -6,25 +6,25 @@
       <span class="user-name">{{ userName || 'User' }}</span>
     </div>
     <ul>
-      <li :class="{ active: isActive('/profile') }">
-        <i class="fas fa-user-circle"></i>
+      <li :class="{ active: isActive('/profile') }" @click="setActiveIcon($event, 'profile')">
+        <i :class="getIconClass('profile')"></i>
         <RouterLink to="/profile">Profile</RouterLink>
       </li>
-      <li :class="{ active: isActive('/payment') }">
-        <i class="fas fa-shopping-cart"></i>
+      <li :class="{ active: isActive('/payment') }" @click="setActiveIcon($event, 'payment')">
+        <i :class="getIconClass('payment')"></i>
         <RouterLink to="/payment">Checkout</RouterLink>
       </li>
-      <li :class="{ active: isActive('/purchase-history') }">
-        <i class="fas fa-history"></i>
+      <li :class="{ active: isActive('/purchase-history') }" @click="setActiveIcon($event, 'purchase-history')">
+        <i :class="getIconClass('purchase-history')"></i>
         <RouterLink to="/purchase-history">Purchase History</RouterLink>
       </li>
-      <li :class="{ active: isActive('/settings') }">
-        <i class="fas fa-cog"></i>
+      <li :class="{ active: isActive('/settings') }" @click="setActiveIcon($event, 'settings')">
+        <i :class="getIconClass('settings')"></i>
         <RouterLink to="/settings">Settings</RouterLink>
       </li>
     </ul>
-   <div class="toggle-container">
-      <i :class="isDarkMode ? 'fas fa-moon dark-icon' : 'fas fa-sun yellow-icon'"></i> <!-- Conditional rendering -->
+    <div class="toggle-container">
+      <i :class="isDarkMode ? 'fas fa-moon dark-icon' : 'fas fa-sun yellow-icon'"></i>
       <span class="toggle-label-text">Dark Mode</span>
       <input 
         type="checkbox" 
@@ -37,7 +37,7 @@
       </label>
     </div>
     <button class="logout-btn" @click="logout" aria-label="Log out">
-      <i class="fas fasLog fa-sign-out-alt"></i> Logout
+      <i class="fas fa-sign-out-alt logout-icon"></i> Logout
     </button>
   </aside>
 </template>
@@ -57,9 +57,21 @@ const props = defineProps({
 const auth = getAuth();
 const router = useRouter();
 const userName = ref('');
+const activeIcon = ref('');
 
 const isActive = (route) => {
   return router.currentRoute.value.path === route;
+};
+
+const setActiveIcon = (event, iconName) => {
+  activeIcon.value = iconName;
+};
+
+const getIconClass = (iconName) => {
+  if (activeIcon.value === iconName) {
+    return 'fas fa-' + (iconName === 'profile' ? 'user-circle' : iconName === 'payment' ? 'shopping-cart' : iconName === 'purchase-history' ? 'history' : 'cog') + ' active-icon';
+  }
+  return 'fas fa-' + (iconName === 'profile' ? 'user-circle' : iconName === 'payment' ? 'shopping-cart' : iconName === 'purchase-history' ? 'history' : 'cog');
 };
 
 const fetchUserName = async (userId) => {
@@ -131,7 +143,7 @@ onMounted(() => {
 .user-icon {
   font-size: 36px;
   color: #007bff;
-  margin-right: 15px; /* Adjusted to create space between icon and name */
+  margin-right: 15px;
 }
 
 .user-name {
@@ -179,7 +191,11 @@ ul li a {
 
 ul li i {
   font-size: 20px;
-  color: #007bff;
+  color: gray; /* Default color for icons */
+}
+
+ul li.active i {
+  color: white; /* Change color of active icon to white */
 }
 
 .logout-btn {
@@ -198,18 +214,16 @@ ul li i {
 .logout-btn:hover {
   background-color: #5a6268;
 }
-
 .toggle-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start; /* Align items to the left */
   margin-top: 20px;
-  justify-content: center; /* Center the icons and label */
 }
 
 .toggle-container i {
   color: gray;
-  margin-right: 5px; /* Closer alignment with the label */
+  margin-right: 10px; /* Adjusted for better spacing */
 }
 
 .toggle-label-text {
@@ -227,6 +241,7 @@ ul li i {
   background-color: #ccc;
   position: relative;
   cursor: pointer;
+  margin-left: auto; /* Spread the toggle button to the left */
   transition: background-color 0.5s ease-in;
 }
 
@@ -251,6 +266,7 @@ ul li i {
   left: 25px;
 }
 
+
 .overlay {
   position: fixed;
   top: 0;
@@ -265,8 +281,19 @@ ul li i {
   color: gray;
 }
 
-.fasLog {
-  color: white;
+.dark-icon {
+  color: black; /* Moon icon color */
 }
 
+.yellow-icon {
+  color: yellow; /* Sun icon color */
+}
+
+.logout-icon {
+  color: white; /* Logout icon color */
+}
+
+.active-icon {
+  color: white; /* Active icon color */
+}
 </style>
