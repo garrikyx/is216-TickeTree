@@ -9,6 +9,7 @@ import { db } from '../firebase'
 
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import './assets/global.css'
 
 const app = createApp(App)
 

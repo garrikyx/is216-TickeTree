@@ -13,8 +13,8 @@
       :isSidebarOpen="showSidebar" 
       @close="toggleSidebar"
       @toggleDarkMode="toggleDarkMode"
-      :isDarkMode="isDarkMode"  <!-- Pass the dark mode state -->
-    ></Sidebar>
+      :isDarkMode="isDarkMode" 
+    ></Sidebar> <!-- Pass the dark mode state -->
     
     <div class="content">
       <RouterView />

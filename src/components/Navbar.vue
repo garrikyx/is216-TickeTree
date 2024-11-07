@@ -12,20 +12,20 @@
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <!-- Navigation Items -->
-      <div class="collapse navbar-collapse justify-content-between align-items-center" id="navbarNav">
-        <!-- Left section with logo -->
-        <div class="navbar-left">
-          <RouterLink class="navbar-brand d-flex align-items-center" to="/">
-            <div class="shape">
-              <img src="../assets/logo.png" style="width:50px">
-              <span class="brand-text">TickeTree</span>
-            </div>
-          </RouterLink>
-        </div>
+      
+      <!-- Left section with logo -->
+      <div class="navbar-left">
+        <RouterLink class="navbar-brand d-flex align-items-center" to="/">
+          <div class="shape">
+            <img src="../assets/logo.png" style="width:50px">
+            <span class="brand-text">TickeTree</span>
+          </div>
+        </RouterLink>
+      </div>
 
-        <!-- Center section with navigation -->
-        <ul class="navbar-nav" ref="navContainer">
+      <!-- Center section with navigation -->
+      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <ul class="navbar-nav d-flex justify-content-center align-items-center" ref="navContainer">
           <div class="nav-background" :style="backgroundStyle"></div>
           <li v-for="(item, index) in navItems" 
               :key="item.path" 
@@ -42,28 +42,28 @@
             </RouterLink>
           </li>
         </ul>
-
       </div>
-        <!-- Right Side Items -->
-        <div class="navbar-right">
-          <div 
-            v-if="isLoggedIn" 
-            class="user-info-wrapper align-items-center"
-            @click="$emit('toggleSidebar')"
-          >
-            <div class="user-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-          </div>
 
-          <button 
-            v-else 
-            @click="goToLogin" 
-            class="btn login-btn"
-          >
-            Login
-          </button>
+      <!-- Right Side Items -->
+      <div class="navbar-right">
+        <div 
+          v-if="isLoggedIn" 
+          class="user-info-wrapper align-items-center"
+          @click="$emit('toggleSidebar')"
+        >
+          <div class="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
         </div>
+
+        <button 
+          v-else 
+          @click="goToLogin" 
+          class="btn login-btn"
+        >
+          Login
+        </button>
+      </div>
     </div>
   </nav>
 </template>
