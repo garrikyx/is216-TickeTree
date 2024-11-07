@@ -184,7 +184,7 @@ export default {
         this.selectedSortOption = null; // Reset sort option to null when removed
         this.$emit('setPrice', null); // Emit event to reset sorting
       } else if (filter.key === 'price') {
-        this.priceRange = [0, 1800]; // Reset price range to default
+        this.priceRange = [0, 3000]; // Reset price range to default
         this.priceRangeChanged = false; // Reset flag when price range filter is removed
         this.$refs.slider.noUiSlider.set(this.priceRange); // Update the slider UI
         this.updatePriceFilter();
