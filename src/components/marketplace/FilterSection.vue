@@ -211,19 +211,4 @@ export default {
   border: #9c565c;
 }
 
-.noUi-connect {
-    background-color: #9c565c;
-}
-.noUi-horizontal .noUi-handle, .noUi-vertical .noUi-handle {
-    background-color: #9c565c;
-}
-.noUi-target.noUi-horizontal .noUi-tooltip {
-    background-color: #9c565c;
-}
-
-.btn-primary {
-    background-color: #24566c;
-    border: #24566c;
-
-}
 </style>
