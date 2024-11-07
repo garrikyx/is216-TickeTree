@@ -21,6 +21,7 @@
     </div>
     
     <Footer v-if="!$route.meta.hideFooter"></Footer>
+    <Chatbot/>
   </div>
 </template>
 
@@ -31,8 +32,8 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Navbar from '@/components/Navbar.vue';
 import Sidebar from '@/views/SideBar.vue';  
 import Footer from '@/components/Footer.vue';
+import Chatbot from './components/Chatbot.vue';
 
-const chatbotApiKey = import.meta.env.VITE_AI_CHATBOT_API_KEY || process.env.AI_CHATBOT_API_KEY;
 
 const auth = getAuth();
 
@@ -66,20 +67,6 @@ onMounted(() => {
   onAuthStateChanged(auth, (user) => {
     isLoggedIn.value = !!user;
   });
-
-(function(I, L, T, i, c, k, s) {
-    if (I.iticks) return;
-    I.iticks = { host: c, settings: s, clientId: k, cdn: L, queue: [] };
-    var h = T.head || T.documentElement;
-    var e = T.createElement(i);
-    var l = I.location;
-    e.async = true;
-    e.src = (L || c) + '/client/inject-v2.min.js';
-    h.insertBefore(e, h.firstChild);
-    I.iticks.call = function(a, b) {
-        I.iticks.queue.push([a, b]);
-    };
-})(window, 'https://cdn-v1.intelliticks.com/prod/common', document, 'script', 'https://app.intelliticks.com', chatbotApiKey, {});
 },
 
 );

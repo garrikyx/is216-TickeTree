@@ -1,7 +1,7 @@
 <template>
     <div class="container mt-4">
       <!-- Event Poster and Details -->
-      <div class="poster">
+      <div class="poster text-center">
         <img
           :src="event?.imageUrl || '/images/noimage.png'"
           class="img-fluid shadow-lg rounded poster-img"
@@ -11,12 +11,17 @@
       <hr class="custom-hr" />
   
       <div class="text-center mt-4">
-        <h2 class="event-title">{{ event?.name || "Event Title" }}</h2>
+        <h2 class="event-title">{{ event?.eventName || "Event Title" }}</h2>
         <p><i class="bi bi-calendar-event"></i> {{ event?.date || "TBD" }}</p>
         <p><i class="bi bi-clock"></i> {{ event?.time || "TBD" }}</p>
         <p><i class="bi bi-geo-alt"></i> {{ event?.location || "Location Unknown" }}</p>
-        <p>{{ event?.description || "Description not available." }}</p>
+        <p>{{ event?.description || "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." }}</p>
       </div>
+      <!-- Ticket Purchase Button -->
+      <div class="mt-4 d-flex justify-content-center">
+        <button @click="handleTicketPurchase" class="btn btn-success btn-lg">Buy Ticket</button>
+      </div>
+    </div>
   
       <!-- Price History Chart Section -->
       <div class="mt-4">
@@ -24,74 +29,43 @@
         <Chart/>
       </div>
   
-      <!-- Related Tickets Section -->
-      <div class="mt-4">
-        <h5>Related Tickets</h5>
-        <div class="row g-3 mb-3">
-          <div
-            class="col-lg-4 col-md-6 col-sm-12"
-            v-for="ticket in filteredTickets"
-            :key="ticket.id"
-          >
-            <TicketCard :ticket="ticket" />
-          </div>
-        </div>
-      </div>
   
-      <!-- Ticket Purchase Button -->
-      <div class="mt-4 d-flex justify-content-center">
-        <button @click="handleTicketPurchase" class="btn btn-success btn-lg">Buy Ticket</button>
-      </div>
-    </div>
   </template>
   
   <script>
-  import { ref, onMounted, computed } from "vue"; // Add computed here
+  import { ref, onMounted, computed } from "vue";
   import { useRoute } from "vue-router";
-  import { useTicketStore } from "@/stores/ticketStore"; 
+  import { useTicketStore } from "@/stores/ticketStore";
   import Chart from "@/components/marketplace/Chart.vue";
-  import TicketCard from "@/components/marketplace/TicketCard.vue";
   
   export default {
     name: "ListedEvent",
     components: {
       Chart,
-      TicketCard,
     },
     setup() {
       const route = useRoute();
       const eventId = route.params.id;
-      const event = ref(null); // For event details (could be fetched from a store)
-      const priceHistoryData = ref([]); // Price history data (could also be from a store)
-      
-      // Access ticket store
-      const ticketStore = useTicketStore(); 
+      const event = ref(null);
+      const priceHistoryData = ref([]);
+      const ticketStore = useTicketStore();
   
-      // Fetch event and price history from store (if available)
+      // Fetch event details and related tickets on mount
       onMounted(async () => {
-        // Assuming event details and price history data are static or fetched from the store
-        // Event details would need to be set from a static data or store
-        event.value = ticketStore.getTicketsByEvent(eventId); // Assuming a method to get event details by ID
-  
-        // Fetch related tickets based on event ID
-        ticketStore.fetchTickets();
+        // Fetch specific event details if available
+        event.value = await ticketStore.fetchTicketById(eventId);
       });
   
-      // Use the filtered tickets based on eventId
-      const filteredTickets = computed(() => {
-        // Get tickets for the current event
-        return ticketStore.getTicketsByEvent(eventId);
-      });
   
       // Handle ticket purchase action
       function handleTicketPurchase() {
-        console.log("Ticket purchase initiated");
+        console.log("Ticket purchase initiated for event:", event.value?.name);
+        // Additional purchase logic can be added here
       }
   
       return {
         event,
         priceHistoryData,
-        filteredTickets,
         handleTicketPurchase,
       };
     },
@@ -99,14 +73,6 @@
   </script>
   
   <style scoped>
-  .blurred-background {
-    background-size: cover;
-    background-position: center;
-    height: 300px;
-    display: flex;
-    align-items: center;
-  }
-  
   .poster-img {
     max-height: 400px;
     border-radius: 10px;

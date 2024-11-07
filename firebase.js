@@ -25,13 +25,13 @@ let auth;
 
 try {
     const app = initializeApp(firebaseConfig);
-    console.log("Firebase app initialized");
+    // console.log("Firebase app initialized");
 
     db = getFirestore(app);
-    console.log("Firestore initialized");
+    // console.log("Firestore initialized");
 
     auth = getAuth(app);
-    console.log("Firebase Auth initialized");
+    // console.log("Firebase Auth initialized");
 } catch (err) {
     console.error("Error initializing Firebase services: ", err);
 }

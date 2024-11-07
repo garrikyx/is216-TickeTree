@@ -80,12 +80,14 @@ export default {
   props: {
     selectedFilters: {
       type: Array,
-      required: true
+      required: true,
+      default: () => []
     }
   },
   data() {
     return {
       categories: [
+        'All',
         'Entertainment',
         'Sports',
         'Arts & Culture',
@@ -97,16 +99,21 @@ export default {
         { label: 'Date: Earliest First', event: 'setDate', value: 'ascending' },
         { label: 'Date: Latest First', event: 'setDate', value: 'descending' }
       ],
-      priceRange: [0, 1800], // Initial price range
-      selectedSortOption: null, // Hold selected sort option for badge
-      priceRangeChanged: false // Flag to track if price range has been modified
+      priceRange: [0, 3000], 
+      selectedSortOption: null, 
+      selectedCategory: null,
+      priceRangeChanged: false,
     };
   },
   computed: {
-    // Combine filters, sort option, and price range into a single array for display
-    displayedFilters() {
-      const filters = this.selectedFilters.map(filter => ({ key: filter, label: filter }));
-      
+  displayedFilters() {
+      const filters = [];
+
+      // Show selected category as badge, except "All"
+      if (this.selectedCategory && this.selectedCategory !== 'All') {
+        filters.push({ key: 'category', label: this.selectedCategory });
+      }
+
       // Add selected sort option as a badge if selected
       if (this.selectedSortOption) {
         filters.push({ key: 'sort', label: `Sort: ${this.selectedSortOption.label}` });
@@ -116,10 +123,10 @@ export default {
       if (this.priceRangeChanged) {
         filters.push({ key: 'price', label: `Price: $${this.priceRange[0]} - $${this.priceRange[1]}` });
       }
-      
+
       return filters;
     }
-  },
+},
   mounted() {
     // Initialize noUiSlider
     noUiSlider.create(this.$refs.slider, {
@@ -127,7 +134,7 @@ export default {
       connect: true,
       range: {
         'min': 0,
-        'max': 1800
+        'max': 3000
       },
       step: 1
     });
@@ -138,7 +145,7 @@ export default {
       this.priceRange = newRange;
 
       // Check if the price range is different from the default, and update flag
-      this.priceRangeChanged = !(newRange[0] === 0 && newRange[1] === 1800
+      this.priceRangeChanged = !(newRange[0] === 0 && newRange[1] === 3000
       );
       
       // Emit event for price range update if changed
@@ -148,7 +155,13 @@ export default {
   methods: {
     // Emit event to set a single category
     setCategory(category) {
-      this.$emit('setCategory', category);
+      if (category === 'All') {
+        this.selectedCategory = null;
+        this.$emit('setCategory', null); // Emit event to show all tickets
+      } else {
+        this.selectedCategory = category;
+        this.$emit('setCategory', category);
+      }
     },
 
     // Emit event to set sort option and store selected sort option
@@ -164,7 +177,10 @@ export default {
 
     // Emit event to remove a filter, handle removal of sort or price filter
     removeFilter(filter) {
-      if (filter.key === 'sort') {
+      if (filter.key === 'category') {
+        this.selectedCategory = null;
+        this.$emit('setCategory', null); // Reset to show all categories
+      } else if (filter.key === 'sort') {
         this.selectedSortOption = null; // Reset sort option to null when removed
         this.$emit('setPrice', null); // Emit event to reset sorting
       } else if (filter.key === 'price') {
@@ -172,8 +188,6 @@ export default {
         this.priceRangeChanged = false; // Reset flag when price range filter is removed
         this.$refs.slider.noUiSlider.set(this.priceRange); // Update the slider UI
         this.updatePriceFilter();
-      } else {
-        this.$emit('removeFilter', filter.label);
       }
     }
   }

@@ -8,7 +8,7 @@
       @setCategory="filterByCategory"
       @setPrice="sortByPrice"
       @setDate="sortByDate"
-      @setPriceRange="handlePriceRange"
+      @setPriceRange="filterByPriceRange"
       @removeFilter="removeFilter"
     />
 
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useTicketStore } from '@/stores/ticketStore.js'; 
 import FilterSection from '@/components/marketplace/FilterSection.vue';
 import TicketCard from '@/components/marketplace/TicketCard.vue';
@@ -37,42 +37,86 @@ export default {
     TicketCard,
   },
   setup() {
-    const ticketStore = useTicketStore(); 
+    const ticketStore = useTicketStore();
+    
+    // Initialize selected filters and categories
+    const selectedFilters = ref([]);
+    const selectedCategory = ref();
+    const selectedSortOption = ref(null);
+    const priceRange = ref([0, 3000]);
 
+    // Fetch tickets on mount
     onMounted(() => {
       if (!ticketStore.tickets.length) {
         ticketStore.fetchTickets();
       }
     });
 
-    // Computed properties and methods for filtering
-    const filteredTickets = computed(() => ticketStore.filteredTickets);
-    const selectedFilters = computed(() => ticketStore.selectedFilters);
+    // Get all tickets from the store
+    const allTickets = computed(() => ticketStore.tickets);
+
+    // Computed property to dynamically filter and sort tickets
+    const filteredTickets = computed(() => {
+      let tickets = [...allTickets.value];
+
+      // Filter by category if a category is selected
+      if (selectedCategory.value) {
+        tickets = tickets.filter(ticket => ticket.category === selectedCategory.value);
+      }
+
+      // Filter by price range
+      tickets = tickets.filter(ticket => 
+        ticket.price >= priceRange.value[0] && ticket.price <= priceRange.value[1]
+      );
+
+      // Sort tickets based on selected sort option
+      if (selectedSortOption.value) {
+        if (selectedSortOption.value === 'low') {
+          tickets.sort((a, b) => a.price - b.price);
+        } else if (selectedSortOption.value === 'high') {
+          tickets.sort((a, b) => b.price - a.price);
+        } else if (selectedSortOption.value === 'ascending') {
+          tickets.sort((a, b) => new Date(a.date) - new Date(b.date));
+        } else if (selectedSortOption.value === 'descending') {
+          tickets.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+      }
+
+      return tickets;
+    });
+
+    // Categories to display in the filter section
     const categories = ['Entertainment', 'Sports', 'Arts & Culture', 'Business & Education'];
 
-    // Methods to trigger store actions for filtering and sorting
+    // Methods for updating filters and sort options
     function addAllCategories(categories) {
-      ticketStore.setAllCategories(categories);
+      selectedFilters.value = categories;
     }
 
     function filterByCategory(category) {
-      ticketStore.toggleCategoryFilter(category);
+      selectedCategory.value = category;
     }
 
     function sortByPrice(order) {
-      ticketStore.sortByPrice(order);
+      selectedSortOption.value = order;
     }
 
     function sortByDate(order) {
-      ticketStore.sortByDate(order);
+      selectedSortOption.value = order;
     }
 
     function filterByPriceRange(range) {
-      ticketStore.setPriceRange(range);
+      priceRange.value = range;
     }
 
     function removeFilter(filter) {
-      ticketStore.removeFilter(filter);
+      if (filter === 'category') {
+        selectedCategory.value = null;
+      } else if (filter === 'sort') {
+        selectedSortOption.value = null;
+      } else if (filter === 'price') {
+        priceRange.value = [0, 3000];
+      }
     }
 
     return {
