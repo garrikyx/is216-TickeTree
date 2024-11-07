@@ -8,7 +8,7 @@
         <p class="order-id">Ticket ID: {{ orderId }}</p>
         <p class="event-date">Date: {{ formattedDate }}</p>
         <p class="event-location">{{ event.location }}</p>
-        <p class="seat-number">Seat: {{ event.ticket.seat }}</p>
+        <p class="seat-number">Seat: {{ event.seat.join(', ') }}</p>
       </div>
     </div>
 
@@ -38,12 +38,8 @@
                 <span class="label">ROW</span><br />
                 <span class="value">{{ event.ticket.row }}</span>
               </div>
-              <div class="seat-detail">
-                <span class="label">SEAT</span><br />
-                <span class="value">{{ event.ticket.seat }}</span>
-              </div>
             </div>
-            <br>
+            <br />
             <p v-if="message" class="unavailable-message">{{ message }}</p>
             <img v-else-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
           </div>
@@ -60,18 +56,27 @@
 <script setup>
 import { ref, computed, onMounted, defineProps } from 'vue';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../firebase'; // Ensure this imports your Firebase config
+import { db } from '../../firebase';
 import { getAuth } from 'firebase/auth';
-import QRCode from "qrcode";
+import QRCode from 'qrcode';
 
 const props = defineProps(['orderID']);
 const event = ref(null);
-const showTicket = ref(false); // Controls visibility of the ticket modal
+const showTicket = ref(false);
 const qrCode = ref(null);
-const message = ref("");
+const message = ref('');
 const orderId = ref(props.orderID);
 
-onMounted(fetchEventDetails);
+onMounted(() => {
+  const auth = getAuth();
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      await fetchEventDetails();
+    } else {
+      console.log('User not authenticated, retrying...');
+    }
+  });
+});
 
 async function fetchEventDetails() {
   try {
@@ -81,7 +86,7 @@ async function fetchEventDetails() {
     if (!currentUser || !currentUser.email) return;
 
     const paymentCollectionRef = collection(db, 'payment');
-    const orderIdQuery = query(paymentCollectionRef, where("orderId", "==", props.orderID));
+    const orderIdQuery = query(paymentCollectionRef, where('orderId', '==', props.orderID));
     const orderIdSnapshot = await getDocs(orderIdQuery);
 
     if (!orderIdSnapshot.empty) {
@@ -94,52 +99,53 @@ async function fetchEventDetails() {
         date: eventData.eventDate,
         time: eventData.eventTime,
         location: eventData.eventLocation,
-        imageUrl: eventData.imageUrl || "/images/noimage.png",
-        ticket: eventData.ticket || { section: "151", row: "15", seat: "11" },
+        imageUrl: eventData.imageUrl || '/images/noimage.png',
+        seat: eventData.seatNumbers || [],
+        ticket: eventData.ticket || { section: '151', row: '15' },
       };
     } else {
-      console.error("No matching document found for the order ID:", props.orderID);
+      console.error('No matching document found for the order ID:', props.orderID);
     }
   } catch (error) {
-    console.error("Error fetching event details: ", error);
+    console.error('Error fetching event details: ', error);
   }
 }
 
 const formattedDate = computed(() => {
   if (!event.value || !event.value.date) return '';
-
-  // Check if the date string contains a hyphen to denote a date range
   const dateRange = event.value.date.split('-');
+
   if (dateRange.length === 2) {
-    // Extract the start date and end date including the day
-    const startDate = dateRange[0].trim().split(' ').slice(0, 3).join(' '); // e.g., "Sat 23 Nov"
-    const endDate = dateRange[1].trim().split(' ').slice(0, 3).join(' ');   // e.g., "Sat 28 Dec"
+    const startDate = dateRange[0].trim();
+    const endDate = dateRange[1].trim();
     return `${startDate} - ${endDate}`;
   }
 
-  // If there is no hyphen, display the full date string as it is
   return event.value.date;
 });
 
 async function generateQRCode() {
   const currentDate = new Date();
-
-  // Parse the event's start date
   let qrCodeAvailableDate;
+
   if (event.value.date.includes('-')) {
-    // For a date range, extract the start date (first part before the dash)
     const startDateStr = event.value.date.split('-')[0].trim();
-    qrCodeAvailableDate = new Date(startDateStr + " " + new Date().getFullYear());
+    qrCodeAvailableDate = new Date(startDateStr + ' ' + new Date().getFullYear());
   } else {
-    // For a single date event
-    qrCodeAvailableDate = new Date(event.value.date + " " + new Date().getFullYear());
+    qrCodeAvailableDate = new Date(event.value.date + ' ' + new Date().getFullYear());
   }
 
-  // Display QR code if current date is on or after the event's start date
   if (currentDate >= qrCodeAvailableDate) {
     try {
-      qrCode.value = await QRCode.toDataURL("https://example.com", { width: 200 });
-      message.value = "";
+      const qrData = {
+        eventName: event.value.eventName,
+        date: event.value.date,
+        location: event.value.location,
+        orderId: props.orderID,
+      };
+
+      qrCode.value = await QRCode.toDataURL(JSON.stringify(qrData), { width: 200 });
+      message.value = '';
     } catch (err) {
       console.error(err);
     }
@@ -150,7 +156,7 @@ async function generateQRCode() {
 }
 
 function handleImageError(event) {
-  event.target.src = "/images/noimage.png";
+  event.target.src = '/images/noimage.png';
 }
 
 function getTicket() {
@@ -235,6 +241,7 @@ function getTicket() {
   align-items: center;
   z-index: 1000;
 }
+
 .digital-ticket {
   width: 100%;
   max-width: 380px;

@@ -1,6 +1,6 @@
 <template>
     <div class="card mr-3" style="width: auto;">
-      <img :src="ticket.image" class="card-img-top event-image" :alt="ticket.eventName">
+      <img :src="ticket.imageUrl" class="card-img-top event-image" :alt="ticket.eventName">
       
       <div class="card-body d-flex flex-column">
         <h5 class="card-title">{{ ticket.eventName }}</h5>
@@ -12,8 +12,11 @@
         <p class="card-text" v-if="ticket.section">Section: {{ ticket.section }}</p>
         <p class="card-text" v-if="ticket.seatNumber">Seat Number: {{ ticket.seatNumber }}</p>
         <p class="card-text text-success">Price: ${{ ticket.price }}</p>
-        <button class="mt-auto btn btn-primary">Buy Ticket</button>
-      </div>
+        <router-link 
+        :to="{ name: 'ListedEvent', params: { id: ticket.id } }"
+        class="mt-auto btn btn-primary"
+      >Buy Ticket </router-link>
+        </div>
     </div>
   </template>
   
@@ -42,7 +45,8 @@
   }
 
   .btn-primary {
-    background-color: #B87333;
+    background-color: #2c647c;
+    border: #2c647c;
   }
   </style>
   

@@ -25,9 +25,13 @@
             <p class="order-label">Date:</p>
             <p class="order-value">{{ orderSummary.eventDate }}</p>
           </div>
-          <div class="order-detail">
-            <p class="order-label">Seat:</p>
-            <p class="order-value">{{ orderSummary.seatNumber }}</p>
+          <div class="order-detail" v-if="orderSummary.seatNumbers && orderSummary.seatNumbers.length">
+            <p class="order-label">Seats:</p>
+            <p class="order-value">
+              <span v-for="(seat, index) in orderSummary.seatNumbers" :key="index">
+                {{ seat }}<span v-if="index < orderSummary.seatNumbers.length - 1">, </span>
+              </span>
+            </p>
           </div>
           <div class="order-detail">
             <p class="order-label">Quantity:</p>
@@ -51,9 +55,10 @@
 
 <script>
 import axios from 'axios';
-import { db } from '../../../firebase'; // Adjust the import path if necessary
+import { db } from '../../../firebase';
 import { collection, addDoc, updateDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth'; // Import Firebase Auth
+import { getAuth } from 'firebase/auth';
+import { useCartStore } from '@/stores/cartStore'; // Import the cart store
 
 export default {
   data() {
@@ -83,11 +88,11 @@ export default {
           this.orderSummary = {
             eventName: item.price.product.name,
             eventDate: item.price.product.metadata.eventDate || 'N/A',
-            seatNumber: item.price.product.metadata.seatNumber || 'N/A',
+            seatNumbers: item.price.product.metadata.seatNumbers ? JSON.parse(item.price.product.metadata.seatNumbers) : ['N/A'],
             quantity: item.quantity,
             customerEmail: session.customer_email || 'N/A',
             totalPrice: session.amount_total,
-            imageUrl: item.price.product.metadata.imageUrl || '/images/noimage.png', // Retrieve correct imageUrl
+            imageUrl: item.price.product.metadata.imageUrl || '/images/noimage.png',
           };
 
           if (this.isValidEmail(this.orderSummary.customerEmail)) {
@@ -96,7 +101,8 @@ export default {
             console.error("Invalid email format:", this.orderSummary.customerEmail);
           }
 
-          await this.savePaymentDetails(); // Save payment details here
+          await this.savePaymentDetails();
+          this.removePurchasedItems(); // Remove purchased items from the cart after successful payment
         } else {
           console.error("No line items found in the session data.");
         }
@@ -127,19 +133,19 @@ export default {
 
     async savePaymentDetails() {
       try {
-        const auth = getAuth(); // Get the current user
-        const currentUser = auth.currentUser; // Get the current user
-        const userId = currentUser ? currentUser.uid : null; // Get user ID
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        const userId = currentUser ? currentUser.uid : null;
 
         const paymentData = {
           customerEmail: this.orderSummary.customerEmail,
           eventName: this.orderSummary.eventName,
-          seatNumber: this.orderSummary.seatNumber,
+          seatNumbers: this.orderSummary.seatNumbers,
           quantity: this.orderSummary.quantity,
           eventDate: this.orderSummary.eventDate,
           totalPrice: Math.round(this.orderSummary.totalPrice / 100),
           imageUrl: this.orderSummary.imageUrl,
-          userId: userId, // Include user ID in payment data
+          userId: userId,
         };
         
         const docRef = await addDoc(collection(db, 'payment'), paymentData);
@@ -148,6 +154,16 @@ export default {
       } catch (error) {
         console.error("Error adding payment document: ", error);
       }
+    },
+
+    // Remove purchased items from the cart
+    removePurchasedItems() {
+      const cartStore = useCartStore(); // Access the cart store
+      cartStore.cartItems.forEach((item) => {
+        // Mark items as purchased after successful payment
+        item.purchased = true;
+      });
+      cartStore.removePurchasedItems(); // Remove items that are marked as purchased
     },
 
     redirectToHomepage() {

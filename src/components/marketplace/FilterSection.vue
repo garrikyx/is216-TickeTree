@@ -193,4 +193,37 @@ export default {
 .slider {
   margin-top: 10px;
 }
+
+.badge {
+  background-color: #9c565c !important; /* Customize with your preferred color */
+  color: white !important;
+  margin-left: 0.5em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge .btn-close {
+  font-size: 0.7rem;
+  margin-left: 0.5em;
+}
+.btn-secondary {
+  background-color: #9c565c !important;
+  border: #9c565c;
+}
+
+.noUi-connect {
+    background-color: #9c565c;
+}
+.noUi-horizontal .noUi-handle, .noUi-vertical .noUi-handle {
+    background-color: #9c565c;
+}
+.noUi-target.noUi-horizontal .noUi-tooltip {
+    background-color: #9c565c;
+}
+
+.btn-primary {
+    background-color: #24566c;
+    border: #24566c;
+
+}
 </style>

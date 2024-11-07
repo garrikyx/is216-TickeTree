@@ -7,14 +7,14 @@
     <div v-else>
       <div v-for="(item, index) in cartItems" :key="index" class="item">
         <div class="buttons">
-  <i class="fas fa-times delete-btn" @click="deleteItem(index)"></i>
-</div>
+          <i class="fas fa-times delete-btn" @click="deleteItem(index)"></i>
+        </div>
         <div class="image">
           <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
         </div>
         <div class="description">
           <span style="font-weight: bold; font-size: 18px">{{ item.eventName }}</span>
-          <span>Seat: {{ item.seatNumber }}</span>
+          <span>Seats: {{ formatSeatNumbers(item) }}</span>
           <span>Date: {{ formatDate(item.eventDate) }}</span>
         </div>
         <div class="quantity">
@@ -72,45 +72,58 @@ export default {
   },
   async mounted() {
     this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR');
-  
   },
   methods: {
-    async checkout() {
-      try {
-        const items = this.cartItems.map(item => ({
-          eventName: item.eventName,
-          seatNumber: item.seatNumber,
-          eventDate: item.eventDate,
-          pricePerItem: item.pricePerItem,
-          quantity: item.quantity,
-          imageUrl: item.imageUrl,
-        }));
-
-        localStorage.setItem('orderSummary', JSON.stringify(items));
-
-        const response = await fetch('http://localhost:5001/create-checkout-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ cartItems: items }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error}`);
-        }
-
-        const session = await response.json();
-        const { error } = await this.stripe.redirectToCheckout({ sessionId: session.id });
-
-        if (error) {
-          console.error("Error redirecting to checkout:", error);
-        }
-      } catch (error) {
-        console.error("Error creating checkout session:", error);
-      }
+    formatSeatNumbers(item) {
+      // Generate seat numbers based on quantity
+      const baseSeat = item.seatNumber;
+      return Array.from({ length: item.quantity }, (_, i) => baseSeat + i).join(', ');
     },
+    async checkout() {
+  try {
+    // Mark items as purchased before sending to backend
+    const items = this.cartItems.map(item => {
+      item.purchased = true; // Set purchased flag
+      return {
+        eventName: item.eventName,
+        seatNumbers: Array.from({ length: item.quantity }, (_, i) => item.seatNumber + i),
+        eventDate: item.eventDate,
+        pricePerItem: item.pricePerItem,
+        quantity: item.quantity,
+        imageUrl: item.imageUrl,
+      };
+    });
+
+    localStorage.setItem('orderSummary', JSON.stringify(items));
+
+    // Continue with checkout process
+    const response = await fetch('http://localhost:5001/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cartItems: items }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error}`);
+    }
+
+    const session = await response.json();
+    const { error } = await this.stripe.redirectToCheckout({ sessionId: session.id });
+
+    if (error) {
+      console.error("Error redirecting to checkout:", error);
+    } else {
+      // Remove purchased items from cart after checkout
+      cartStore.cartItems = cartStore.cartItems.filter(item => !item.purchased);
+      localStorage.setItem('cartItems', JSON.stringify(cartStore.cartItems)); // Update localStorage
+    }
+  } catch (error) {
+    console.error("Error creating checkout session:", error);
+  }
+},
     formatDate(dateStr) {
       const dates = dateStr.split(' - ');
       return dates.map(date =>
@@ -120,6 +133,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .empty-cart-message {

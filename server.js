@@ -57,11 +57,9 @@ app.post('/create-checkout-session', async (req, res) => {
                     currency: 'sgd',
                     product_data: {
                         name: item.eventName,
-                        // Note: The image URL is not included in the product data for Stripe
                         metadata: {
                             eventDate: item.eventDate,
-                            seatNumber: item.seatNumber,
-                            // Store the image URL in metadata if needed
+                            seatNumbers: JSON.stringify(item.seatNumbers), // Store seat numbers as JSON
                             imageUrl: item.imageUrl, // Optionally store the image URL
                         },
                     },
@@ -97,10 +95,10 @@ app.get('/checkout-session', async (req, res) => {
         const items = session.line_items.data.map(item => ({
             eventName: item.price.product.name,
             eventDate: item.price.product.metadata.eventDate,
-            seatNumber: item.price.product.metadata.seatNumber,
+            seatNumbers: JSON.parse(item.price.product.metadata.seatNumbers || '[]'), // Parse seat numbers
             quantity: item.quantity,
             pricePerItem: item.price.unit_amount / 100,
-            imageUrl: item.price.product.metadata.imageUrl, // Keep track of the absolute image URL
+            imageUrl: item.price.product.metadata.imageUrl,
         }));
 
         const orderSummary = items[0];
@@ -141,7 +139,7 @@ async function sendConfirmationEmail(email, orderSummary) {
                 <h2>Order Summary:</h2>
                 <p><strong>Event:</strong> ${orderSummary.eventName}</p>
                 <p><strong>Date:</strong> ${orderSummary.eventDate}</p>
-                <p><strong>Seat:</strong> ${orderSummary.seatNumber}</p>
+                <p><strong>Seats:</strong> ${orderSummary.seatNumbers.join(', ')}</p>
                 <p><strong>Quantity:</strong> ${orderSummary.quantity}</p>
                 <p><strong>Total Price:</strong> SGD ${(orderSummary.totalPrice / 100).toFixed(2)}</p>
             `
