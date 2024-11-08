@@ -16,8 +16,10 @@ export default {
   methods: {
     loadGoogleMaps() {
       const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      const mapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+      // script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=marker&mapId=${mapId}`;
       script.async = true;
       script.defer = true;
       window.initMap = this.initMap;
@@ -29,12 +31,13 @@ export default {
       const map = new google.maps.Map(document.getElementById('map'), {
         center: location,
         zoom: 15,
+        mapId: import.meta.env.VITE_GOOGLE_MAPS_MAP_ID,
       });
 
-      new google.maps.Marker({
-        position: location,
-        map: map,
-      });
+      // new google.maps.Marker({
+      //   position: location,
+      //   map: map,
+      // });
     },
     getLocationCoordinates(locationName) {
       const locations = {
