@@ -20,11 +20,6 @@ const router = createRouter({
       meta: { hideSidebar: true, hideNavbar: true , hideFooter: true},
     },
     {
-      path: "/myevents",
-      name: "myevent",
-      component: () => import("../views/MyEvent.vue"),
-    },
-    {
       path: "/payment",
       name: "payment",
       component: () => import("../views/Payment.vue"),

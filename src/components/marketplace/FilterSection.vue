@@ -136,7 +136,7 @@ export default {
         'min': 0,
         'max': 3000
       },
-      step: 1
+      step: 1,
     });
 
     // Event listener for slider updates
@@ -223,6 +223,28 @@ export default {
 .btn-secondary {
   background-color: #9c565c !important;
   border: #9c565c;
+}
+
+:deep(.noUi-target) {
+  height: 8px;
+  border: none;
+  border-radius: 4px;
+  background-color: #e0e0e0;
+  box-shadow: none;
+}
+
+:deep(.noUi-connect) {
+  background-color: #2c647c; 
+}
+
+:deep(.noUi-handle) {
+  width: 20px;
+  height: 20px;
+  right: -10px; 
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 </style>

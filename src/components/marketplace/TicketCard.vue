@@ -35,13 +35,13 @@
   <style scoped>
   .card {
     height: 100%;
-    margin: 10px; /* Add margin to ensure spacing */
+    margin: 10px; 
   }
   
   .event-image {
-    width: 100%; /* Ensures the image fills the card width */
-    height: auto; /* Maintains aspect ratio */
-    object-fit: cover; /* Ensures the image covers the space without distortion */
+    width: auto; 
+    height: auto; 
+    object-fit: cover; 
   }
 
   .btn-primary {

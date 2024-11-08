@@ -13,12 +13,13 @@
       <div id="category-events" class="container mt-4">
         <div class="row mt-4">
           <div class="col text-center mb-4">
-            <h2>{{ categoryName }} Events</h2>
-            <p>Discover exciting events in the {{ categoryName }} category!</p>
+            <h1>{{ categoryName }} Events</h1>
+            <h5>Discover exciting events in the {{ categoryName }} category!</h5>
           </div>
         </div>
+      </div>
 
-        <div class="row">
+        <div class="row text-center mx-4">
           <router-link
             v-for="event in visibleEvents"
             :key="event.id"
@@ -44,7 +45,6 @@
             </div>
           </router-link>
         </div>
-      </div>
     </div>
   </div>
 </template>
@@ -114,6 +114,7 @@ onMounted(() => {
   transition: transform 0.2s;
   border: none;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 .card:hover {
@@ -121,7 +122,7 @@ onMounted(() => {
 }
 
 .card-img-top {
-  height: 200px;
+  height: 250px;
   object-fit: cover;
 }
 </style>

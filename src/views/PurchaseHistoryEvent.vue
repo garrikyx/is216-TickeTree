@@ -49,7 +49,7 @@
   </div>
 
   <div v-else>
-    <p>Loading event details...</p>
+    <p class="loading-message">Loading event details...</p>
   </div>
 </template>
 
@@ -311,5 +311,12 @@ function getTicket() {
   margin: 0 auto;
   max-width: 100%;
   height: auto;
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  margin-top: 50px;
 }
 </style>

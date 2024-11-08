@@ -2,7 +2,7 @@
   <div>
     <!-- Poster Section -->
     <div
-      class="blurred-background container-fluid mt-4 d-flex justify-content-center align-items-center"
+      class="blurred-background container-fluid  d-flex justify-content-center align-items-center"
       :style="{ backgroundImage: `url(${event?.images?.images[0]?.original_url || '/images/noimage.png'})` }"
     >
       <div class="poster">
@@ -18,25 +18,35 @@
     <!-- Event Details -->
     <div class="container mt-4 text-center event-details">
       <h2 class="event-title">{{ event?.name || "Event Title" }}</h2>
-      <div class="d-flex justify-content-center gap-3 text-muted">
-        <p><i class="bi bi-calendar-event"></i> {{ event?.datetime_summary || "November 30, 2024" }}</p>
-        <p><i class="bi bi-clock"></i> {{ event?.time || "6:00 PM" }}</p>
-        <p><i class="bi bi-geo-alt"></i> {{ event?.location_summary }}</p>
+      <div class="d-block justify-content-center gap-5 text-muted">
+        <p class="h5"><i class="fa fa-calendar"></i> {{ event?.datetime_summary || "November 30, 2024" }}</p>
+        <p class="h5"><i class="fa fa-clock-o" ></i> {{ event?.time || "6:00 PM" }}</p>
+        <p class="h5"><i class="fa fa-map-marker"></i> {{ event?.location_summary }}</p>
       </div>
     </div>
 
-    <!-- Price and Marketplace Section -->
-    <div class="container mt-3 d-flex justify-content-around align-items-center pricing-section">
-      <div class="price-info text-center p-3 shadow-sm rounded">
-        <h4 class="text-success">Price: {{ event?.price || "$50.00" }}</h4>
-        <button @click="handleTicketPurchase" class="btn btn-success btn-lg shadow-sm animate-pulse">Get Tickets</button>
+    <div class="container d-flex justify-content-center align-items-start gap-5 mt-4">
+  <div class="card w-100 shadow-lg">
+    <div class="card-body d-flex justify-content-between align-items-start">
+      <!-- About Section -->
+      <div class="about-section p-3 me-4">
+        <h5>About:</h5>
+        <p>{{ event?.description || "Detailed event description goes here." }}</p>
       </div>
-      <div class="marketplace">
-        <router-link to="/marketplace">
-          <button class="btn btn-outline-primary btn-lg shadow-sm">See Resale Price</button>
-        </router-link>
+
+      <!-- Price Section -->
+      <div class="price-section text-center p-3">
+        <h4 class="text-success">Price: {{ event?.price || "$50.00" }}</h4>
+        <button @click="handleTicketPurchase" class="btn btn-success btn-lg animate-pulse">Get Tickets</button>
+        <div class="marketplace mt-3">
+          <router-link to="/marketplace">
+            <button class="btn btn-outline-primary btn-lg">See Resale Price</button>
+          </router-link>
+        </div>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- Error Modal -->
     <div v-if="showModal" class="modal-overlay">
@@ -50,14 +60,9 @@
       </div>
     </div>
 
-    <!-- About Section -->
-    <div class="container mt-4 about-section">
-      <h5>About:</h5>
-      <p>{{ event?.description || "Detailed event description goes here." }}</p>
-    </div>
 
     <!-- Location Map Section -->
-    <div class="container mt-4 location-map">
+    <div class="container mt-4 mb-4 location-map">
       <h5>Location:</h5>
       <div id="map" class="rounded shadow" style="width: 100%; height: 300px"></div>
     </div>
@@ -181,15 +186,14 @@ hr.custom-hr {
   transition: transform 0.5s;
 }
 
-.poster-img:hover {
-  transform: scale(1.05);
+.event-title {
+  font-size: 3em;
+  font-weight: bold;
+  animation: fade-in 1.5s ease-in-out;
 }
 
-.event-title {
-  font-size: 2.5em;
-  font-weight: bold;
-  color: #333;
-  animation: fade-in 1.5s ease-in-out;
+.about-section {
+  width: 500px;
 }
 
 .text-muted {

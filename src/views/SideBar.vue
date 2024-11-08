@@ -23,19 +23,7 @@
         <RouterLink to="/settings">Settings</RouterLink>
       </li>
     </ul>
-    <div class="toggle-container">
-      <i :class="isDarkMode ? 'fas fa-moon dark-icon' : 'fas fa-sun yellow-icon'"></i>
-      <span class="toggle-label-text">Dark Mode</span>
-      <input 
-        type="checkbox" 
-        id="toggle" 
-        :checked="isDarkMode" 
-        @change="$emit('toggleDarkMode', !isDarkMode)" 
-      />
-      <label for="toggle" class="toggle-label">
-        <span class="slider"></span>
-      </label>
-    </div>
+
     <button class="logout-btn" @click="logout" aria-label="Log out">
       <i class="fas fa-sign-out-alt logout-icon"></i> Logout
     </button>
