@@ -152,6 +152,7 @@ const filteredEvents = computed(() => {
   transition: transform 0.2s;
   border: none;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 .card:hover {
@@ -159,7 +160,7 @@ const filteredEvents = computed(() => {
 }
 
 .card-img-top {
-  height: 200px;
+  height: 250px;
   object-fit: cover;
 }
 
