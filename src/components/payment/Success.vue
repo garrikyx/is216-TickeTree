@@ -4,14 +4,32 @@
       <p>Loading your order summary...</p>
     </div>
     <div v-else-if="orderSummary">
+      <div class="svg-overlay">
+        <svg width="100%" height="100" viewBox="0 0 300 100">
+          <path
+          id="flightPath"
+          d="m39,348c1,0 19.00613,0.56482 45,0c23.0163,-0.50012 37.63463,-3.79041 48,-10c18.35866,-10.99817 30.90819,-26.06519 43,-43c12.9024,-18.07007 23.12024,-34.62286 27,-48c2.84067,-9.7944 4.18579,-21.77023 -1,-33c-3.60649,-7.80981 -8,-10 -11,-10c-5,0 -11.22273,0.724 -15,4c-3.20512,2.77979 -6,7 -9,11c-3,4 -5,8 -5,11c0,3 -0.91553,4.14313 0,7c2.62523,8.19196 7.70546,12.34619 10,14c3.62799,2.6149 9.76471,5.57809 19,9c9.78989,3.62738 23.57077,8.87628 45,0c32.30551,-35.55295 64.9147,-71.80737 115,-138c35.24564,-46.58054 55,-68 60,-74l0,0"
+          fill="none"
+          />
+        </svg>
+      </div>
       <div class="success-header">
-        <div class="success-icon-text">
+        <div ref="paperPlane" class="paper-plane">
+          <img
+            src="/images/paperplane.svg"
+            alt="Paper Plane"
+            width="40"
+            height="40"
+          />
+        </div>
+        <div class="success-icon-text mt-2">
           <span class="success-icon">✔</span>
           <h1>Payment Confirmed</h1>
         </div>
         <p class="success-message">
-          Thank you, your payment has been successful, and your purchase is now confirmed.
-          A confirmation email has been sent to {{ orderSummary.customerEmail }}.
+          Thank you, your payment has been successful, and your purchase is now
+          confirmed. A confirmation email has been sent to
+          {{ orderSummary.customerEmail }}.
         </p>
       </div>
       <div class="order-summary">
@@ -25,11 +43,20 @@
             <p class="order-label">Date:</p>
             <p class="order-value">{{ orderSummary.eventDate }}</p>
           </div>
-          <div class="order-detail" v-if="orderSummary.seatNumbers && orderSummary.seatNumbers.length">
+          <div
+            class="order-detail"
+            v-if="orderSummary.seatNumbers && orderSummary.seatNumbers.length"
+          >
             <p class="order-label">Seats:</p>
             <p class="order-value">
-              <span v-for="(seat, index) in orderSummary.seatNumbers" :key="index">
-                {{ seat }}<span v-if="index < orderSummary.seatNumbers.length - 1">, </span>
+              <span
+                v-for="(seat, index) in orderSummary.seatNumbers"
+                :key="index"
+              >
+                {{ seat
+                }}<span v-if="index < orderSummary.seatNumbers.length - 1"
+                  >,
+                </span>
               </span>
             </p>
           </div>
@@ -39,12 +66,16 @@
           </div>
           <div class="order-detail">
             <p class="order-label">Total Price:</p>
-            <p class="order-value">SGD {{ (orderSummary.totalPrice / 100).toFixed(2) }}</p>
+            <p class="order-value">
+              SGD {{ (orderSummary.totalPrice / 100).toFixed(2) }}
+            </p>
           </div>
         </div>
       </div>
       <div class="order-summary-card">
-        <button class="return-btn" @click="redirectToHomepage">Return to Homepage</button>
+        <button class="return-btn" @click="redirectToHomepage">
+          Return to Homepage
+        </button>
       </div>
     </div>
     <div v-else>
@@ -54,16 +85,17 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { db } from '../../../firebase';
-import { collection, addDoc, updateDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { useCartStore } from '@/stores/cartStore'; // Import the cart store
+import axios from "axios";
+import { db } from "../../../firebase";
+import { collection, addDoc, updateDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { useCartStore } from "@/stores/cartStore"; // Import the cart store
+import anime from "animejs";
 
 export default {
   data() {
     return {
-      sessionId: '',
+      sessionId: "",
       orderSummary: {},
       isLoading: true,
     };
@@ -71,34 +103,46 @@ export default {
   async created() {
     this.sessionId = this.$route.query.session_id;
 
-    console.log("Session ID from URL:", this.sessionId);
+    // console.log("Session ID from URL:", this.sessionId);
 
     if (this.sessionId) {
       try {
-        const response = await axios.get(`http://localhost:5001/checkout-session`, {
-          params: { session_id: this.sessionId },
-        });
+        const response = await axios.get(
+          `http://localhost:5001/checkout-session`,
+          {
+            params: { session_id: this.sessionId },
+          }
+        );
 
         const session = response.data;
-        console.log("Fetched session details:", session);
+        // console.log("Fetched session details:", session);
 
         if (session.line_items && session.line_items.data.length > 0) {
           const item = session.line_items.data[0];
 
           this.orderSummary = {
             eventName: item.price.product.name,
-            eventDate: item.price.product.metadata.eventDate || 'N/A',
-            seatNumbers: item.price.product.metadata.seatNumbers ? JSON.parse(item.price.product.metadata.seatNumbers) : ['N/A'],
+            eventDate: item.price.product.metadata.eventDate || "N/A",
+            seatNumbers: item.price.product.metadata.seatNumbers
+              ? JSON.parse(item.price.product.metadata.seatNumbers)
+              : ["N/A"],
             quantity: item.quantity,
-            customerEmail: session.customer_email || 'N/A',
+            customerEmail: session.customer_email || "N/A",
             totalPrice: session.amount_total,
-            imageUrl: item.price.product.metadata.imageUrl || '/images/noimage.png',
+            imageUrl:
+              item.price.product.metadata.imageUrl || "/images/noimage.png",
           };
 
           if (this.isValidEmail(this.orderSummary.customerEmail)) {
-            await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
+            await this.sendConfirmationEmail(
+              this.orderSummary.customerEmail,
+              this.orderSummary
+            );
           } else {
-            console.error("Invalid email format:", this.orderSummary.customerEmail);
+            console.error(
+              "Invalid email format:",
+              this.orderSummary.customerEmail
+            );
           }
 
           await this.savePaymentDetails();
@@ -113,6 +157,24 @@ export default {
       }
     }
   },
+  watch: {
+    isLoading(value) {
+      if (!value && this.orderSummary) {
+        this.$nextTick(() => {
+          const flightPath = anime.path("#flightPath"); 
+
+          anime({
+            targets: this.$refs.paperPlane,
+            translateX: flightPath("x"), 
+            translateY: flightPath("y"), 
+            easing: "easeInOutQuad",
+            duration: 5000,
+            loop: false,
+          });
+        });
+      }
+    },
+  },
   methods: {
     isValidEmail(email) {
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -121,13 +183,16 @@ export default {
 
     async sendConfirmationEmail(email, orderSummary) {
       try {
-        const response = await axios.post('http://localhost:5001/send-confirmation-email', {
-          email,
-          orderSummary,
-        });
-        console.log('Email sent successfully:', response.data);
+        const response = await axios.post(
+          "http://localhost:5001/send-confirmation-email",
+          {
+            email,
+            orderSummary,
+          }
+        );
+        // console.log('Email sent successfully:', response.data);
       } catch (error) {
-        console.error('Failed to send email:', error);
+        console.error("Failed to send email:", error);
       }
     },
 
@@ -147,10 +212,10 @@ export default {
           imageUrl: this.orderSummary.imageUrl,
           userId: userId,
         };
-        
-        const docRef = await addDoc(collection(db, 'payment'), paymentData);
+
+        const docRef = await addDoc(collection(db, "payment"), paymentData);
         await updateDoc(docRef, { orderId: docRef.id });
-        console.log("Payment document written with ID: ", docRef.id);
+        // console.log("Payment document written with ID: ", docRef.id);
       } catch (error) {
         console.error("Error adding payment document: ", error);
       }
@@ -167,7 +232,7 @@ export default {
     },
 
     redirectToHomepage() {
-      this.$router.push('/');
+      this.$router.push("/");
     },
   },
 };
@@ -183,9 +248,28 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
   text-align: center;
+  position: relative;
 }
 
-body, html {
+.svg-overlay {
+  position: absolute; 
+  top: -10px;
+  left: -500px;
+  width: 100%; 
+  height: 100%; 
+  pointer-events: none; 
+  z-index: 1; 
+}
+
+.paper-plane {
+  position: absolute;
+  top: -40px;
+  left: -525px;
+  z-index: auto;
+}
+
+body,
+html {
   height: 100%;
   display: flex;
   align-items: center;

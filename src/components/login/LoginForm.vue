@@ -87,7 +87,7 @@ export default {
             errorMessage.value = "Incorrect password";
             break;
           default:
-            errorMessage.value = error.message || "An error occurred. Please try again.";
+            errorMessage.value =  "An error occurred. Please try again.";
         }
       }
     };

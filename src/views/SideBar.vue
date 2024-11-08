@@ -42,6 +42,8 @@ const props = defineProps({
   isDarkMode: Boolean
 });
 
+const emit = defineEmits(['close']);
+
 const auth = getAuth();
 const router = useRouter();
 const userName = ref('');

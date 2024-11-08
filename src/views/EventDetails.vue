@@ -128,18 +128,20 @@ function loadGoogleMaps() {
 }
 
 
-function initMap() {
+async function initMap() {
+  const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
   const { lat, lng } = event.value.location.point;
   const location = { lat, lng };
 
   const map = new google.maps.Map(document.getElementById("map"), {
     center: location,
     zoom: 15,
+    mapId: import.meta.env.VITE_GOOGLE_MAPS_MAP_ID,
   });
 
-  new google.maps.Marker({
-    position: location,
-    map: map,
+  const marker = new AdvancedMarkerElement({
+    map,
+    position: location
   });
 }
 
