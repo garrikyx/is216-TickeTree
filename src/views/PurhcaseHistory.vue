@@ -4,17 +4,19 @@
 
     <!-- Toggle Buttons for Upcoming and Past Events -->
     <div class="toggle-buttons">
-      <button :class="{ active: currentTab === 'upcoming' }" @click="currentTab = 'upcoming'">
+      <button :class="{ active: currentTab === 'upcoming' }" @click="setTab('upcoming')">
         Upcoming Events
       </button>
-      <button :class="{ active: currentTab === 'past' }" @click="currentTab = 'past'">
+      <button :class="{ active: currentTab === 'past' }" @click="setTab('past')">
         Past Events
       </button>
     </div>
 
+    <!-- Loading Message -->
+    <p v-if="loading" class="loading-message">Loading tickets...</p>
+
     <!-- Events List -->
-    <div class="events-list">
-      <!-- Check if there are no tickets in the filtered list -->
+    <div v-else class="events-list">
       <p v-if="filteredTickets.length === 0" class="no-tickets-message">No tickets available</p>
       
       <router-link
@@ -25,7 +27,7 @@
       >
         <div class="purchase-item">
           <div class="event-image-container">
-            <img :src="ticket.imageUrl" alt="Event Image" class="event-image" @error="handleImageError" />
+            <img :src="ticket.imageUrl" alt="Event Image" class="event-image" loading="lazy" @error="handleImageError" />
           </div>
           <div class="event-details">
             <h2>{{ ticket.eventName }}</h2>
@@ -56,8 +58,15 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { getAuth } from 'firebase/auth';
 
-const currentTab = ref("upcoming");
+const currentTab = ref(localStorage.getItem("currentTab") || "upcoming");
 const ticketlist = ref([]);
+const loading = ref(true);  // Loading state
+
+// Function to set the current tab and save it in localStorage
+function setTab(tab) {
+  currentTab.value = tab;
+  localStorage.setItem("currentTab", tab);
+}
 
 // Fetch tickets when the component is mounted
 onMounted(() => {
@@ -72,6 +81,7 @@ onMounted(() => {
 });
 
 async function fetchTickets() {
+  loading.value = true;  // Start loading
   try {
     const auth = getAuth();
     const currentUser = auth.currentUser;
@@ -106,6 +116,8 @@ async function fetchTickets() {
     });
   } catch (error) {
     console.error("Error fetching tickets: ", error);
+  } finally {
+    loading.value = false;  // Stop loading
   }
 }
 
@@ -269,7 +281,8 @@ h1 {
   text-decoration: none;
 }
 
-.no-tickets-message {
+.no-tickets-message,
+.loading-message {
   text-align: center;
   font-size: 1.2rem;
   color: #666;

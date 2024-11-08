@@ -12,7 +12,7 @@
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-      
+
       <!-- Left section with logo -->
       <div class="navbar-left">
         <RouterLink class="navbar-brand d-flex align-items-center" to="/">
@@ -44,8 +44,8 @@
         </ul>
       </div>
 
-      <!-- Right Side Items -->
-      <div class="navbar-right">
+      <!-- Right Side Items with Fixed Width to Prevent Shifting -->
+      <div class="navbar-right" v-if="!loading">
         <div 
           v-if="isLoggedIn" 
           class="user-info-wrapper align-items-center"
@@ -64,6 +64,9 @@
           Login
         </button>
       </div>
+
+      <!-- Fixed-width Placeholder for Right Side (only shown during loading) -->
+      <div v-else class="navbar-right fixed-placeholder"></div>
     </div>
   </nav>
 </template>
@@ -77,6 +80,7 @@ const auth = getAuth();
 const router = useRouter();
 const route = useRoute();
 const isLoggedIn = ref(false);
+const loading = ref(true); // Add loading state
 const navContainer = ref(null);
 const activeIndex = ref(0);
 const hoverIndex = ref(null);
@@ -90,35 +94,43 @@ const navItems = ref([
 // Calculate the background position based on active/hover state
 const backgroundStyle = computed(() => {
   const index = hoverIndex.value !== null ? hoverIndex.value : activeIndex.value;
-  const width = 150; // Width of nav-link
+  const navItem = navContainer.value?.children[index];
+  const width = navItem ? navItem.offsetWidth : 0;
+  const left = navItem ? navItem.offsetLeft : 0;
+
   return {
-    transform: `translateX(${index * width}px)`,
-    width: `${width}px`
+    transform: `translateX(${left}px)`,
+    width: `${width}px`,
+    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Smooth transition for background movement
+    zIndex: 1 // Ensure the background is on top of the nav items
   };
 });
 
 onMounted(() => {
   auth.onAuthStateChanged((user) => {
     isLoggedIn.value = !!user;
+    loading.value = false; // Auth check is complete
   });
-  
-  // Set initial active index based on current route
+
+  // Set initial active index based on the current route path exactly
   const currentIndex = navItems.value.findIndex(item => item.path === route.path);
   if (currentIndex !== -1) {
     activeIndex.value = currentIndex;
+  } else {
+    activeIndex.value = 0; // Default to "Home" if no match is found
   }
 });
 
 const handleClick = (index) => {
-  activeIndex.value = index;
+  activeIndex.value = index; // Update active index on click
 };
 
 const handleHover = (index) => {
-  hoverIndex.value = index;
+  hoverIndex.value = index; // Set hover index
 };
 
 const handleHoverExit = () => {
-  hoverIndex.value = null;
+  hoverIndex.value = null; // Reset hover index when mouse leaves
 };
 
 const goToLogin = () => {
@@ -126,9 +138,8 @@ const goToLogin = () => {
 };
 </script>
 
-# Template section same as before until style
 <style scoped>
-.shape{
+.shape {
   border-radius: 12px;
   padding: 0.5rem;
 }
@@ -145,13 +156,19 @@ const goToLogin = () => {
   align-items: center;
 }
 
-.navbar-left, .navbar-right {
+.navbar-left, .navbar-right, .fixed-placeholder {
   flex: 1;
 }
 
-.navbar-right {
+.navbar-right,
+.fixed-placeholder {
   display: flex;
   justify-content: flex-end;
+}
+
+.fixed-placeholder {
+  visibility: hidden;
+  min-width: 120px; /* Adjust to match actual width of user icon or login button */
 }
 
 .navbar-brand {
@@ -174,6 +191,7 @@ const goToLogin = () => {
   position: relative;
   display: flex;
   gap: 0;
+  align-items: center; /* Ensure items align properly */
 }
 
 .nav-background {
@@ -185,6 +203,7 @@ const goToLogin = () => {
   border-radius: 8px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
+  z-index: 0; /* Ensure it stays beneath the nav items */
 }
 
 .nav-link {
@@ -197,15 +216,17 @@ const goToLogin = () => {
   justify-content: center;
   border-radius: 8px;
   position: relative;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, background-color 0.3s ease;
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.nav-link.active {
   color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.2); /* Adding a background for hover and active states */
 }
 
 .nav-link.active {
-  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.3); /* Slightly darker background for active state */
 }
 
 .user-info-wrapper {
