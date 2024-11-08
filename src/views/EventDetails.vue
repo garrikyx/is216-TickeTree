@@ -189,7 +189,6 @@ hr.custom-hr {
 .event-title {
   font-size: 3em;
   font-weight: bold;
-  color: #333;
   animation: fade-in 1.5s ease-in-out;
 }
 
