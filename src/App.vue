@@ -12,9 +12,7 @@
       v-if="isLoggedIn && !$route.meta.hideSidebar" 
       :isSidebarOpen="showSidebar" 
       @close="toggleSidebar"
-      @toggleDarkMode="toggleDarkMode"
-      :isDarkMode="isDarkMode" 
-    ></Sidebar> <!-- Pass the dark mode state -->
+    ></Sidebar> 
     
     <div class="content">
       <RouterView />
@@ -39,7 +37,7 @@ const auth = getAuth();
 
 const isLoggedIn = ref(false);
 const showSidebar = ref(false);
-const isDarkMode = ref(false); // State for dark mode
+const isDarkMode = ref(false); 
 const route = useRoute();
 
 // Check for dark mode preference from local storage

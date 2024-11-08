@@ -13,12 +13,13 @@
       <div id="category-events" class="container mt-4">
         <div class="row mt-4">
           <div class="col text-center mb-4">
-            <h2>{{ categoryName }} Events</h2>
-            <p>Discover exciting events in the {{ categoryName }} category!</p>
+            <h1>{{ categoryName }} Events</h1>
+            <h5>Discover exciting events in the {{ categoryName }} category!</h5>
           </div>
         </div>
+      </div>
 
-        <div class="row">
+        <div class="row text-center mx-4">
           <router-link
             v-for="event in visibleEvents"
             :key="event.id"
@@ -44,7 +45,6 @@
             </div>
           </router-link>
         </div>
-      </div>
     </div>
   </div>
 </template>

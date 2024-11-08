@@ -17,21 +17,28 @@
       <div class="navbar-left">
         <RouterLink class="navbar-brand d-flex align-items-center" to="/">
           <div class="shape">
-            <img src="../assets/logo.png" style="width:50px">
+            <img src="../assets/logo.png" style="width: 50px" />
             <span class="brand-text">TickeTree</span>
           </div>
         </RouterLink>
       </div>
 
       <!-- Center section with navigation -->
-      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-        <ul class="navbar-nav d-flex justify-content-center align-items-center" ref="navContainer">
+      <div
+        class="collapse navbar-collapse justify-content-center"
+        id="navbarNav"
+      >
+        <ul
+          class="navbar-nav d-flex justify-content-center align-items-center"
+          ref="navContainer"
+        >
           <div class="nav-background" :style="backgroundStyle"></div>
-          <li v-for="(item, index) in navItems" 
-              :key="item.path" 
-              class="nav-item"
-              @mouseenter="handleHover(index)"
-              @mouseleave="handleHoverExit">
+          <li
+            v-for="(item, index) in navItems"
+            :key="item.path"
+            class="nav-item"
+            @mouseover="handleHover(index)"
+          >
             <RouterLink
               :to="item.path"
               class="nav-link"
@@ -46,8 +53,17 @@
 
       <!-- Right Side Items with Fixed Width to Prevent Shifting -->
       <div class="navbar-right" v-if="!loading">
-        <div 
-          v-if="isLoggedIn" 
+        <!-- Dark Mode Toggle Icon -->
+        <div
+          :class="['dark-mode-icon', { dark: isDarkMode }]"
+          @click="$emit('toggleDarkMode')"
+        >
+          <i :class="isDarkMode ? 'fas fa-moon' : 'fas fa-sun'"></i>
+        </div>
+
+        <!-- User Info Icon or Login Button -->
+        <div
+          v-if="isLoggedIn"
           class="user-info-wrapper align-items-center"
           @click="$emit('toggleSidebar')"
         >
@@ -55,26 +71,16 @@
             <i class="fas fa-user"></i>
           </div>
         </div>
-
-        <button 
-          v-else 
-          @click="goToLogin" 
-          class="btn login-btn"
-        >
-          Login
-        </button>
+        <button v-else @click="goToLogin" class="btn login-btn">Login</button>
       </div>
-
-      <!-- Fixed-width Placeholder for Right Side (only shown during loading) -->
-      <div v-else class="navbar-right fixed-placeholder"></div>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { getAuth } from 'firebase/auth';
-import { useRouter, RouterLink, useRoute } from 'vue-router';
+import { ref, onMounted, computed } from "vue";
+import { getAuth } from "firebase/auth";
+import { useRouter, RouterLink, useRoute } from "vue-router";
 
 const auth = getAuth();
 const router = useRouter();
@@ -84,6 +90,13 @@ const loading = ref(true); // Add loading state
 const navContainer = ref(null);
 const activeIndex = ref(0);
 const hoverIndex = ref(null);
+
+const props = defineProps({
+  isDarkMode: {
+    type: Boolean,
+    required: true
+  }
+});
 
 const navItems = ref([
   { path: "/", label: "Home" },
@@ -101,8 +114,8 @@ const backgroundStyle = computed(() => {
   return {
     transform: `translateX(${left}px)`,
     width: `${width}px`,
-    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Smooth transition for background movement
-    zIndex: 1 // Ensure the background is on top of the nav items
+    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)", // Smooth transition for background movement
+    zIndex: 1, // Ensure the background is on top of the nav items
   };
 });
 
@@ -113,7 +126,9 @@ onMounted(() => {
   });
 
   // Set initial active index based on the current route path exactly
-  const currentIndex = navItems.value.findIndex(item => item.path === route.path);
+  const currentIndex = navItems.value.findIndex(
+    (item) => item.path === route.path
+  );
   if (currentIndex !== -1) {
     activeIndex.value = currentIndex;
   } else {
@@ -129,12 +144,8 @@ const handleHover = (index) => {
   hoverIndex.value = index; // Set hover index
 };
 
-const handleHoverExit = () => {
-  hoverIndex.value = null; // Reset hover index when mouse leaves
-};
-
 const goToLogin = () => {
-  router.push('/login');
+  router.push("/login");
 };
 </script>
 
@@ -156,7 +167,9 @@ const goToLogin = () => {
   align-items: center;
 }
 
-.navbar-left, .navbar-right, .fixed-placeholder {
+.navbar-left,
+.navbar-right,
+.fixed-placeholder {
   flex: 1;
 }
 
@@ -191,43 +204,44 @@ const goToLogin = () => {
   position: relative;
   display: flex;
   gap: 0;
-  align-items: center; /* Ensure items align properly */
+  align-items: center; 
 }
 
 .nav-background {
   position: absolute;
   top: 0;
   bottom: 0;
+  left: 0;
+  width: 0;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
-  z-index: 0; /* Ensure it stays beneath the nav items */
+  z-index: 0;
 }
 
+
 .nav-link {
-  font-size: 15px;
+  font-size: 16px;
   color: #e0e0e0 !important;
-  font-weight: 500;
+  font-weight: 600;
   padding: 20px;
   width: 150px;
   display: flex;
   justify-content: center;
   border-radius: 8px;
   position: relative;
-  transition: color 0.2s ease, background-color 0.3s ease;
 }
 
-.nav-link:hover,
-.nav-link.active {
+.nav-link:hover {
   color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.2); /* Adding a background for hover and active states */
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .nav-link.active {
-  background-color: rgba(255, 255, 255, 0.3); /* Slightly darker background for active state */
+  color: #917a7a !important;
+  background-color: transparent;
 }
+
 
 .user-info-wrapper {
   cursor: pointer;
@@ -256,7 +270,7 @@ const goToLogin = () => {
 
 .login-btn {
   background-color: #fadcb8;
-  color: #B87333;
+  color: #b87333;
   font-weight: 500;
   padding: 0.5rem 1.5rem;
   border: none;
@@ -275,9 +289,9 @@ const goToLogin = () => {
   }
 
   .navbar-collapse {
-    background: #B87333;
+    background: #b87333;
     position: absolute;
-    top: 60px;
+    top: 80px;
     left: 0;
     right: 0;
     flex-direction: column;
@@ -309,5 +323,28 @@ const goToLogin = () => {
   .navbar-brand {
     margin-right: 0;
   }
+}
+.dark-mode-icon {
+  margin-top: 4px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-right: 1rem;
+}
+
+.dark-mode-icon i {
+  font-size: 20px;
+  color: wheat;
+}
+
+.dark-mode-icon.dark i {
+  font-size: 20px;
+  color: white;
 }
 </style>

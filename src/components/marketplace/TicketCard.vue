@@ -39,7 +39,7 @@
   }
   
   .event-image {
-    width: 100%; 
+    width: auto; 
     height: auto; 
     object-fit: cover; 
   }
