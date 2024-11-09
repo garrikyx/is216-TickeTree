@@ -193,7 +193,7 @@ const goToLogin = () => {
 }
 
 .brand-text {
-  color: wheat;
+  color: white;
   font-weight: 600;
   font-size: 1.3rem;
   margin-left: 1rem;
@@ -222,7 +222,7 @@ const goToLogin = () => {
 
 .nav-link {
   font-size: 16px;
-  color: #e0e0e0 !important;
+  color: white;
   font-weight: 600;
   padding: 20px;
   width: 150px;
@@ -238,8 +238,8 @@ const goToLogin = () => {
 }
 
 .nav-link.active {
-  color: #917a7a !important;
-  background-color: transparent;
+  color: #ffffff !important;
+  background-color: #490000;
 }
 
 
@@ -313,6 +313,7 @@ const goToLogin = () => {
     width: 100%;
     padding: 15px;
     margin: 2px 0;
+    color: white;
   }
 
   .nav-link:hover,
