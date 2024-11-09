@@ -9,8 +9,10 @@ export const useCartStore = defineStore('cart', () => {
     cartItems.value = JSON.parse(localStorage.getItem('cartItems'));
   }
 
-  function addItem(event) {
-    const itemIndex = cartItems.value.findIndex(item => item.id === event.id);
+  function addEventToCart(event) {
+    const itemIndex = cartItems.value.findIndex(
+      item => item.id === event.id && item.source === 'api'
+    );
     if (itemIndex !== -1) {
       // Check if the item is already purchased
       if (cartItems.value[itemIndex].purchased) {
@@ -28,6 +30,33 @@ export const useCartStore = defineStore('cart', () => {
         quantity: 1,
         imageUrl: event.images?.images[0]?.original_url || '/images/noimage.png',
         purchased: false, // Add a flag to mark if the item has been purchased
+        source: 'api', // Mark the source as API
+      });
+    }
+  }
+
+  function addTicketToCart(ticket) {
+    const itemIndex = cartItems.value.findIndex(
+      item => item.id === ticket.id && item.source === 'firebase'
+    );
+    if (itemIndex !== -1) {
+      // Check if the item is already purchased
+      if (cartItems.value[itemIndex].purchased) {
+        return; // Prevent adding already purchased item
+      }
+      cartItems.value[itemIndex].quantity += 1;
+    } else {
+      cartItems.value.push({
+        id: ticket.id,
+        eventName: ticket.eventName,
+        eventDate: ticket.date,
+        eventTime: ticket.eventTime,
+        seatNumber: ticket.seatNumber || Math.floor(Math.random() * 100) + 1,
+        pricePerItem: ticket.price || 50.00,
+        quantity: 1,
+        imageUrl: ticket.imageUrl || '/images/noimage.png',
+        purchased: false, // Add a flag to mark if the item has been purchased
+        source: 'firebase', // Mark the source as Firebase
       });
     }
   }
@@ -51,5 +80,12 @@ export const useCartStore = defineStore('cart', () => {
     localStorage.setItem('cartItems', JSON.stringify(newItems));
   }, { deep: true });
 
-  return { cartItems, addItem, deleteItem, clearCart, removePurchasedItems };
+  return {
+    cartItems,
+    addEventToCart,
+    addTicketToCart,
+    deleteItem,
+    clearCart,
+    removePurchasedItems,
+  };
 });

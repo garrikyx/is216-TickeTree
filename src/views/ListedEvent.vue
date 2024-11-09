@@ -35,44 +35,46 @@
   </template>
   
   <script>
-  import { ref, onMounted, computed } from "vue";
-  import { useRoute } from "vue-router";
-  import { useTicketStore } from "@/stores/ticketStore";
-  import Chart from "@/components/marketplace/Chart.vue";
-  
-  export default {
-    name: "ListedEvent",
-    components: {
-      Chart,
-    },
-    setup() {
-      const route = useRoute();
-      const eventId = route.params.id;
-      const event = ref(null);
-      const priceHistoryData = ref([]);
-      const ticketStore = useTicketStore();
-  
-      // Fetch event details and related tickets on mount
-      onMounted(async () => {
-        // Fetch specific event details if available
-        event.value = await ticketStore.fetchTicketById(eventId);
-      });
-  
-  
-      // Handle ticket purchase action
-      function handleTicketPurchase() {
-        console.log("Ticket purchase initiated for event:", event.value?.name);
-        // Additional purchase logic can be added here
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useTicketStore } from "@/stores/ticketStore";
+import { useCartStore } from "@/stores/cartStore"; 
+import Chart from "@/components/marketplace/Chart.vue";
+
+export default {
+  name: "ListedEvent",
+  components: {
+    Chart,
+  },
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
+    const eventId = route.params.id;
+    const event = ref(null);
+    const ticketStore = useTicketStore();
+    const cartStore = useCartStore();
+
+    onMounted(async () => {
+      event.value = await ticketStore.fetchTicketById(eventId);
+    });
+
+    // Handle ticket purchase action
+    async function handleTicketPurchase() {
+      if (event.value) {
+        cartStore.addTicketToCart(event.value); // Add ticket to the cart
+        router.push("/payment"); // Navigate to payment page
+      } else {
+        console.error("Event not found, cannot add to cart");
       }
-  
-      return {
-        event,
-        priceHistoryData,
-        handleTicketPurchase,
-      };
-    },
-  };
-  </script>
+    }
+
+    return {
+      event,
+      handleTicketPurchase,
+    };
+  },
+};
+</script>
   
   <style scoped>
   .poster-img {

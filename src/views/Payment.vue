@@ -125,11 +125,19 @@ export default {
   }
 },
     formatDate(dateStr) {
-      const dates = dateStr.split(' - ');
-      return dates.map(date =>
-        new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-      ).join(' - ');
-    },
+  if (!dateStr) {
+    return 'Date not available'; // default message if date is missing
+  }
+  
+  const dates = dateStr.split(' - ');
+  const formattedDates = dates.map(date => {
+    const [dayOfWeek, day, month] = date.split(' ');
+    return `${dayOfWeek} ${day} ${month}`;
+  });
+  
+  return formattedDates.join(' - ');
+}
+
   },
 };
 </script>

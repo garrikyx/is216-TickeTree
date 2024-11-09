@@ -165,7 +165,7 @@ function closeModal() {
 
 function addToCart() {
   if (event.value) {
-    cartStore.addItem(event.value);
+    cartStore.addEventToCart(event.value);
   }
 }
 </script>

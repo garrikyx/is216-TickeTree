@@ -6,7 +6,6 @@
         <h5 class="card-title">{{ ticket.eventName }}</h5>
         <p class="card-text">Category: {{ ticket.category }}</p>
         <p class="card-text">Date: {{ ticket.date }}</p>
-        <p class="card-text">Time: {{ ticket.time }}</p>
         <p class="card-text">Location: {{ ticket.location }}</p>
         <p class="card-text" v-if="ticket.seatCategory">Seat Category: {{ ticket.seatCategory }}</p>
         <p class="card-text" v-if="ticket.section">Section: {{ ticket.section }}</p>
