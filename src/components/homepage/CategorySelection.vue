@@ -5,34 +5,37 @@
     </div>
 
     <div class="row">
-
-      <div v-for="category in categories" 
-           :key="category.id" 
-           :class="category.columnClass">
-        <div class="category-item">
-          <router-link
-          :to="{ name: 'CategoryEvents', params: { categoryId: category.id }}"
-          class="category-item"
+      <div
+        v-for="(category, index) in categories"
+        :key="category.id"
+        :class="`${category.columnClass} category-container`"
+      >
+        <div
+          :class="`category-item ${index % 2 === 0 ? 'left' : 'right'}`"
+          ref="categoryItems"
         >
-        <img
-        :src="category.image"
-        class="rounded-circle img-fluid category-image"
-        :alt="`${category.name} Category`"
-        />
-      </router-link>
-        <div class="mt-2 text-center">{{ category.name }}</div>
+          <router-link
+            :to="{ name: 'CategoryEvents', params: { categoryId: category.id }}"
+            class="category-link"
+          >
+            <img
+              :src="category.image"
+              class="rounded-circle img-fluid category-image"
+              :alt="`${category.name} Category`"
+            />
+          </router-link>
+          <div class="mt-2 text-center">{{ category.name }}</div>
         </div>
       </div>
-
-      <div class="col-0 col-lg-1 col-md-1"></div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import anime from 'animejs/lib/anime.es.js';
 
-import { RouterLink } from 'vue-router';
-
+// Sample categories data
 const categories = [
   {
     id: 1,
@@ -56,9 +59,42 @@ const categories = [
     id: 4,
     name: 'Business & Education',
     image: '/images/convention.jpg',
-    columnClass: 'col-lg-3 col-sm-6 col-12 col-md-6 mb-3'
+    columnClass: 'col-lg-3 col-md-6 col-sm-6 col-12 mb-3'
   },
-]
+];
+
+const categoryItems = ref([]); // Reference to category elements
+
+onMounted(() => {
+  // Set up IntersectionObserver
+  const observer = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const element = entry.target;
+          const direction = element.classList.contains('left') ? -1 : 1;
+
+          // Slide in animation with Anime.js
+          anime({
+            targets: element,
+            translateX: [100 * direction, 0],
+            opacity: [0, 1],
+            duration: 1000,
+            easing: 'easeOutExpo'
+          });
+
+          observer.unobserve(element); // Stop observing once animated
+        }
+      });
+    },
+    { threshold: 0.2 } // Trigger animation when 20% of the element is visible
+  );
+
+  // Attach observer to each category item
+  categoryItems.value.forEach(item => {
+    observer.observe(item);
+  });
+});
 </script>
 
 <style scoped>
@@ -66,6 +102,15 @@ const categories = [
   cursor: pointer;
   text-align: center;
   transition: transform 0.2s;
+  opacity: 0; /* Start hidden for animation */
+}
+
+.category-item.left {
+  transform: translateX(-100px); /* Start position for left slide-in */
+}
+
+.category-item.right {
+  transform: translateX(100px); /* Start position for right slide-in */
 }
 
 .category-item:hover {
