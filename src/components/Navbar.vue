@@ -158,6 +158,7 @@ const goToLogin = () => {
 .custom-navbar {
   background: #6d161d;
   height: 60px;
+  width:100%;
 }
 
 .navbar-collapse {
