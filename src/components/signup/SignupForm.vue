@@ -162,7 +162,6 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(to right, #6a11cb, #2575fc);
 }
 
 .signup-form {
@@ -261,7 +260,7 @@ button:hover:not(:disabled) {
 .login-link {
   margin-top: 15px;
   font-size: 14px;
-  olor: #2575fc;
+  color: #2575fc;
   font-weight: bold;
   text-decoration: none;
 }

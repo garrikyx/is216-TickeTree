@@ -35,17 +35,12 @@ const router = createRouter({
       component: () => import("../components/payment/Error.vue"),
     },
     {
-      path:"/register",
-      name: 'register',
+      path:"/signup",
+      name: 'signup',
       component: () => import("../views/signup.vue"),
       meta: { hideNavbar: true, hideFooter: true },
     },
-    {
-      path:"/signup",
-      name: 'signup',
-      component: () => import("../components/signup/SignupForm.vue"),
-      meta: { hideSidebar: true, hideNavbar: true,  hideFooter: true},
-    },
+
     {
       path:"/sidebar",
       name: 'sidebar',

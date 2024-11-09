@@ -109,16 +109,6 @@ export default {
 
 <style scoped>
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
 .login-container {
   display: flex;
@@ -185,9 +175,6 @@ button {
   margin-top: 10px;
 }
 
-button:hover:not(:disabled) {
-  background-color: #0056b3;
-}
 
 .error-message {
   color: red;
@@ -207,11 +194,6 @@ button:hover:not(:disabled) {
   text-decoration: none;
 }
 
-.signup-link a:hover {
-  text-decoration: underline;
-  color: #1a5bb8;
-}
-
 .guest-button {
   margin-top: 10px;
   padding: 10px;
@@ -224,7 +206,4 @@ button:hover:not(:disabled) {
   font-size: 16px;
 }
 
-.guest-button:hover {
-  background-color: #218838;
-}
 </style>
