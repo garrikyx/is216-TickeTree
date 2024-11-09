@@ -22,6 +22,13 @@
       };
     })(window, 'https://cdn-v1.intelliticks.com/prod/common', document, 'script', 'https://app.intelliticks.com', chatbotApiKey, {});
   });
+
+  // to prevent promise rejection
+  window.addEventListener("unhandledrejection", event => {
+  console.warn("Unhandled promise rejection:", event.reason);
+  event.preventDefault();  
+});
+
   </script>
   
   <style scoped>
