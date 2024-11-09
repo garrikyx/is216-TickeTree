@@ -1,38 +1,43 @@
 <template>
-    <div class="faq-container">
-      <h1>Frequently Asked Questions</h1>
-      <br>
+  <div class="faq-container container my-5">
+    <h1 class="text-center mb-4">Frequently Asked Questions</h1>
+
+    <div class="accordion" id="faqAccordion">
       <div class="faq-item" v-for="(faq, index) in faqs" :key="index">
-        <div class="card">
-          <div class="content">
-            <h2>{{ faq.question }}</h2>
-            <transition
-              name="expand"
-              @before-enter="beforeEnter"
-              @enter="enter"
-              @after-enter="afterEnter"
-              @before-leave="beforeLeave"
-              @leave="leave"
-              @after-leave="afterLeave"
-            >
-              <p v-if="faq.show">{{ faq.answer }}</p>
-            </transition>
+        <div class="card mb-3 border-0 shadow-sm">
+          <div class="card-header p-3" id="heading{{ index }}">
+            <h2 class="mb-0">
+              <button class="btn btn-link d-flex justify-content-between align-items-center w-100"
+                      @click="toggleAnswer(index)"
+                      :aria-expanded="faq.show"
+                      :aria-controls="'collapse' + index">
+                {{ faq.question }}
+                <i :class="faq.show ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+              </button>
+            </h2>
           </div>
-          <button class="toggle-button" @click="toggleAnswer(index)">
-            <i :class="faq.show ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
-          </button>
+          <transition name="expand">
+            <div v-if="faq.show" class="card-body px-4">
+              <p>{{ faq.answer }}</p>
+            </div>
+          </transition>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: "FAQ",
-    data() {
-      return {
-        faqs: [
-          {
+  </div>
+</template>
+
+<script>
+import noUiSlider from 'nouislider';
+import 'nouislider/dist/nouislider.css';
+
+export default {
+  name: "FAQ",
+  data() {
+    return {
+      faqs: [
+        // Add your FAQ content here
+        {
             question: "How do I register for an account?",
             answer: "You can register for an account by navigating to the signup page and filling out the registration form with your details.",
             show: false
@@ -107,123 +112,65 @@
             answer: "The AI chatbot is available on every page of the website. You can interact with it by clicking the chatbot icon and typing your query.",
             show: false
           }
-        ]
-      };
-    },
-    methods: {
-      toggleAnswer(index) {
-        this.faqs[index].show = !this.faqs[index].show;
-      },
-      beforeEnter(el) {
-        el.style.height = '0';
-        el.style.opacity = '0';
-      },
-      enter(el, done) {
-        el.style.transition = 'all 0.5s ease';
-        el.style.height = el.scrollHeight + 'px';
-        el.style.opacity = '1';
-        done();
-      },
-      afterEnter(el) {
-        el.style.height = 'auto';
-      },
-      beforeLeave(el) {
-        el.style.height = el.scrollHeight + 'px';
-        el.style.opacity = '1';
-      },
-      leave(el, done) {
-        el.style.transition = 'all 0.5s ease';
-        el.style.height = '0';
-        el.style.opacity = '0';
-        done();
-      },
-      afterLeave(el) {
-        el.style.height = '0';
-      }
+      ]
+    };
+  },
+  methods: {
+    toggleAnswer(index) {
+      this.faqs[index].show = !this.faqs[index].show;
     }
-  };
-  </script>
-  
-  <style scoped>
-  .faq-container {
-    padding: 2rem;
   }
-  
-  .faq-item {
-    margin-bottom: 1.5rem;
-  }
-  
-  .card {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    background-color: var(--bs-card-bg, #fff);
-    color: var(--bs-card-color, #000);
-    transition: transform 0.2s, background-color 0.2s, color 0.2s;
-    text-align: left; /* Align text to the left */
-  }
-  
-  .card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .toggle-button {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background-color: #007bff;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    margin-left: 1rem;
-  }
-  
-  .toggle-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .toggle-button i {
-    font-size: 1.2rem;
-  }
-  
-  .content {
-    flex: 1;
-    text-align: left; /* Align text to the left */
-  }
-  
-  .card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-    text-align: left; /* Align text to the left */
-  }
-  
-  .card p {
-  font-size: 1rem;
-  margin: 0;
-  text-align: left !important; /* Ensure text is aligned to the left */
+};
+</script>
+
+<style scoped>
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.card .content p {
-  text-align: left !important; /* More specific selector */
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  transition: transform 0.3s, background-color 0.3s;
 }
 
-/* Dark mode styles */
-.dark-mode .card {
-  background-color: #1e1e1e;
-  color: #ffffff;
+.card-header {
+  background-color: #2c647c;
+  color: #fff;
+  cursor: pointer;
+  padding: 1rem 1.5rem;
+  font-weight: bold;
+  font-size: 1.25rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
-.dark-mode .toggle-button {
-  background-color: #444;
+.card-header:hover {
+  background-color: #2c647c;
 }
 
-.dark-mode .toggle-button:hover {
-  background-color: #666;
+.card-body {
+  background-color: #f1f1f1;
+  padding: 1.5rem;
+}
+
+.faq-item {
+  margin-bottom: 1rem;
+}
+
+.btn-link {
+  color: inherit;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.btn-link:focus {
+  outline: none;
+}
+
+i {
+  font-size: 1.2rem;
+  transition: transform 0.2s;
 }
 </style>
