@@ -88,6 +88,14 @@ body {
 
 .content {
   flex: 1;
+  padding-top:60px;
+}
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Ensures the navbar stays above other elements */
 }
 
 .dark-mode {
