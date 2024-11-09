@@ -18,6 +18,7 @@
         class="col-lg-4 col-md-6 col-sm-12" 
         v-for="ticket in filteredTickets" 
         :key="ticket.id"
+        :ref="el => ticketCardRefs[index] = el"
       >
         <TicketCard :ticket="ticket" />
       </div>
@@ -26,7 +27,8 @@
 </template>
 
 <script>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import anime from 'animejs';
 import { useTicketStore } from '@/stores/ticketStore.js'; 
 import FilterSection from '@/components/marketplace/FilterSection.vue';
 import TicketCard from '@/components/marketplace/TicketCard.vue';
@@ -44,6 +46,8 @@ export default {
     const selectedCategory = ref();
     const selectedSortOption = ref(null);
     const priceRange = ref([0, 3000]);
+
+    const ticketCardRefs = ref([]);
 
     // Fetch tickets on mount
     onMounted(() => {
@@ -85,8 +89,24 @@ export default {
       return tickets;
     });
 
+    // Watch for changes in filteredTickets to trigger the animation
+    watch(filteredTickets, () => {
+      animateCards();
+    });
+
     // Categories to display in the filter section
     const categories = ['Entertainment', 'Sports', 'Arts & Culture', 'Business & Education'];
+
+    // Animation function using anime.js for filtering events
+    function animateCards() {
+      anime({
+        targets: '.row.g-3.mb-3',
+        opacity: [0, 1],
+        translateY: [500, 0],
+        duration: 1500,
+        easing: 'spring(1, 80, 10, 0)',
+      });
+    }
 
     // Methods for updating filters and sort options
     function addAllCategories(categories) {
@@ -129,6 +149,7 @@ export default {
       sortByDate,
       filterByPriceRange,
       removeFilter,
+      ticketCardRefs,
     };
   },
 };
