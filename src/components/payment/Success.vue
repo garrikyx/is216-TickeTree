@@ -87,9 +87,9 @@
 <script>
 import axios from "axios";
 import { db } from "../../../firebase";
-import { collection, addDoc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { useCartStore } from "@/stores/cartStore"; // Import the cart store
+import { useCartStore } from "@/stores/cartStore";
 import anime from "animejs";
 
 export default {
@@ -103,19 +103,13 @@ export default {
   async created() {
     this.sessionId = this.$route.query.session_id;
 
-    // console.log("Session ID from URL:", this.sessionId);
-
     if (this.sessionId) {
       try {
-        const response = await axios.get(
-          `http://localhost:5001/checkout-session`,
-          {
-            params: { session_id: this.sessionId },
-          }
-        );
+        const response = await axios.get(`http://localhost:5001/checkout-session`, {
+          params: { session_id: this.sessionId },
+        });
 
         const session = response.data;
-        // console.log("Fetched session details:", session);
 
         if (session.line_items && session.line_items.data.length > 0) {
           const item = session.line_items.data[0];
@@ -129,24 +123,17 @@ export default {
             quantity: item.quantity,
             customerEmail: session.customer_email || "N/A",
             totalPrice: session.amount_total,
-            imageUrl:
-              item.price.product.metadata.imageUrl || "/images/noimage.png",
+            imageUrl: item.price.product.metadata.imageUrl || "/images/noimage.png",
           };
 
           if (this.isValidEmail(this.orderSummary.customerEmail)) {
-            await this.sendConfirmationEmail(
-              this.orderSummary.customerEmail,
-              this.orderSummary
-            );
+            await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
           } else {
-            console.error(
-              "Invalid email format:",
-              this.orderSummary.customerEmail
-            );
+            console.error("Invalid email format:", this.orderSummary.customerEmail);
           }
 
           await this.savePaymentDetails();
-          this.removePurchasedItems(); // Remove purchased items from the cart after successful payment
+          this.deletePurchasedTickets(); // Remove purchased tickets from Firebase
         } else {
           console.error("No line items found in the session data.");
         }
@@ -157,24 +144,6 @@ export default {
       }
     }
   },
-  watch: {
-    isLoading(value) {
-      if (!value && this.orderSummary) {
-        this.$nextTick(() => {
-          const flightPath = anime.path("#flightPath"); 
-
-          anime({
-            targets: this.$refs.paperPlane,
-            translateX: flightPath("x"), 
-            translateY: flightPath("y"), 
-            easing: "easeInOutQuad",
-            duration: 5000,
-            loop: false,
-          });
-        });
-      }
-    },
-  },
   methods: {
     isValidEmail(email) {
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -183,14 +152,10 @@ export default {
 
     async sendConfirmationEmail(email, orderSummary) {
       try {
-        const response = await axios.post(
-          "http://localhost:5001/send-confirmation-email",
-          {
-            email,
-            orderSummary,
-          }
-        );
-        // console.log('Email sent successfully:', response.data);
+        await axios.post("http://localhost:5001/send-confirmation-email", {
+          email,
+          orderSummary,
+        });
       } catch (error) {
         console.error("Failed to send email:", error);
       }
@@ -215,20 +180,25 @@ export default {
 
         const docRef = await addDoc(collection(db, "payment"), paymentData);
         await updateDoc(docRef, { orderId: docRef.id });
-        // console.log("Payment document written with ID: ", docRef.id);
       } catch (error) {
         console.error("Error adding payment document: ", error);
       }
     },
 
-    // Remove purchased items from the cart
-    removePurchasedItems() {
-      const cartStore = useCartStore(); // Access the cart store
-      cartStore.cartItems.forEach((item) => {
-        // Mark items as purchased after successful payment
-        item.purchased = true;
-      });
-      cartStore.removePurchasedItems(); // Remove items that are marked as purchased
+    async deletePurchasedTickets() {
+      const cartStore = useCartStore();
+      for (const item of cartStore.cartItems) {
+        try {
+          // Delete each purchased ticket document from Firebase
+          const ticketDocRef = doc(db, "ticket", item.id);
+          await deleteDoc(ticketDocRef);
+          console.log(`Deleted ticket document with ID: ${item.id}`);
+        } catch (error) {
+          console.error("Error deleting ticket document: ", error);
+        }
+      }
+      // Optionally, clear purchased items from the cart store
+      cartStore.clearCart();
     },
 
     redirectToHomepage() {
