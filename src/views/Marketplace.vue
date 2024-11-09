@@ -3,7 +3,7 @@
     <!-- Filter dropdown from FilterSection.vue -->
     <FilterSection
       :selectedFilters="selectedFilters"
-      :categories="categories" 
+      :categories="categories"
       @setAllCategories="addAllCategories"
       @setCategory="filterByCategory"
       @setPrice="sortByPrice"
@@ -12,13 +12,12 @@
       @removeFilter="removeFilter"
     />
 
-    <!-- Render the filtered tickets -->
+    <!-- Render the filtered tickets with animation -->
     <div class="row g-3 mb-3">
-      <div 
-        class="col-lg-4 col-md-6 col-sm-12" 
-        v-for="ticket in filteredTickets" 
-        :key="ticket.id"
-        :ref="el => ticketCardRefs[index] = el"
+      <div
+        class="col-lg-4 col-md-6 col-sm-12 ticket-card"
+        v-for="ticket in filteredTickets"
+        :key="generateTicketKey(ticket)"
       >
         <TicketCard :ticket="ticket" />
       </div>
@@ -27,11 +26,12 @@
 </template>
 
 <script>
+import { nextTick } from 'vue';
 import { computed, onMounted, ref, watch } from 'vue';
-import anime from 'animejs';
-import { useTicketStore } from '@/stores/ticketStore.js'; 
+import { useTicketStore } from '@/stores/ticketStore.js';
 import FilterSection from '@/components/marketplace/FilterSection.vue';
 import TicketCard from '@/components/marketplace/TicketCard.vue';
+import anime from 'animejs/lib/anime.es.js';
 
 export default {
   components: {
@@ -40,40 +40,28 @@ export default {
   },
   setup() {
     const ticketStore = useTicketStore();
-    
-    // Initialize selected filters and categories
+
     const selectedFilters = ref([]);
     const selectedCategory = ref();
     const selectedSortOption = ref(null);
     const priceRange = ref([0, 3000]);
 
-    const ticketCardRefs = ref([]);
-
-    // Fetch tickets on mount
     onMounted(() => {
       if (!ticketStore.tickets.length) {
         ticketStore.fetchTickets();
       }
     });
 
-    // Get all tickets from the store
     const allTickets = computed(() => ticketStore.tickets);
 
-    // Computed property to dynamically filter and sort tickets
     const filteredTickets = computed(() => {
       let tickets = [...allTickets.value];
-
-      // Filter by category if a category is selected
       if (selectedCategory.value) {
-        tickets = tickets.filter(ticket => ticket.category === selectedCategory.value);
+        tickets = tickets.filter((ticket) => ticket.category === selectedCategory.value);
       }
-
-      // Filter by price range
-      tickets = tickets.filter(ticket => 
-        ticket.price >= priceRange.value[0] && ticket.price <= priceRange.value[1]
+      tickets = tickets.filter(
+        (ticket) => ticket.price >= priceRange.value[0] && ticket.price <= priceRange.value[1]
       );
-
-      // Sort tickets based on selected sort option
       if (selectedSortOption.value) {
         if (selectedSortOption.value === 'low') {
           tickets.sort((a, b) => a.price - b.price);
@@ -85,30 +73,11 @@ export default {
           tickets.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
       }
-
       return tickets;
     });
 
-    // Watch for changes in filteredTickets to trigger the animation
-    watch(filteredTickets, () => {
-      animateCards();
-    });
-
-    // Categories to display in the filter section
     const categories = ['Entertainment', 'Sports', 'Arts & Culture', 'Business & Education'];
 
-    // Animation function using anime.js for filtering events
-    function animateCards() {
-      anime({
-        targets: '.row.g-3.mb-3',
-        opacity: [0, 1],
-        translateY: [500, 0],
-        duration: 1500,
-        easing: 'spring(1, 80, 10, 0)',
-      });
-    }
-
-    // Methods for updating filters and sort options
     function addAllCategories(categories) {
       selectedFilters.value = categories;
     }
@@ -139,6 +108,30 @@ export default {
       }
     }
 
+    // Generate a unique key for each ticket based on filters
+    const generateTicketKey = (ticket) => {
+      return `${ticket.id}-${selectedCategory.value}-${selectedSortOption.value}-${priceRange.value.join('-')}`;
+    };
+
+    // Function to animate the cards
+    function animateCards() {
+      anime({
+        targets: '.ticket-card',
+        translateY: [100, 0], // Start from 50px below
+        opacity: [0, 1], // Fade in
+        easing: 'spring(1, 80, 10, 0)',
+        duration: 300,
+        delay: anime.stagger(300), // Add stagger for a cascading effect
+      });
+    }
+
+
+watch(filteredTickets, async () => {
+  // Wait until the DOM is updated with the new `filteredTickets`
+  await nextTick();
+  animateCards(); // Execute the animation function after the changes
+});
+
     return {
       filteredTickets,
       selectedFilters,
@@ -149,7 +142,7 @@ export default {
       sortByDate,
       filterByPriceRange,
       removeFilter,
-      ticketCardRefs,
+      generateTicketKey,
     };
   },
 };
