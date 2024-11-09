@@ -17,25 +17,32 @@
             'me-2',
             { active: currentFilter === filter },
           ]"
-          @click="setFilter(filter)"
+          @click="handleFilterClick(filter, $event)"
         >
           {{ filter }}
         </button>
       </div>
     </div>
 
+    <div
+    v-if="filteredEvents.length === 0 && currentFilter === 'Recently Viewed'"
+    class="col-md-6 col-lg-4 mb-4 placeholder-box"
+    >
+    No events have been recently viewed
+  </div>
     <!-- New Card -->
-    <div class="row mx-5">
+    <div v-else class="row mx-5" ref="cardsContainer">
       <div
         v-for="event in filteredEvents"
         :key="event.id"
         class="col-md-6 col-lg-4 mb-4"
       >
-        <Card class="custom-card">
+        <Card class="custom-card" ref="cards">
           <RouterLink
             :to="{ name: 'EventDetail', params: { id: event.id } }"
             class="custom-link"
-            ><div class="image-container">
+          >
+            <div class="image-container">
               <img
                 :src="
                   event.images?.images[0]?.original_url || '/images/noimage.png'
@@ -55,8 +62,11 @@
             </CardHeader>
             <CardContent class="px-2 mb-3">
               <div>📍{{ event.location_summary }}</div>
-              <div class="mt-3">Description: 
-                <span class="fw-lighter">{{ truncateDescription(event.description) }}</span>
+              <div class="mt-3">
+                Description:
+                <span class="fw-lighter">{{
+                  truncateDescription(event.description)
+                }}</span>
               </div>
             </CardContent>
             <CardFooter> </CardFooter>
@@ -71,6 +81,7 @@
         <button
           class="mb-5 mt-2 btn btn-outline-primary"
           @click="toggleShowMore"
+          @mouseenter="animateShowMoreButton"
         >
           {{ showAllEvents ? "Show Less" : "Show More" }}
         </button>
@@ -88,8 +99,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { useEventStore } from "@/stores/eventStore";
+import anime from "animejs";
 
 const filters = ["Popular", "Recently Viewed"];
 const currentFilter = ref("Popular");
@@ -105,6 +117,38 @@ const toggleShowMore = () => {
   showAllEvents.value = !showAllEvents.value;
   visibleCount.value = showAllEvents.value ? eventStore.events.length : 3;
 };
+const handleFilterClick = (filter, event) => {
+  setFilter(filter);
+  animateFilterButton(event);
+};
+const animateCards = () => {
+  anime({
+    targets: ".custom-card",
+    translateY: [50, 0],
+    opacity: [0, 1],
+    delay: anime.stagger(100),
+    easing: "easeOutExpo",
+  });
+};
+
+const animateFilterButton = (event) => {
+  anime({
+    targets: event.target,
+    scale: [1, 1.1, 1],
+    duration: 300,
+    easing: "easeInOutQuad",
+  });
+};
+
+const animateShowMoreButton = (event) => {
+  anime({
+    targets: event.target,
+    scale: [1, 1.05, 1],
+    duration: 300,
+    easing: "easeInOutQuad",
+  });
+};
+
 const truncateDescription = (text, maxLength = 100) => {
   return text && text.length > maxLength
     ? text.substring(0, maxLength) + "..."
@@ -113,10 +157,14 @@ const truncateDescription = (text, maxLength = 100) => {
 
 const eventStore = useEventStore();
 
-onMounted(() => {
-  eventStore.loadEvents();
+onMounted(async () => {
+  await eventStore.loadEvents();
+  nextTick(() => {
+    animateCards();
+  });
 });
 
+// Watch filteredEvents and animate only when there’s a change
 const filteredEvents = computed(() => {
   if (currentFilter.value === "Recently Viewed") {
     return eventStore.recentlyViewed;
@@ -124,17 +172,40 @@ const filteredEvents = computed(() => {
     return eventStore.events.slice(0, visibleCount.value);
   }
 });
+
+watch(filteredEvents, () => {
+  nextTick(() => {
+    animateCards();
+  });
+});
 </script>
 
 <style>
-
-
 .custom-card {
   background-color: rgb(255, 255, 255);
   height: 550px;
   border-radius: 0px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15)!important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0; 
+  transform: translateY(50px); 
+}
+
+.custom-card:hover {
+  transform: translateY(-5px); 
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+</style>
+
+<style>
+.custom-card {
+  background-color: rgb(255, 255, 255);
+  height: 550px;
+  border-radius: 0px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  transform: translateY(50px);
 }
 
 .custom-card:hover {
@@ -158,7 +229,7 @@ const filteredEvents = computed(() => {
 }
 
 .card-img-top {
-  height: 200px; /* Default height for larger screens */
+  height: 200px;
   width: 100%;
   object-fit: cover;
   position: relative;
@@ -213,5 +284,15 @@ const filteredEvents = computed(() => {
 
 .custom-link:hover {
   text-decoration: none;
+}
+
+.placeholder-box {
+  margin: auto;
+  height: 550px; /* Match the height of the card */
+  font-size: 1rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
