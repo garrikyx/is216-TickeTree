@@ -31,13 +31,13 @@
     No events have been recently viewed
   </div>
     <!-- New Card -->
-    <div v-else class="row mx-5" ref="cardsContainer">
+    <div v-else class="row mx-5">
       <div
         v-for="event in filteredEvents"
         :key="event.id"
         class="col-md-6 col-lg-4 mb-4"
       >
-        <Card class="custom-card" ref="cards">
+        <Card class="custom-card">
           <RouterLink
             :to="{ name: 'EventDetail', params: { id: event.id } }"
             class="custom-link"
@@ -206,6 +206,7 @@ watch(filteredEvents, () => {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   opacity: 0;
   transform: translateY(50px);
+  color: rgb(160, 21, 21);
 }
 
 .custom-card:hover {
@@ -288,7 +289,7 @@ watch(filteredEvents, () => {
 
 .placeholder-box {
   margin: auto;
-  height: 550px; /* Match the height of the card */
+  height: 550px; 
   font-size: 1rem;
   text-align: center;
   display: flex;
