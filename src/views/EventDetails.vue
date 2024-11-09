@@ -15,6 +15,8 @@
     </div>
     <hr class="custom-hr" />
 
+    <div class="container justify-content-center align-items-start gap-4 mt-4">
+  <div class="card w-100">
     <!-- Event Details -->
     <div class="container mt-4 text-center event-details">
       <h2 class="event-title">{{ event?.name || "Event Title" }}</h2>
@@ -25,11 +27,9 @@
       </div>
     </div>
 
-    <div class="container d-flex justify-content-center align-items-start gap-5 mt-4">
-  <div class="card w-100 shadow-lg">
     <div class="card-body d-flex justify-content-between align-items-start">
       <!-- About Section -->
-      <div class="about-section p-3 me-4">
+      <div class="about-section p-3">
         <h5>About:</h5>
         <p>{{ event?.description || "Detailed event description goes here." }}</p>
       </div>
@@ -175,6 +175,10 @@ function addToCart() {
 * {
   box-sizing: border-box;
   transition: all 0.3s ease;
+}
+
+.card {
+  background-color: whitesmoke;
 }
 
 hr.custom-hr {

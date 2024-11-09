@@ -144,6 +144,25 @@ export default {
       }
     }
   },
+  watch: {
+    isLoading(value) {
+      if (!value && this.orderSummary) {
+        this.$nextTick(() => {
+          const flightPath = anime.path("#flightPath"); 
+
+          anime({
+            targets: this.$refs.paperPlane,
+            translateX: flightPath("x"), 
+            translateY: flightPath("y"), 
+            easing: "easeInOutQuad",
+            duration: 5000,
+            loop: false,
+          });
+        });
+      }
+    },
+  },
+  
   methods: {
     isValidEmail(email) {
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

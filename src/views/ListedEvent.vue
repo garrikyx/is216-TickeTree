@@ -1,14 +1,14 @@
 <template>
+  <!-- Event Poster and Details -->
+  <div class="poster text-center">
+    <img
+      :src="event?.imageUrl || '/images/noimage.png'"
+      class="img-fluid shadow-lg rounded poster-img"
+      alt="Event Poster"
+    />
+  </div>
+  <hr class="custom-hr" />
     <div class="container">
-      <!-- Event Poster and Details -->
-      <div class="poster text-center">
-        <img
-          :src="event?.imageUrl || '/images/noimage.png'"
-          class="img-fluid shadow-lg rounded poster-img"
-          alt="Event Poster"
-        />
-      </div>
-      <hr class="custom-hr" />
   
     <div class="container mt-4 text-center event-details">
         <h2 class="event-title">{{ event?.eventName || "Event Title" }}</h2>
@@ -24,15 +24,17 @@
         {{ event?.price || '$500' }}
         <button @click="handleTicketPurchase" class="btn btn-success btn-lg">Buy Ticket</button>
       </div>
-    </div>
-  
+      
       <!-- Price History Chart Section -->
-      <div class="mt-4">
-        <h5>Price History</h5>
-        <Chart/>
-      </div>
-  
-  </template>
+      <div class="mt-4" v-if="event">
+      <h5>Price History</h5>
+      <Chart :eventName="event.eventName"/>
+    </div>
+    <div class="mt-4" v-else>
+      <p>Loading price history...</p>
+    </div>
+  </div>
+</template>
   
   <script>
 import { ref, onMounted } from "vue";
@@ -43,6 +45,9 @@ import Chart from "@/components/marketplace/Chart.vue";
 
 export default {
   name: "ListedEvent",
+  props: {
+    id: String
+  },
   components: {
     Chart,
   },
