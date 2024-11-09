@@ -18,22 +18,22 @@
       class="position-relative z-3 text-center w-100 px-4"
       style="max-width: 800px"
     >
-      <div class="font-weight-bold text-white h2 mb-4">
-        Find the hottest events today!
-      </div>
+      <div class="font-weight-bold text-white h2 mb-4 hero-title">
+  Find the hottest events today!
+</div>
 
-      <!-- Search Input -->
-      <div class="position-relative">
-        <div class="d-flex bg-white p-3 rounded-5 shadow">
-          <div class="d-flex align-items-center w-100">
-            <i class="bi bi-search text-muted me-2"></i>
-            <input
-              type="text"
-              placeholder="Search for Events..."
-              class="form-control border-0"
-              v-model="searchQuery"
-              @input="handleSearch"
-            />
+<!-- Search Input -->
+<div class="position-relative search-box">
+  <div class="d-flex bg-white p-3 rounded-5 shadow">
+    <div class="d-flex align-items-center w-100">
+      <i class="bi bi-search text-muted me-2"></i>
+      <input
+        type="text"
+        placeholder="Search for Events..."
+        class="form-control border-0"
+        v-model="searchQuery"
+        @input="handleSearch"
+      />
           </div>
         </div>
 
@@ -92,8 +92,9 @@
 
 <script setup>
 import { fetchEvents } from "@/api/eventsApi";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useDebounceFn } from "@vueuse/core";
+import anime from 'animejs/lib/anime.es.js';
 
 // State
 const backgroundImage = ref("/images/concert-hero.jpg");
@@ -145,11 +146,31 @@ const selectEvent = (event) => {
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString();
 };
+
+// Animation on component mount
+onMounted(() => {
+  anime({
+    targets: '.hero-title',
+    opacity: [0, 1],
+    translateY: [-20, 0],
+    duration: 1000,
+    easing: 'easeOutQuad',
+  });
+
+  anime({
+    targets: '.search-box',
+    opacity: [0, 1],
+    translateY: [-20, 0],
+    delay: 1000, // Add a delay for a sequential effect
+    duration: 1500,
+    easing: 'easeOutQuad',
+  });
+});
 </script>
 
 <style scoped>
 .hero-image {
-  min-height: 50vh;
+  min-height: 100vh;
 }
 
 .opacity-40 {

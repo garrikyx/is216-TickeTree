@@ -10,6 +10,7 @@ import { db } from '../firebase'
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './assets/global.css'
+import anime from 'animejs/lib/anime.es.js';
 
 const app = createApp(App)
 
