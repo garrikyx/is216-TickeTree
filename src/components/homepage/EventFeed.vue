@@ -206,7 +206,7 @@ watch(filteredEvents, () => {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   opacity: 0;
   transform: translateY(50px);
-  color: rgb(160, 21, 21);
+  color:black
 }
 
 .custom-card:hover {
@@ -234,7 +234,7 @@ watch(filteredEvents, () => {
   width: 100%;
   object-fit: cover;
   position: relative;
-  background-color: #e0e0e0;
+  background-color: #ffffff;
   border-radius: 0px;
 }
 
@@ -263,7 +263,7 @@ watch(filteredEvents, () => {
     rgba(0, 0, 0, 0.7),
     rgba(0, 0, 0, 0)
   );
-  color: #ffffffe2;
+  color: #ffffffdd;
   padding: 0.5rem;
   display: flex;
   justify-content: space-between;

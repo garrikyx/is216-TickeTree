@@ -82,6 +82,8 @@ body {
   flex-direction: column;
   min-height: 100vh;
   transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+  background-color: rgb(255, 244, 244);
+  color: #3f1200;
 }
 
 .content {
@@ -90,7 +92,7 @@ body {
 
 .dark-mode {
   background-color: #121212; /* Dark background color */
-  color: #ffffff; /* Light text color */
+  color: #fff4f0; /* Light text color */
 }
 
 .dark-mode .navbar, .dark-mode .sidebar, .dark-mode .footer {
