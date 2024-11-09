@@ -1,6 +1,14 @@
 <template>
   <nav class="navbar navbar-expand-md custom-navbar">
     <div class="container-fluid">
+      <!-- Left Section with Logo -->
+      <RouterLink class="navbar-brand d-flex align-items-center me-auto" to="/" style="z-index: 2;">
+        <div class="shape">
+          <img src="../assets/logo.png" alt="Logo" style="width: 50px" />
+          <span class="brand-text">TickeTree</span>
+        </div>
+      </RouterLink>
+      <!-- Navbar Toggle Button for Mobile -->
       <button
         class="navbar-toggler"
         type="button"
@@ -9,30 +17,18 @@
         aria-controls="navbarNav"
         aria-expanded="false"
         aria-label="Toggle navigation"
+        style="z-index: 1;"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Left section with logo -->
-      <div class="navbar-left">
-        <RouterLink class="navbar-brand d-flex align-items-center" to="/">
-          <div class="shape">
-            <img src="../assets/logo.png" style="width: 50px" />
-            <span class="brand-text">TickeTree</span>
-          </div>
-        </RouterLink>
-      </div>
 
-      <!-- Center section with navigation -->
-      <div
-        class="collapse navbar-collapse justify-content-center"
-        id="navbarNav"
-      >
-        <ul
-          class="navbar-nav d-flex justify-content-center align-items-center"
-          ref="navContainer"
-        >
-          <div class="nav-background" :style="backgroundStyle"></div>
+      <!-- Collapsible Center Section with Navigation Items and Right Section -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <!-- Center Navigation Items -->
+        <ul class="navbar-nav mx-auto d-flex justify-content-center">
+          <div class="nav-background" :style="backgroundStyle"
+          ></div>
           <li
             v-for="(item, index) in navItems"
             :key="item.path"
@@ -49,29 +45,25 @@
             </RouterLink>
           </li>
         </ul>
-      </div>
 
-      <!-- Right Side Items with Fixed Width to Prevent Shifting -->
-      <div class="navbar-right" v-if="!loading">
-        <!-- Dark Mode Toggle Icon -->
-        <div
-          :class="['dark-mode-icon', { dark: isDarkMode }]"
-          @click="$emit('toggleDarkMode')"
-        >
-          <i :class="isDarkMode ? 'fas fa-moon' : 'fas fa-sun'"></i>
-        </div>
-
-        <!-- User Info Icon or Login Button -->
-        <div
-          v-if="isLoggedIn"
-          class="user-info-wrapper align-items-center"
-          @click="$emit('toggleSidebar')"
-        >
-          <div class="user-avatar">
-            <i class="fas fa-user"></i>
+        <!-- Right Section with Dark Mode Toggle and User Info or Login Button -->
+        <div class="d-flex align-items-center ms-auto">
+          <!-- Dark Mode Toggle Icon -->
+          <div
+            :class="['dark-mode-icon', { dark: isDarkMode }]"
+            @click="$emit('toggleDarkMode')"
+          >
+            <i :class="isDarkMode ? 'fas fa-moon' : 'fas fa-sun'"></i>
           </div>
+
+          <!-- User Info Icon or Login Button -->
+          <div v-if="isLoggedIn" class="user-info-wrapper" @click="$emit('toggleSidebar')">
+            <div class="user-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+          <button v-else @click="goToLogin" class="btn login-btn ms-2">Login</button>
         </div>
-        <button v-else @click="goToLogin" class="btn login-btn">Login</button>
       </div>
     </div>
   </nav>
@@ -86,7 +78,7 @@ const auth = getAuth();
 const router = useRouter();
 const route = useRoute();
 const isLoggedIn = ref(false);
-const loading = ref(true); // Add loading state
+const loading = ref(true);
 const navContainer = ref(null);
 const activeIndex = ref(0);
 const hoverIndex = ref(null);
@@ -104,7 +96,6 @@ const navItems = ref([
   { path: "/faqs", label: "FAQs" },
 ]);
 
-// Calculate the background position based on active/hover state
 const backgroundStyle = computed(() => {
   const index = hoverIndex.value !== null ? hoverIndex.value : activeIndex.value;
   const navItem = navContainer.value?.children[index];
@@ -114,34 +105,31 @@ const backgroundStyle = computed(() => {
   return {
     transform: `translateX(${left}px)`,
     width: `${width}px`,
-    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)", // Smooth transition for background movement
-    zIndex: 1, // Ensure the background is on top of the nav items
+    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    zIndex: 1,
   };
 });
 
 onMounted(() => {
   auth.onAuthStateChanged((user) => {
     isLoggedIn.value = !!user;
-    loading.value = false; // Auth check is complete
+    loading.value = false;
   });
 
-  // Set initial active index based on the current route path exactly
-  const currentIndex = navItems.value.findIndex(
-    (item) => item.path === route.path
-  );
+  const currentIndex = navItems.value.findIndex((item) => item.path === route.path);
   if (currentIndex !== -1) {
     activeIndex.value = currentIndex;
   } else {
-    activeIndex.value = 0; // Default to "Home" if no match is found
+    activeIndex.value = 0;
   }
 });
 
 const handleClick = (index) => {
-  activeIndex.value = index; // Update active index on click
+  activeIndex.value = index;
 };
 
 const handleHover = (index) => {
-  hoverIndex.value = index; // Set hover index
+  hoverIndex.value = index;
 };
 
 const goToLogin = () => {
@@ -150,47 +138,14 @@ const goToLogin = () => {
 </script>
 
 <style scoped>
-.shape {
-  border-radius: 12px;
-  padding: 0.5rem;
-}
-
 .custom-navbar {
   background: #6d161d;
   height: 60px;
-  width:100%;
-}
-
-.navbar-collapse {
-  flex-grow: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.navbar-left,
-.navbar-right,
-.fixed-placeholder {
-  flex: 1;
-}
-
-.navbar-right,
-.fixed-placeholder {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.fixed-placeholder {
-  visibility: hidden;
-  min-width: 120px; /* Adjust to match actual width of user icon or login button */
+  width: 100%;
 }
 
 .navbar-brand {
   margin-right: 2rem;
-}
-
-.navbar-brand:hover {
-  transform: translateY(-1px);
 }
 
 .brand-text {
@@ -198,14 +153,6 @@ const goToLogin = () => {
   font-weight: 600;
   font-size: 1.3rem;
   margin-left: 1rem;
-}
-
-.navbar-nav {
-  flex-grow: 0;
-  position: relative;
-  display: flex;
-  gap: 0;
-  align-items: center; 
 }
 
 .nav-background {
@@ -220,13 +167,11 @@ const goToLogin = () => {
   z-index: 0;
 }
 
-
 .nav-link {
   font-size: 16px;
   color: white;
   font-weight: 600;
   padding: 20px;
-  width: 150px;
   display: flex;
   justify-content: center;
   border-radius: 8px;
@@ -242,7 +187,6 @@ const goToLogin = () => {
   color: #ffffff !important;
   background-color: #490000;
 }
-
 
 .user-info-wrapper {
   cursor: pointer;
@@ -265,8 +209,26 @@ const goToLogin = () => {
   color: #ffffff;
 }
 
-.user-avatar i {
-  font-size: 1.2rem;
+.dark-mode-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 1rem;
+  transition: background-color 0.3s;
+}
+
+.dark-mode-icon i {
+  font-size: 20px;
+  color: wheat;
+}
+
+.dark-mode-icon.dark i {
+  color: white;
 }
 
 .login-btn {
@@ -282,71 +244,10 @@ const goToLogin = () => {
   background-color: #ffffff;
   transform: translateY(-1px);
 }
-
-@media (max-width: 768px) {
-  .custom-navbar {
-    height: auto;
-    padding: 10px 0;
-  }
-
-  .navbar-collapse {
-    background: #b87333;
-    position: absolute;
-    top: 80px;
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    padding: 1rem;
-    z-index: 1000;
-  }
-
   .navbar-nav {
     flex-direction: column;
     width: 100%;
-    padding: 0;
+
   }
 
-  .nav-background {
-    display: none;
-  }
-
-  .nav-link {
-    width: 100%;
-    padding: 15px;
-    margin: 2px 0;
-    color: white;
-  }
-
-  .nav-link:hover,
-  .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.15);
-  }
-
-  .navbar-brand {
-    margin-right: 0;
-  }
-}
-.dark-mode-icon {
-  margin-top: 4px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-right: 1rem;
-}
-
-.dark-mode-icon i {
-  font-size: 20px;
-  color: wheat;
-}
-
-.dark-mode-icon.dark i {
-  font-size: 20px;
-  color: white;
-}
 </style>
