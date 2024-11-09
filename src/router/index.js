@@ -6,8 +6,8 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home", 
-      component: HomeView, 
+      name: "home",
+      component: HomeView,
     },
     {
       path: "/marketplace",
@@ -15,9 +15,9 @@ const router = createRouter({
       component: () => import("../views/Marketplace.vue"),
     },
     {
-      path: '/login',
-      component: () => import('@/views/Login.vue'),
-      meta: { hideSidebar: true, hideNavbar: true , hideFooter: true},
+      path: "/login",
+      component: () => import("@/views/Login.vue"),
+      meta: { hideSidebar: true, hideNavbar: true, hideFooter: true },
     },
     {
       path: "/payment",
@@ -35,54 +35,57 @@ const router = createRouter({
       component: () => import("../components/payment/Error.vue"),
     },
     {
-      path:"/signup",
-      name: 'signup',
+      path: "/signup",
+      name: "signup",
       component: () => import("../views/signup.vue"),
       meta: { hideNavbar: true, hideFooter: true },
     },
-
     {
-      path:"/sidebar",
-      name: 'sidebar',
+      path: "/sidebar",
+      name: "sidebar",
       component: () => import("../views/SideBar.vue"),
       meta: { hideNavbar: true, hideFooter: true },
     },
     {
-      path: '/purchase-history',
-      name: 'PurchaseHistory',
-      component: () => import("../views/PurhcaseHistory.vue")
+      path: "/purchase-history",
+      name: "PurchaseHistory",
+      component: () => import("../views/PurhcaseHistory.vue"),
     },
     {
-      path: '/category/:categoryId',
-      name: 'CategoryEvents',
+      path: "/category/:categoryId",
+      name: "CategoryEvents",
       component: () => import("../views/CategoryEvents.vue"),
-      props: true
+      props: true,
     },
     {
-      path: '/purchase-history/:orderID',
-      name: 'PurchaseHistoryEvent',
+      path: "/purchase-history/:orderID",
+      name: "PurchaseHistoryEvent",
       component: () => import("@/views/PurchaseHistoryEvent.vue"),
       props: true,
     },
     {
-      path: '/events/:id', 
-      name: 'EventDetail',
-      component:  () => import("@/views/EventDetails.vue"),
-      props: true
+      path: "/eventDetail/:id",
+      name: "EventDetail",
+      component: () => import("@/views/EventDetails.vue"),
+      props: true,
     },
     {
-      path: '/faqs', 
-      name: 'faqs',
-      component:  () => import("@/views/faq.vue"),
-      props: true
+      path: "/faqs",
+      name: "faqs",
+      component: () => import("@/views/faq.vue"),
+      props: true,
     },
     {
       path: "/listedevent/:id",
       name: "ListedEvent",
       component: () => import("@/views/ListedEvent.vue"),
-      props: true
+      props: true,
     },
   ],
+  scrollBehavior(to,from,savedPosition) {
+    return savedPosition || { top: 0}; // Default scroll behavior
+  },
 });
+
 
 export default router;
