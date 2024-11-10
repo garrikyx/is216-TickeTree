@@ -180,10 +180,9 @@ onMounted(() => {
   anime({
   targets: '#ticketree path',
   strokeDashoffset: [anime.setDashoffset, 0],
-  easing: 'easeInOutSine',
+  easing: 'easeInSine',
   duration: 1500,
   delay: function(el, i) { return i * 250 },
-  direction: 'alternate',
 });
 });
 </script>
