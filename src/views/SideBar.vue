@@ -101,7 +101,7 @@ onMounted(() => {
 <style scoped>
 .sidebar {
   width: 250px;
-  background-color: #f8f9fa;
+  background-color: #f1e6e2;
   position: fixed;
   top: 0;
   right: -250px;
@@ -114,6 +114,10 @@ onMounted(() => {
   flex-direction: column;
   justify-content: space-between;
   border-radius: 2px;
+}
+
+.dark-mode .sidebar {
+  background-color: #333;
 }
 
 .sidebar.open {
@@ -130,6 +134,10 @@ onMounted(() => {
   margin-left: 13px;
 }
 
+.dark-mode .user-section {
+  border-bottom: 1px solid rgb(169, 166, 166);
+}
+
 .user-icon {
   font-size: 36px;
   color: #007bff;
@@ -140,6 +148,10 @@ onMounted(() => {
   font-size: 18px;
   font-weight: 600;
   color: #333;
+}
+
+.dark-mode .user-name{
+  color: rgb(169, 166, 166);
 }
 
 ul {
@@ -157,6 +169,10 @@ ul li {
   border-radius: 8px;
   transition: background-color 0.3s ease;
   cursor: pointer;
+}
+
+.dark-mode ul li {
+  color: rgb(169, 166, 166);
 }
 
 ul li:hover {

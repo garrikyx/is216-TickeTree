@@ -242,12 +242,14 @@ const goToLogin = () => {
 
 .login-btn:hover {
   background-color: #efded78f;
+  color: #b7765c;
   transform: translateY(-1px);
 }
-  .navbar-nav {
-    flex-direction: column;
-    width: 100%;
 
-  }
+.navbar-nav {
+  flex-direction: column;
+  width: 100%;
+
+}
 
 </style>
