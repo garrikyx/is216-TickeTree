@@ -1,40 +1,50 @@
 <template>
-  
+  <h1 class="ml1">
+    <span class="text-wrapper">
+      <span class="line line1"></span>
+      <span class="letters">Purchase History</span>
+      <span class="line line2"></span>
+    </span>
+  </h1>
   <!-- Loading Message -->
-  
   <span
-  v-if="loading"
-  class="back d-flex align-items-center justify-content-center vh-100"
+    v-if="loading"
+    class="back d-flex align-items-center justify-content-center"
   >
-  <span>L</span>
-  <span>o</span>
-  <span>a</span>
-  <span>d</span>
-  <span>i</span>
-  <span>n</span>
-  <span>g</span>
-</span>
+    <span>L</span><span>o</span><span>a</span><span>d</span><span>i</span
+    ><span>n</span><span>g</span>
+  </span>
 
-<!-- Events List -->
-<div v-else class="events-list container">
-      <div class="container mt-4 purchase-history-section">
-        <h1 class="text-center">Purchase History</h1>
-      
-        <!-- Toggle Buttons for Upcoming and Past Events -->
-        <div class="toggle-buttons">
-          <button
+  <!-- Events List -->
+  <div v-else class="events-list container">
+    <div class="container mt-4 purchase-history-section">
+
+      <!-- Nav Pills for Upcoming and Past Events -->
+      <ul class="nav nav-pills justify-content-center mb-4">
+        <li class="nav-item">
+          <a
+            class="nav-link"
             :class="{ active: currentTab === 'upcoming' }"
-            @click="setTab('upcoming')"
+            @click.prevent="setTab('upcoming')"
+            href="#1"
+            data-toggle="tab"
           >
             Upcoming Events
-          </button>
-          <button
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
             :class="{ active: currentTab === 'past' }"
-            @click="setTab('past')"
+            @click.prevent="setTab('past')"
+            data-toggle="tab"
+            href="#2"
           >
             Past Events
-          </button>
-        </div>
+          </a>
+        </li>
+      </ul>
+
       <p v-if="filteredTickets.length === 0" class="no-tickets-message">
         No tickets available
       </p>
@@ -50,7 +60,7 @@
             <img
               :src="ticket.imageUrl"
               alt="Event Image"
-              class="event-image "
+              class="event-image"
               loading="lazy"
               @error="handleImageError"
             />
@@ -67,7 +77,9 @@
                 {{ formatDate(ticket.startDate) }}
               </span>
             </p>
-            <p class="seat text-center text-md-start">Seat: {{ ticket.seatNumbers.join(", ") }}</p>
+            <p class="seat text-center text-md-start">
+              Seat: {{ ticket.seatNumbers.join(", ") }}
+            </p>
           </div>
           <div class="event-price col col-12 col-md-auto">
             <span class="price">${{ ticket.price }}</span>
@@ -80,7 +92,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import anime from "animejs/lib/anime.es.js";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import { getAuth } from "firebase/auth";
@@ -94,29 +107,79 @@ function setTab(tab) {
   currentTab.value = tab;
   localStorage.setItem("currentTab", tab);
 }
+function initializeAnimation() {
+  console.log('Initializing animation...');
+  const textWrapper = document.querySelector('.ml1 .letters');
+  if (textWrapper) {
+    console.log('Text wrapper found');
+    textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
 
+    anime.timeline({loop: true})
+      .add({
+        targets: '.ml1 .letter',
+        scale: [0.3,1],
+        opacity: [0,1],
+        translateZ: 0,
+        easing: "easeOutExpo",
+        duration: 600,
+        delay: (el, i) => 70 * (i+1)
+      }).add({
+        targets: '.ml1 .line',
+        scaleX: [0,1],
+        opacity: [0.5,1],
+        easing: "easeOutExpo",
+        duration: 700,
+        offset: '-=875',
+        delay: (el, i, l) => 80 * (l - i)
+      }).add({
+        targets: '.ml1',
+        opacity: 0,
+        duration: 1000,
+        easing: "easeOutExpo",
+        delay: 1000
+      });
+  } else {
+    console.log('Text wrapper not found');
+  }
+}
 // Fetch tickets when the component is mounted
-onMounted(() => {
+onMounted(async() => {
+  console.log('Component mounted');
+  // Wait for DOM to be ready and check if element exists
+  await nextTick();
+  console.log('Next tick completed');
+  initializeAnimation();
   const auth = getAuth();
 
   // Ensure we load tickets when the user is authenticated
   auth.onAuthStateChanged((user) => {
     if (user) {
-      fetchTickets();
+      fetchTickets().then(() => {
+        // Only run animation if there are purchase items
+        const purchaseItems = document.querySelectorAll(".purchase-item");
+        if (purchaseItems.length > 0) {
+          anime({
+            targets: ".purchase-item",
+            translateY: [100, 0],
+            opacity: [0, 1],
+            duration: 1000,
+            easing: "easeOutExpo",
+            delay: anime.stagger(100), // Add stagger effect for multiple items
+          });
+        }
+      });
     }
   });
 });
 
 async function fetchTickets() {
-  loading.value = true; // Start loading
+  loading.value = true;
   try {
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
-    // Check if the user is authenticated
     if (!currentUser || !currentUser.uid) return;
 
-    // Query the user's tickets from the database
     const paymentCollectionRef = collection(db, "payment");
     const userTicketsQuery = query(
       paymentCollectionRef,
@@ -125,7 +188,6 @@ async function fetchTickets() {
 
     const querySnapshot = await getDocs(userTicketsQuery);
 
-    // Map the documents to a ticket list
     ticketlist.value = querySnapshot.docs.map((doc) => {
       const eventData = doc.data();
       const [startDate, endDate] = parseEventDate(eventData.eventDate);
@@ -155,7 +217,6 @@ function parseEventDate(eventDate) {
     const start = new Date(`${dateParts[0]} ${new Date().getFullYear()}`);
     const end = new Date(`${dateParts[1]} ${new Date().getFullYear()}`);
 
-    // Adjust for year transition if end date is earlier than start date
     if (end < start) {
       end.setFullYear(end.getFullYear() + 1);
     }
@@ -192,9 +253,9 @@ function handleImageError(event) {
 function formatDate(date) {
   if (date instanceof Date) {
     return date.toLocaleDateString("en-GB", {
-      weekday: "short", // Displays day of the week (e.g., Mon)
-      day: "numeric", // Displays the numeric day (e.g., 4)
-      month: "short", // Displays abbreviated month (e.g., Nov)
+      weekday: "short",
+      day: "numeric",
+      month: "short",
     });
   }
   return date;
@@ -211,31 +272,15 @@ h1 {
   margin-bottom: 2rem;
 }
 
-.toggle-buttons {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-
-.toggle-buttons button {
-  padding: 10px 20px;
+.nav-pills .nav-link {
   font-size: 1rem;
   cursor: pointer;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-right: 10px;
   transition: background-color 0.3s ease;
 }
 
-.toggle-buttons button:last-child {
-  margin-right: 0;
-}
-
-.toggle-buttons button.active {
+.nav-pills .nav-link.active {
   background-color: #007bff;
   color: white;
-  border-color: #007bff;
 }
 
 .events-list {
@@ -253,7 +298,7 @@ h1 {
   border: 1px solid #ddd;
   width: 100%;
   gap: 16px;
-    box-shadow: 7px 2px 10px #b7765c;
+  box-shadow: 7px 2px 10px #b7765c;
 }
 
 .event-image-container {
@@ -266,7 +311,6 @@ h1 {
   object-fit: cover;
   border-radius: 8px;
 }
-
 
 .event-details {
   flex-grow: 1;
@@ -314,15 +358,13 @@ h1 {
   text-decoration: none;
 }
 
-@import url(https://fonts.googleapis.com/css?family=Roboto:300);
 html {
   height: 90%;
 }
 
 .back {
-  margin: 1em auto;
+  margin: 90px 0px 0px 0px;
   font-family: "Roboto";
-  height: 100vh;
 }
 .back span {
   font-size: 3em;
@@ -368,5 +410,39 @@ html {
 }
 .back span:nth-child(7) {
   animation-delay: 0.6s;
+}
+.ml1 {
+  font-weight: 900;
+  font-size: 3.5em;
+}
+
+.ml1 .letter {
+  display: inline-block;
+  line-height: 1em;
+}
+
+.ml1 .text-wrapper {
+  position: relative;
+  display: inline-block;
+  padding-top: 0.1em;
+  padding-right: 0.05em;
+  padding-bottom: 0.15em;
+}
+
+.ml1 .line {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background-color: #fff;
+  transform-origin: 0 0;
+}
+
+.ml1 .line1 {
+  top: 0;
+}
+.ml1 .line2 {
+  bottom: 0;
 }
 </style>
