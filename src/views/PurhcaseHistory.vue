@@ -190,7 +190,7 @@ h1 {
   padding: 10px 20px;
   font-size: 1rem;
   cursor: pointer;
-  background-color: #f0f0f0;
+  background-color: white;
   border: 1px solid #ccc;
   border-radius: 5px;
   margin-right: 10px;
@@ -216,7 +216,7 @@ h1 {
 .purchase-item {
   display: flex;
   align-items: center;
-  background-color: #f1f2f5;
+  background-color: white;
   padding: 16px;
   border-radius: 8px;
   border: 1px solid #ddd;
