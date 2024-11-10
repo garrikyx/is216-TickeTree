@@ -166,7 +166,7 @@ export default {
 button {
   width: 100%;
   padding: 10px;
-  background-color: #007bff;
+  background-color: #b7765c;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -190,8 +190,8 @@ button {
 }
 
 .signup-link a {
-  color: #007bff;
-  text-decoration: none;
+  color: #b7765c;
+  text-decoration: underline;
 }
 
 .guest-button {
