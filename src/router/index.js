@@ -70,6 +70,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: "/eventDetails/:id",
+      name: "EventDetails",
+      component: () => import("@/views/EventDetails.vue"),
+      props: true,
+    },
+    {
       path: "/faqs",
       name: "faqs",
       component: () => import("@/views/faq.vue"),
