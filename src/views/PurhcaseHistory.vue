@@ -108,13 +108,11 @@ function setTab(tab) {
   localStorage.setItem("currentTab", tab);
 }
 function initializeAnimation() {
-  console.log('Initializing animation...');
   const textWrapper = document.querySelector('.ml1 .letters');
   if (textWrapper) {
-    console.log('Text wrapper found');
     textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
 
-    anime.timeline({loop: true})
+    anime.timeline()
       .add({
         targets: '.ml1 .letter',
         scale: [0.3,1],
@@ -131,23 +129,13 @@ function initializeAnimation() {
         duration: 700,
         offset: '-=875',
         delay: (el, i, l) => 80 * (l - i)
-      }).add({
-        targets: '.ml1',
-        opacity: 0,
-        duration: 1000,
-        easing: "easeOutExpo",
-        delay: 1000
-      });
-  } else {
-    console.log('Text wrapper not found');
+      })
   }
 }
 // Fetch tickets when the component is mounted
 onMounted(async() => {
-  console.log('Component mounted');
   // Wait for DOM to be ready and check if element exists
   await nextTick();
-  console.log('Next tick completed');
   initializeAnimation();
   const auth = getAuth();
 
@@ -414,6 +402,8 @@ html {
 .ml1 {
   font-weight: 900;
   font-size: 3.5em;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .ml1 .letter {
