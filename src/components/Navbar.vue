@@ -1,8 +1,15 @@
 <template>
-  <nav class="navbar navbar-expand-md custom-navbar">
+  <nav
+    class="navbar navbar-expand-md custom-navbar"
+    :class="{'navbar-white': !isDarkMode, 'navbar-dark': isDarkMode}"
+  >
     <div class="container-fluid">
       <!-- Left Section with Logo -->
-      <RouterLink class="navbar-brand d-flex align-items-center me-auto" to="/" style="z-index: 2;">
+      <RouterLink
+        class="navbar-brand d-flex align-items-center me-auto"
+        to="/"
+        style="z-index: 2"
+      >
         <div class="shape">
           <img src="../assets/logo.png" alt="Logo" style="width: 50px" />
           <span class="brand-text">TickeTree</span>
@@ -17,18 +24,16 @@
         aria-controls="navbarNav"
         aria-expanded="false"
         aria-label="Toggle navigation"
-        style="z-index: 1;"
+        style="z-index: 1"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-
 
       <!-- Collapsible Center Section with Navigation Items and Right Section -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <!-- Center Navigation Items -->
         <ul class="navbar-nav mx-auto d-flex justify-content-center">
-          <div class="nav-background" :style="backgroundStyle"
-          ></div>
+          <div class="nav-background" :style="backgroundStyle"></div>
           <li
             v-for="(item, index) in navItems"
             :key="item.path"
@@ -57,12 +62,18 @@
           </div>
 
           <!-- User Info Icon or Login Button -->
-          <div v-if="isLoggedIn" class="user-info-wrapper" @click="$emit('toggleSidebar')">
+          <div
+            v-if="isLoggedIn"
+            class="user-info-wrapper"
+            @click="$emit('toggleSidebar')"
+          >
             <div class="user-avatar">
               <i class="fas fa-user"></i>
             </div>
           </div>
-          <button v-else @click="goToLogin" class="btn login-btn ms-2">Login</button>
+          <button v-else @click="goToLogin" class="btn login-btn ms-2">
+            Login
+          </button>
         </div>
       </div>
     </div>
@@ -86,8 +97,8 @@ const hoverIndex = ref(null);
 const props = defineProps({
   isDarkMode: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const navItems = ref([
@@ -97,7 +108,8 @@ const navItems = ref([
 ]);
 
 const backgroundStyle = computed(() => {
-  const index = hoverIndex.value !== null ? hoverIndex.value : activeIndex.value;
+  const index =
+    hoverIndex.value !== null ? hoverIndex.value : activeIndex.value;
   const navItem = navContainer.value?.children[index];
   const width = navItem ? navItem.offsetWidth : 0;
   const left = navItem ? navItem.offsetLeft : 0;
@@ -116,7 +128,9 @@ onMounted(() => {
     loading.value = false;
   });
 
-  const currentIndex = navItems.value.findIndex((item) => item.path === route.path);
+  const currentIndex = navItems.value.findIndex(
+    (item) => item.path === route.path
+  );
   if (currentIndex !== -1) {
     activeIndex.value = currentIndex;
   } else {
@@ -138,6 +152,10 @@ const goToLogin = () => {
 </script>
 
 <style scoped>
+.navbar-toggler-icon {
+  color-scheme: red;
+}
+
 .custom-navbar {
   background: #e8d0c6;
   height: 60px;
@@ -169,7 +187,7 @@ const goToLogin = () => {
 
 .nav-link {
   font-size: 16px;
-  color:#b7765c;
+  color: #b7765c;
   font-weight: 600;
   padding: 20px;
   display: flex;
@@ -249,7 +267,5 @@ const goToLogin = () => {
 .navbar-nav {
   flex-direction: column;
   width: 100%;
-
 }
-
 </style>
