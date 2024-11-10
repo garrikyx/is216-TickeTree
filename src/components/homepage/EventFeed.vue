@@ -37,9 +37,7 @@
       :key="event.id"
       class="col-md-6 col-lg-4 mb-4"
       >
-      <Card 
-      class="custom-card"
-      :class="{'light':!isDarkMode,'dark':isDarkMode}">
+<Card class="custom-card" :class="isDarkMode ? 'dark' : 'light'">
         <RouterLink
             :to="{ name: 'EventDetail', params: { id: event.id } }"
             class="custom-link"
