@@ -103,6 +103,13 @@ export default {
   async created() {
     this.sessionId = this.$route.query.session_id;
 
+    const savedOrderSummary = localStorage.getItem(`orderSummary_${this.sessionId}`);
+    if (savedOrderSummary) {
+      this.orderSummary = JSON.parse(savedOrderSummary);
+      this.isLoading = false;
+      return;
+    }
+
     if (this.sessionId) {
       try {
         const response = await axios.get(`http://localhost:5001/checkout-session`, {
@@ -126,14 +133,9 @@ export default {
             imageUrl: item.price.product.metadata.imageUrl || "/images/noimage.png",
           };
 
-          if (this.isValidEmail(this.orderSummary.customerEmail)) {
-            await this.sendConfirmationEmail(this.orderSummary.customerEmail, this.orderSummary);
-          } else {
-            console.error("Invalid email format:", this.orderSummary.customerEmail);
-          }
-
           await this.savePaymentDetails();
-          this.deletePurchasedTickets(); // Remove purchased tickets from Firebase
+          localStorage.setItem(`orderSummary_${this.sessionId}`, JSON.stringify(this.orderSummary));
+          this.deletePurchasedTickets();
         } else {
           console.error("No line items found in the session data.");
         }
@@ -149,7 +151,6 @@ export default {
       if (!value && this.orderSummary) {
         this.$nextTick(() => {
           const flightPath = anime.path("#flightPath"); 
-
           anime({
             targets: this.$refs.paperPlane,
             translateX: flightPath("x"), 
@@ -162,24 +163,7 @@ export default {
       }
     },
   },
-  
   methods: {
-    isValidEmail(email) {
-      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return regex.test(email);
-    },
-
-    async sendConfirmationEmail(email, orderSummary) {
-      try {
-        await axios.post("http://localhost:5001/send-confirmation-email", {
-          email,
-          orderSummary,
-        });
-      } catch (error) {
-        console.error("Failed to send email:", error);
-      }
-    },
-
     async savePaymentDetails() {
       try {
         const auth = getAuth();
@@ -205,20 +189,18 @@ export default {
     },
 
     async deletePurchasedTickets() {
-  const cartStore = useCartStore();
-  for (const item of cartStore.cartItems) {
-    try {
-      // Convert item.id to a string in case it's not already one
-      const ticketDocRef = doc(db, "ticket", String(item.id));
-      await deleteDoc(ticketDocRef);
-      console.log(`Deleted ticket document with ID: ${item.id}`);
-    } catch (error) {
-      console.error("Error deleting ticket document: ", error);
-    }
-  }
-  // Optionally, clear purchased items from the cart store
-  cartStore.clearCart();
-},
+      const cartStore = useCartStore();
+      for (const item of cartStore.cartItems) {
+        try {
+          const ticketDocRef = doc(db, "ticket", String(item.id));
+          await deleteDoc(ticketDocRef);
+          console.log(`Deleted ticket document with ID: ${item.id}`);
+        } catch (error) {
+          console.error("Error deleting ticket document: ", error);
+        }
+      }
+      cartStore.clearCart();
+    },
 
     redirectToHomepage() {
       this.$router.push("/");
