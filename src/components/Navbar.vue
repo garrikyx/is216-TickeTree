@@ -88,7 +88,6 @@ import { useRouter, RouterLink, useRoute } from "vue-router";
 import { inject } from 'vue';
 
 const isDarkMode = inject('isDarkMode');
-console.log(isDarkMode)
 const auth = getAuth();
 const router = useRouter();
 const route = useRoute();

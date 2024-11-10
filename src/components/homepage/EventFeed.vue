@@ -33,15 +33,14 @@
     <!-- New Card -->
     <div v-else class="row mx-5">
       <div
-        v-for="event in filteredEvents"
-        :key="event.id"
-        class="col-md-6 col-lg-4 mb-4"
-        >
-        <Card 
-        :class="{'light':!isDarkMode,'dark':isDarkMode}"
-          class="custom-card"
-        >
-          <RouterLink
+      v-for="event in filteredEvents"
+      :key="event.id"
+      class="col-md-6 col-lg-4 mb-4"
+      >
+      <Card 
+      class="custom-card"
+      :class="{'light':!isDarkMode,'dark':isDarkMode}">
+        <RouterLink
             :to="{ name: 'EventDetail', params: { id: event.id } }"
             class="custom-link"
           >

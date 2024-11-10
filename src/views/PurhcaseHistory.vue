@@ -1,50 +1,77 @@
 <template>
-  <div class="container mt-4 purchase-history-section">
-    <h1 class="text-center">Purchase History</h1>
+  
+  <!-- Loading Message -->
+  
+  <span
+  v-if="loading"
+  class="back d-flex align-items-center justify-content-center vh-100"
+  >
+  <span>L</span>
+  <span>o</span>
+  <span>a</span>
+  <span>d</span>
+  <span>i</span>
+  <span>n</span>
+  <span>g</span>
+</span>
 
-    <!-- Toggle Buttons for Upcoming and Past Events -->
-    <div class="toggle-buttons">
-      <button :class="{ active: currentTab === 'upcoming' }" @click="setTab('upcoming')">
-        Upcoming Events
-      </button>
-      <button :class="{ active: currentTab === 'past' }" @click="setTab('past')">
-        Past Events
-      </button>
-    </div>
-
-    <!-- Loading Message -->
-    <p v-if="loading" class="loading-message">Loading tickets...</p>
-
-    <!-- Events List -->
-    <div v-else class="events-list">
-      <p v-if="filteredTickets.length === 0" class="no-tickets-message">No tickets available</p>
+<!-- Events List -->
+<div v-else class="events-list container">
+      <div class="container mt-4 purchase-history-section">
+        <h1 class="text-center">Purchase History</h1>
       
+        <!-- Toggle Buttons for Upcoming and Past Events -->
+        <div class="toggle-buttons">
+          <button
+            :class="{ active: currentTab === 'upcoming' }"
+            @click="setTab('upcoming')"
+          >
+            Upcoming Events
+          </button>
+          <button
+            :class="{ active: currentTab === 'past' }"
+            @click="setTab('past')"
+          >
+            Past Events
+          </button>
+        </div>
+      <p v-if="filteredTickets.length === 0" class="no-tickets-message">
+        No tickets available
+      </p>
+
       <router-link
         v-for="ticket in filteredTickets"
         :key="ticket.id"
         :to="{ name: 'PurchaseHistoryEvent', params: { orderID: ticket.id } }"
         class="purchase-item-link"
       >
-        <div class="purchase-item">
+        <div class="purchase-item row justify-content-center">
           <div class="event-image-container">
-            <img :src="ticket.imageUrl" alt="Event Image" class="event-image" loading="lazy" @error="handleImageError" />
+            <img
+              :src="ticket.imageUrl"
+              alt="Event Image"
+              class="event-image "
+              loading="lazy"
+              @error="handleImageError"
+            />
           </div>
-          <div class="event-details">
-            <h2>{{ ticket.eventName }}</h2>
-            <p class="date">
+          <div class="event-details col col-12 col-md-auto">
+            <h2 class="text-center text-md-start">{{ ticket.eventName }}</h2>
+            <p class="date text-center text-md-start">
               Date:
               <span v-if="ticket.endDate">
-                {{ formatDate(ticket.startDate) }} - {{ formatDate(ticket.endDate) }}
+                {{ formatDate(ticket.startDate) }} -
+                {{ formatDate(ticket.endDate) }}
               </span>
               <span v-else>
                 {{ formatDate(ticket.startDate) }}
               </span>
             </p>
-            <p class="seat">Seat: {{ ticket.seatNumbers.join(', ') }}</p>
+            <p class="seat text-center text-md-start">Seat: {{ ticket.seatNumbers.join(", ") }}</p>
           </div>
-          <div class="event-price">
+          <div class="event-price col col-12 col-md-auto">
             <span class="price">${{ ticket.price }}</span>
-            <span class="badge-status paid">Paid</span>
+            <span class="badge-status paid w-100 w-md-25">Paid</span>
           </div>
         </div>
       </router-link>
@@ -53,14 +80,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../firebase';
-import { getAuth } from 'firebase/auth';
+import { ref, computed, onMounted } from "vue";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../firebase";
+import { getAuth } from "firebase/auth";
 
 const currentTab = ref(localStorage.getItem("currentTab") || "upcoming");
 const ticketlist = ref([]);
-const loading = ref(true);  // Loading state
+const loading = ref(true); // Loading state
 
 // Function to set the current tab and save it in localStorage
 function setTab(tab) {
@@ -71,7 +98,7 @@ function setTab(tab) {
 // Fetch tickets when the component is mounted
 onMounted(() => {
   const auth = getAuth();
-  
+
   // Ensure we load tickets when the user is authenticated
   auth.onAuthStateChanged((user) => {
     if (user) {
@@ -81,7 +108,7 @@ onMounted(() => {
 });
 
 async function fetchTickets() {
-  loading.value = true;  // Start loading
+  loading.value = true; // Start loading
   try {
     const auth = getAuth();
     const currentUser = auth.currentUser;
@@ -90,7 +117,7 @@ async function fetchTickets() {
     if (!currentUser || !currentUser.uid) return;
 
     // Query the user's tickets from the database
-    const paymentCollectionRef = collection(db, 'payment');
+    const paymentCollectionRef = collection(db, "payment");
     const userTicketsQuery = query(
       paymentCollectionRef,
       where("userId", "==", currentUser.uid)
@@ -99,7 +126,7 @@ async function fetchTickets() {
     const querySnapshot = await getDocs(userTicketsQuery);
 
     // Map the documents to a ticket list
-    ticketlist.value = querySnapshot.docs.map(doc => {
+    ticketlist.value = querySnapshot.docs.map((doc) => {
       const eventData = doc.data();
       const [startDate, endDate] = parseEventDate(eventData.eventDate);
 
@@ -108,7 +135,7 @@ async function fetchTickets() {
         eventName: eventData.eventName,
         startDate,
         endDate,
-        seatNumbers: eventData.seatNumbers || [], 
+        seatNumbers: eventData.seatNumbers || [],
         price: eventData.totalPrice,
         quantity: eventData.quantity,
         imageUrl: eventData.imageUrl || "/images/noimage.png",
@@ -117,7 +144,7 @@ async function fetchTickets() {
   } catch (error) {
     console.error("Error fetching tickets: ", error);
   } finally {
-    loading.value = false;  // Stop loading
+    loading.value = false; // Stop loading
   }
 }
 
@@ -143,11 +170,15 @@ function parseEventDate(eventDate) {
 // Filter tickets based on the current tab (upcoming or past)
 const filteredTickets = computed(() => {
   const currentDate = new Date();
-  return ticketlist.value.filter(ticket => {
-    if (currentTab.value === 'upcoming') {
-      return ticket.endDate ? ticket.endDate >= currentDate : ticket.startDate >= currentDate;
+  return ticketlist.value.filter((ticket) => {
+    if (currentTab.value === "upcoming") {
+      return ticket.endDate
+        ? ticket.endDate >= currentDate
+        : ticket.startDate >= currentDate;
     } else {
-      return ticket.endDate ? ticket.endDate < currentDate : ticket.startDate < currentDate;
+      return ticket.endDate
+        ? ticket.endDate < currentDate
+        : ticket.startDate < currentDate;
     }
   });
 });
@@ -160,10 +191,10 @@ function handleImageError(event) {
 // Format date to a string in "Mon Nov 4" format
 function formatDate(date) {
   if (date instanceof Date) {
-    return date.toLocaleDateString('en-GB', {
-      weekday: 'short',  // Displays day of the week (e.g., Mon)
-      day: 'numeric',    // Displays the numeric day (e.g., 4)
-      month: 'short',    // Displays abbreviated month (e.g., Nov)
+    return date.toLocaleDateString("en-GB", {
+      weekday: "short", // Displays day of the week (e.g., Mon)
+      day: "numeric", // Displays the numeric day (e.g., 4)
+      month: "short", // Displays abbreviated month (e.g., Nov)
     });
   }
   return date;
@@ -222,6 +253,7 @@ h1 {
   border: 1px solid #ddd;
   width: 100%;
   gap: 16px;
+    box-shadow: 7px 2px 10px #b7765c;
 }
 
 .event-image-container {
@@ -234,6 +266,7 @@ h1 {
   object-fit: cover;
   border-radius: 8px;
 }
+
 
 .event-details {
   flex-grow: 1;
@@ -281,11 +314,59 @@ h1 {
   text-decoration: none;
 }
 
-.no-tickets-message,
-.loading-message {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #666;
-  margin-top: 20px;
+@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+html {
+  height: 90%;
+}
+
+.back {
+  margin: 1em auto;
+  font-family: "Roboto";
+  height: 100vh;
+}
+.back span {
+  font-size: 3em;
+  color: #ffd5b4;
+  background: #262b37;
+  display: table-cell;
+  box-shadow: inset 0 0 5px rgba(38, 38, 38, 0.3), 0 5px 0 #000000;
+  padding: 0 15px;
+  line-height: 100px;
+  animation: jumb 2s infinite;
+  border-radius: 10px;
+}
+@keyframes jumb {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-30px);
+    box-shadow: 0 15px 0 rgb(92, 44, 0);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.back span:nth-child(1) {
+  animation-delay: 0s;
+}
+.back span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.back span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.back span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.back span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.back span:nth-child(6) {
+  animation-delay: 0.5s;
+}
+.back span:nth-child(7) {
+  animation-delay: 0.6s;
 }
 </style>
