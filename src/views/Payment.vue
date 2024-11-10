@@ -51,7 +51,6 @@ export default {
 
     const deleteItem = (index) => {
       cartStore.deleteItem(index);
-      updateCart();
     };
 
     const increaseQuantity = (index) => {
