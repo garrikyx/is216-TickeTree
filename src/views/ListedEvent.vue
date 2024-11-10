@@ -1,52 +1,84 @@
 <template>
-  <!-- Event Poster and Details -->
-  <div class="poster text-center">
-    <img
-      :src="event?.imageUrl || '/images/noimage.png'"
-      class="img-fluid shadow-lg rounded poster-img"
-      alt="Event Poster"
-    />
-  </div>
-  <hr class="custom-hr" />
-    <div class="container">
-  
-    <div class="container mt-4 text-center event-details">
-        <h2 class="event-title">{{ event?.eventName || "Event Title" }}</h2>
-        <div class="d-flex justify-content-center gap-3 text-muted">
-            <p class="h5"><i class="fa fa-calendar"></i> {{ event?.date || "November 30, 2024" }}</p>
-            <p class="h5"><i class="fa fa-clock-o"></i> {{ event?.time || "6:00 PM" }}</p>
-            <p class="h5"><i class="fa fa-map-marker"></i> {{ event?.location }}</p>
-        </div>
-            <p>{{ event?.description || "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." }}</p>
+  <div class="poster-section">
+    <div
+      class="background-layer"
+      :style="{
+        backgroundImage: `url(${event?.imageUrl || '/images/noimage.png'})`
+      }"
+    ></div>
+
+    <div class="poster d-flex justify-content-center align-items-center">
+      <img
+        :src="event?.imageUrl || '/images/noimage.png'"
+        class="img-fluid shadow-lg rounded poster-img"
+        alt="Event Poster"
+      />
     </div>
-      <!-- Ticket Purchase Button -->
-      <div class="mt-4 d-flex justify-content-center">
-        {{ event?.price || '$500' }}
-        <button @click="handleTicketPurchase" class="btn btn-success btn-lg">Buy Ticket</button>
-      </div>
-      
-      <!-- Price History Chart Section -->
-      <div class="mt-4" v-if="event">
-      <h5>Price History</h5>
-      <Chart :eventName="event.eventName"/>
+    <hr class="custom-hr" /> 
+  </div>
+  
+  <div class="container justify-content-center  gap-4 mb-4">
+      <div class="card w-100">
+        <!-- Event Details -->
+        <div class="container mt-4 text-center event-details">
+          <h2 class="event-title">{{ event?.eventName || "Event Title" }}</h2>
+          <div class="d-block justify-content-center gap-5 text-muted">
+            <p class="h5">
+              <i class="fa fa-calendar"></i>
+              {{ event?.date || "November 30, 2024" }}
+            </p>
+            <p class="h5">
+              <i class="fa fa-clock"></i> {{ event?.time || "6:00 PM" }}
+            </p>
+            <p class="h5">
+              <i class="fa fa-map-marker"></i> {{ event?.location }}
+            </p>
+          </div>
+        </div>
+
+    <div class="card-body d-flex row">
+          <!-- About Section -->
+          <div class="about-section col-8 p-3">
+            <h5>About:</h5>
+            <p>
+        {{
+          event?.description ||
+          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+        }}
+      </p>
+          </div>
+    <!-- Ticket Purchase Button -->
+    <div class="price-section col-4 text-center p-3">
+      <h4 class="text-success">Price: {{ event?.price || "$500" }}</h4>
+      <button @click="handleTicketPurchase" class="btn btn-success btn-lg">
+        Buy Ticket
+      </button>
+    </div>
+    </div>
+
+    <!-- Price History Chart Section -->
+    <div class="container price-history col-12" v-if="event">
+      <h5 class="ms-3">Price History</h5>
+      <Chart :eventName="event.eventName" id="chart"/>
     </div>
     <div class="mt-4" v-else>
       <p>Loading price history...</p>
     </div>
   </div>
+  </div>
 </template>
-  
-  <script>
+
+<script>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useTicketStore } from "@/stores/ticketStore";
-import { useCartStore } from "@/stores/cartStore"; 
+import { useCartStore } from "@/stores/cartStore";
 import Chart from "@/components/marketplace/Chart.vue";
 
 export default {
   name: "ListedEvent",
   props: {
-    id: String
+    id: String,
   },
   components: {
     Chart,
@@ -80,32 +112,138 @@ export default {
   },
 };
 </script>
-  
-  <style scoped>
-  .btn-success {
-    background-color: #2c685e !important;
+
+<style scoped>
+
+.poster-section {
+  position: relative;
+  overflow: hidden;
+  height: 500px; 
+}
+
+/* Background Layer with Blur and Overlay */
+.background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80%; 
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px);
+  -webkit-filter: blur(5px); 
+  z-index: 1; 
+  background-color: rgba(0, 0, 0, 0.4); 
+  mix-blend-mode: darken;
+}
+
+.poster {
+  position: relative;
+  z-index: 2; 
+}
+
+.poster-img {
+  max-height: 400px;
+  height: fit-content;
+  border-radius: 10px;
+}
+
+.custom-hr {
+  border: 1px solid #ddd;
+  width: 80%;
+  margin: 20px auto;
+}
+
+@media (max-width: 575px) {
+  .poster-section {
+    height: 40vh; /* Full viewport height */
   }
 
-  .dark-mode .h5 {
-    color: white;
+  .background-layer {
+    height: 100%;
+    filter: blur(0); 
+    background-size: cover; 
+    background-position: center;
   }
+  .poster {
+    display: none;
+  }
+
   .poster-img {
-    max-height: 400px;
-    border-radius: 10px;
+    display: none;
   }
-  
-  .event-title {
-    font-size: 2.5em;
-    font-weight: bold;
+}
+.card {
+  background-color: whitesmoke;
+  border-radius: 10px;
+}
+
+.card-body {
+  margin: auto;
+  width: 100%;
+}
+
+.event-title {
+  font-size: 3em;
+  font-weight: bold;
+  animation: fade-in 1.5s ease-in-out;
+}
+
+.about-section {
+  margin: auto;
+}
+
+.text-muted {
+  font-size: 0.9em;
+  color: #6c757d !important;
+}
+
+.pricing-section .price-info {
+  background-color: #f9f9f9;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+.btn-success {
+  background-color: #2c685e !important;
+}
+
+.text-success {
+  color: #2c685e !important;
+}
+
+.price-history {
+  margin-top: 1.5rem;
+  margin: auto;
+}
+
+#chart {
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  margin: auto;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
   }
-  
-  hr.custom-hr {
-    border: 1px solid #ddd;
-    width: 80%;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  .container {
-    margin-top: 20px;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
   }
-  </style>
-  
+  50% {
+    transform: scale(1.05);
+  }
+}
+</style>
