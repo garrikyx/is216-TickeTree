@@ -205,20 +205,20 @@ export default {
     },
 
     async deletePurchasedTickets() {
-      const cartStore = useCartStore();
-      for (const item of cartStore.cartItems) {
-        try {
-          // Delete each purchased ticket document from Firebase
-          const ticketDocRef = doc(db, "ticket", item.id);
-          await deleteDoc(ticketDocRef);
-          console.log(`Deleted ticket document with ID: ${item.id}`);
-        } catch (error) {
-          console.error("Error deleting ticket document: ", error);
-        }
-      }
-      // Optionally, clear purchased items from the cart store
-      cartStore.clearCart();
-    },
+  const cartStore = useCartStore();
+  for (const item of cartStore.cartItems) {
+    try {
+      // Convert item.id to a string in case it's not already one
+      const ticketDocRef = doc(db, "ticket", String(item.id));
+      await deleteDoc(ticketDocRef);
+      console.log(`Deleted ticket document with ID: ${item.id}`);
+    } catch (error) {
+      console.error("Error deleting ticket document: ", error);
+    }
+  }
+  // Optionally, clear purchased items from the cart store
+  cartStore.clearCart();
+},
 
     redirectToHomepage() {
       this.$router.push("/");
@@ -350,7 +350,7 @@ h2 {
 
 .return-btn {
   display: inline-block;
-  background-color: #4caf50;
+  background-color: #2c685e !important;
   color: white;
   padding: 12px 25px;
   border: none;
