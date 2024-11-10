@@ -109,7 +109,6 @@ export default {
 
 <style scoped>
 
-
 .login-container {
   display: flex;
   justify-content: center;
@@ -191,7 +190,7 @@ button {
 
 .signup-link a {
   color: #b7765c;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .guest-button {
