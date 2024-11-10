@@ -85,7 +85,10 @@
 import { ref, onMounted, computed } from "vue";
 import { getAuth } from "firebase/auth";
 import { useRouter, RouterLink, useRoute } from "vue-router";
+import { inject } from 'vue';
 
+const isDarkMode = inject('isDarkMode');
+console.log(isDarkMode)
 const auth = getAuth();
 const router = useRouter();
 const route = useRoute();
@@ -96,12 +99,7 @@ const activeIndex = ref(0);
 const hoverIndex = ref(null);
 
 
-const props = defineProps({
-  isDarkMode: {
-    type: Boolean,
-    required: true,
-  },
-});
+
 
 const navItems = ref([
   { path: "/", label: "Home" },

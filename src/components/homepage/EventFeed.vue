@@ -36,8 +36,11 @@
         v-for="event in filteredEvents"
         :key="event.id"
         class="col-md-6 col-lg-4 mb-4"
-      >
-        <Card class="custom-card">
+        >
+        <Card 
+        :class="{'light':!isDarkMode,'dark':isDarkMode}"
+          class="custom-card"
+        >
           <RouterLink
             :to="{ name: 'EventDetail', params: { id: event.id } }"
             class="custom-link"
@@ -102,6 +105,10 @@ import {
 import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { useEventStore } from "@/stores/eventStore";
 import anime from "animejs";
+
+import { inject } from 'vue';
+
+const isDarkMode = inject('isDarkMode');
 
 const filters = ["Popular", "Recently Viewed"];
 const currentFilter = ref("Popular");
@@ -180,44 +187,38 @@ watch(filteredEvents, () => {
 });
 </script>
 
-<style>
-.custom-card {
-  background-color: rgb(255, 255, 255);
-  height: 550px;
-  border-radius: 0px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  opacity: 0; 
-  transform: translateY(50px); 
-}
-
-.custom-card:hover {
-  transform: translateY(-5px); 
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-}
-</style>
 
 <style>
-.custom-card {
+.custom-card.light {
   background-color: rgb(255, 255, 255);
   height: 100%;
   border-radius: 0px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 7px 10px 10px rgba(15, 15, 15, 15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   opacity: 0;
   transform: translateY(50px);
   color:black
 }
+.custom-card.dark {
+  background-color: rgb(0, 0, 0);
+  height: 100%;
+  border-radius: 0px;
+  box-shadow: 7px 10px 10px rgba(240, 240, 240, 240) ;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  transform: translateY(50px);
+  color:rgb(245, 245, 245)
+}
 
 .custom-card:hover {
   transform: translateY(-5px); /* Lift the card on hover */
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); /* Darker shadow on hover */
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.25); /* Darker shadow on hover */
 }
 
 .card {
   transition: transform 0.2s;
   border: none;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: black;
   height: 450px;
 }
 

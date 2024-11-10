@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref,provide, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Navbar from '@/components/Navbar.vue';
@@ -53,6 +53,8 @@ const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
   localStorage.setItem('dark-mode', isDarkMode.value);
 };
+
+provide('isDarkMode', isDarkMode);
 
 // Toggle sidebar visibility
 const toggleSidebar = () => {
