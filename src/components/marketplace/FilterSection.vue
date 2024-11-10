@@ -235,7 +235,7 @@ export default {
 }
 
 :deep(.noUi-connect) {
-  background-color: #2c647c; 
+  background-color: #b7765c; 
 }
 
 :deep(.noUi-handle) {
