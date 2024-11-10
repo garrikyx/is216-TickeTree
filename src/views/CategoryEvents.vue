@@ -34,6 +34,7 @@
           v-for="event in visibleEvents"
           :key="event.id"
           class="col-md-6 col-lg-4 mb-4"
+          
         >
           <Card class="custom-card" :class="isDarkMode ? 'dark' : 'light'">
             <RouterLink
@@ -79,11 +80,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { onMounted, ref } from "vue";
+import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { fetchEvents } from "@/api/eventsApi";
 import { useEventStore } from "@/stores/eventStore";
-
 import { inject } from "vue";
+import anime from 'animejs';
 
 const isDarkMode = inject("isDarkMode");
 
@@ -107,9 +108,28 @@ const visibleEvents = ref([]);
 const categoryName = ref("");
 const loading = ref(true);
 
-const eventStore = useEventStore(); // Access the event store
+const eventStore = useEventStore();
 
-// Fetch events based on the mapped category IDs
+const animateCards = () => {
+    anime({
+    targets: ".col-md-6.col-lg-4.mb-4",
+    translateY: [50, 0],
+    opacity: [0, 1],
+    height: [0,300],
+    duration: 1000,
+    delay: anime.stagger(800),
+    easing: "easeOutExpo",
+  });
+}
+
+
+watch(loading, async (newValue) => {
+  if (!newValue) {
+    await nextTick();
+    animateCards();
+  }
+});
+
 const fetchEventsForCategory = async (categoryIds) => {
   try {
     loading.value = true;
@@ -120,13 +140,10 @@ const fetchEventsForCategory = async (categoryIds) => {
       rows: 20,
     });
 
-    // Update visible events for the category view
     visibleEvents.value = events;
-
-    // Add each fetched event to the store if it's not already there
     events.forEach((event) => {
       eventStore.addEventIfNotExists(event);
-    });
+    });    
   } catch (error) {
     console.error("Error fetching events:", error);
   } finally {
