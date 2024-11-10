@@ -131,14 +131,7 @@ export default {
           easing: "easeOutExpo",
           duration: 1400,
           delay: (el, i) => 300 + 30 * i
-        }).add({
-          targets: '.ml13 .letter',
-          translateY: [0, -100],
-          opacity: [1, 0],
-          easing: "easeInExpo",
-          duration: 1200,
-          delay: (el, i) => 100 + 30 * i
-        });
+        })
     }
   },
   methods: {
