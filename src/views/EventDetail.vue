@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div v-if="loading">
     <span class="back d-flex align-items-center justify-content-center">
       <span>L</span>
@@ -109,6 +110,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>

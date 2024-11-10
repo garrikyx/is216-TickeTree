@@ -7,9 +7,9 @@
       <div class="svg-overlay">
         <svg width="100%" height="100" viewBox="0 0 300 100">
           <path
-          id="flightPath"
-          d="m39,348c1,0 19.00613,0.56482 45,0c23.0163,-0.50012 37.63463,-3.79041 48,-10c18.35866,-10.99817 30.90819,-26.06519 43,-43c12.9024,-18.07007 23.12024,-34.62286 27,-48c2.84067,-9.7944 4.18579,-21.77023 -1,-33c-3.60649,-7.80981 -8,-10 -11,-10c-5,0 -11.22273,0.724 -15,4c-3.20512,2.77979 -6,7 -9,11c-3,4 -5,8 -5,11c0,3 -0.91553,4.14313 0,7c2.62523,8.19196 7.70546,12.34619 10,14c3.62799,2.6149 9.76471,5.57809 19,9c9.78989,3.62738 23.57077,8.87628 45,0c32.30551,-35.55295 64.9147,-71.80737 115,-138c35.24564,-46.58054 55,-68 60,-74l0,0"
-          fill="none"
+            id="flightPath"
+            d="m39,348c1,0 19.00613,0.56482 45,0c23.0163,-0.50012 37.63463,-3.79041 48,-10c18.35866,-10.99817 30.90819,-26.06519 43,-43c12.9024,-18.07007 23.12024,-34.62286 27,-48c2.84067,-9.7944 4.18579,-21.77023 -1,-33c-3.60649,-7.80981 -8,-10 -11,-10c-5,0 -11.22273,0.724 -15,4c-3.20512,2.77979 -6,7 -9,11c-3,4 -5,8 -5,11c0,3 -0.91553,4.14313 0,7c2.62523,8.19196 7.70546,12.34619 10,14c3.62799,2.6149 9.76471,5.57809 19,9c9.78989,3.62738 23.57077,8.87628 45,0c32.30551,-35.55295 64.9147,-71.80737 115,-138c35.24564,-46.58054 55,-68 60,-74l0,0"
+            fill="none"
           />
         </svg>
       </div>
@@ -87,7 +87,17 @@
 <script>
 import axios from "axios";
 import { db } from "../../../firebase";
-import { collection, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  doc,
+  deleteDoc,
+  getDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useCartStore } from "@/stores/cartStore";
 import anime from "animejs";
@@ -103,7 +113,9 @@ export default {
   async created() {
     this.sessionId = this.$route.query.session_id;
 
-    const savedOrderSummary = localStorage.getItem(`orderSummary_${this.sessionId}`);
+    const savedOrderSummary = localStorage.getItem(
+      `orderSummary_${this.sessionId}`
+    );
     if (savedOrderSummary) {
       this.orderSummary = JSON.parse(savedOrderSummary);
       this.isLoading = false;
@@ -112,9 +124,12 @@ export default {
 
     if (this.sessionId) {
       try {
-        const response = await axios.get(`http://localhost:5001/checkout-session`, {
-          params: { session_id: this.sessionId },
-        });
+        const response = await axios.get(
+          `http://localhost:5001/checkout-session`,
+          {
+            params: { session_id: this.sessionId },
+          }
+        );
 
         const session = response.data;
 
@@ -130,11 +145,15 @@ export default {
             quantity: item.quantity,
             customerEmail: session.customer_email || "N/A",
             totalPrice: session.amount_total,
-            imageUrl: item.price.product.metadata.imageUrl || "/images/noimage.png",
+            imageUrl:
+              item.price.product.metadata.imageUrl || "/images/noimage.png",
           };
 
           await this.savePaymentDetails();
-          localStorage.setItem(`orderSummary_${this.sessionId}`, JSON.stringify(this.orderSummary));
+          localStorage.setItem(
+            `orderSummary_${this.sessionId}`,
+            JSON.stringify(this.orderSummary)
+          );
           this.deletePurchasedTickets();
         } else {
           console.error("No line items found in the session data.");
@@ -150,11 +169,11 @@ export default {
     isLoading(value) {
       if (!value && this.orderSummary) {
         this.$nextTick(() => {
-          const flightPath = anime.path("#flightPath"); 
+          const flightPath = anime.path("#flightPath");
           anime({
             targets: this.$refs.paperPlane,
-            translateX: flightPath("x"), 
-            translateY: flightPath("y"), 
+            translateX: flightPath("x"),
+            translateY: flightPath("y"),
             easing: "easeInOutQuad",
             duration: 5000,
             loop: false,
@@ -193,8 +212,28 @@ export default {
       for (const item of cartStore.cartItems) {
         try {
           const ticketDocRef = doc(db, "ticket", String(item.id));
+
+          const ticketSnapshot = await getDoc(ticketDocRef);
+          if (!ticketSnapshot.exists()) {
+            console.error("No ticket document found for ID:", item.id);
+            continue;
+          }
+
+          const ticketData = ticketSnapshot.data();
+          const ticketUserId = ticketData.userId;
+
           await deleteDoc(ticketDocRef);
-          console.log(`Deleted ticket document with ID: ${item.id}`);
+
+          const paymentQuery = query(
+            collection(db, "payment"),
+            where("userId", "==", ticketUserId),
+            where("eventName", "==", item.eventName)
+          );
+
+          const querySnapshot = await getDocs(paymentQuery);
+          querySnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+          });
         } catch (error) {
           console.error("Error deleting ticket document: ", error);
         }
@@ -223,13 +262,13 @@ export default {
 }
 
 .svg-overlay {
-  position: absolute; 
+  position: absolute;
   top: -10px;
   left: -500px;
-  width: 100%; 
-  height: 100%; 
-  pointer-events: none; 
-  z-index: 1; 
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .paper-plane {

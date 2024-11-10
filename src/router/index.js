@@ -49,7 +49,7 @@ const router = createRouter({
     {
       path: "/purchase-history",
       name: "PurchaseHistory",
-      component: () => import("../views/PurhcaseHistory.vue"),
+      component: () => import("../views/PurchaseHistory.vue"),
     },
     {
       path: "/category/:categoryId",

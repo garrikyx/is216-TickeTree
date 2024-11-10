@@ -21,10 +21,12 @@ export const useCartStore = defineStore('cart', () => {
       cartItems.value[itemIndex].quantity += 1;
     } else {
       cartItems.value.push({
+        category: "Entertainment",
         id: event.id,
         eventName: event.name,
         eventDate: event.datetime_summary,
         eventTime: event.time,
+        eventLocation: event.location_summary,
         seatNumber: Math.floor(Math.random() * 100) + 1,
         pricePerItem: event.price || 50.00,
         quantity: 1,
