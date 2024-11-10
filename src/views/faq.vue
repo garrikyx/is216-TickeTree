@@ -1,14 +1,6 @@
 <template>
-  <div class="faq-container container my-5">
-<h1 class="ml5 d-flex justify-content-center mb-5">
-  <span class="text-wrapper">
-    <span class="line line1"></span>
-    <span class="letters letters-left">Frequently</span>
-    <span class="letters ampersand">Asked</span>
-    <span class="letters letters-right">Questions</span>
-    <span class="line line2"></span>
-  </span>
-</h1>
+  <div class="faq-container container my-5 container">
+<h1 class="ml13 text-center">Frequently Asked Questions</h1>
 
     <div class="accordion" id="faqAccordion">
       <div class="faq-item" v-for="(faq, index) in faqs" :key="index">
@@ -124,99 +116,50 @@ export default {
       ]
     };
   },
+    mounted() {
+    // Wrap every letter in a span
+    const textWrapper = document.querySelector('.ml13');
+    if (textWrapper) {
+      textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+
+      anime.timeline()
+        .add({
+          targets: '.ml13 .letter',
+          translateY: [100, 0],
+          translateZ: 0,
+          opacity: [0, 1],
+          easing: "easeOutExpo",
+          duration: 1400,
+          delay: (el, i) => 300 + 30 * i
+        }).add({
+          targets: '.ml13 .letter',
+          translateY: [0, -100],
+          opacity: [1, 0],
+          easing: "easeInExpo",
+          duration: 1200,
+          delay: (el, i) => 100 + 30 * i
+        });
+    }
+  },
   methods: {
     toggleAnswer(index) {
       this.faqs[index].show = !this.faqs[index].show;
     }
-  },
-mounted(){
-anime.timeline({loop: true})
-  .add({
-    targets: '.ml5 .line',
-    opacity: [0.5,1],
-    scaleX: [0, 1],
-    easing: "easeInOutExpo",
-    duration: 700
-  }).add({
-    targets: '.ml5 .line',
-    duration: 600,
-    easing: "easeOutExpo",
-    translateY: (el, i) => (-0.625 + 0.625*2*i) + "em"
-  }).add({
-    targets: '.ml5 .ampersand',
-    opacity: [0,1],
-    scaleY: [0.5, 1],
-    easing: "easeOutExpo",
-    duration: 600,
-    offset: '-=600'
-  }).add({
-    targets: '.ml5 .letters-left',
-    opacity: [0,1],
-    translateX: ["0.5em", 0],
-    easing: "easeOutExpo",
-    duration: 600,
-    offset: '-=300'
-  }).add({
-    targets: '.ml5 .letters-right',
-    opacity: [0,1],
-    translateX: ["-0.5em", 0],
-    easing: "easeOutExpo",
-    duration: 600,
-    offset: '-=600'
-  }).add({
-    targets: '.ml5',
-    opacity: 0,
-    duration: 1000,
-    easing: "easeOutExpo",
-    delay: 2000
-  });
-}
+  }
 };
 </script>
 
 <style scoped>
-.ml5 {
-  position: relative;
-  font-weight: 300;
-  font-size: 4em; /* Adjust this for desired text size */
-  color: #402d2d;
-  text-align: center;
-  margin-bottom: 1.5rem;
+.ml13 {
+  font-size: 1.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+  font-weight: 600;
 }
 
-.ml5 .text-wrapper {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  line-height: 1em;
-}
-
-.ml5 .letters {
+.ml13 .letter {
   display: inline-block;
-  opacity: 0;
-}
-
-.ml5 .letters-left,
-.ml5 .letters-right {
-  padding: 0 0.2em; /* Increase padding to add space between words */
-}
-
-.ml5 .ampersand {
-  font-family: Baskerville, serif;
-  font-style: italic;
-  font-weight: 400;
-  width: auto;
-  font-size: 1.2em; /* Optional: Make "Asked" slightly larger */
-}
-
-.ml5 .line {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  height: 3px;
-  width: 100%;
-  background-color: #402d2d;
-  transform-origin: center;
+  line-height: 1em;
 }
 
 .faq-container {
