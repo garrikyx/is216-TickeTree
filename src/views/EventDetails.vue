@@ -1,4 +1,5 @@
 <template>
+  <div class="event-details-container">
 <div class="poster-section">
     <div
       class="background-layer"
@@ -94,7 +95,7 @@
         </div>
       </div>
     </div>
-
+  </div>
 </template>
 
 <script setup>
