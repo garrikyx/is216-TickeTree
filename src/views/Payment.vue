@@ -1,4 +1,5 @@
 <template>
+<div class="payment-confirmation-container">
   <div class="shopping-cart">
     <div class="title">Payment Confirmation</div>
     <div v-if="cartItems.length === 0" class="empty-cart-message">
@@ -37,6 +38,7 @@
         <button class="checkout-btn" @click="checkout">Proceed to Payment</button>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -100,7 +102,11 @@ export default {
 
 <style scoped>
 
-<style scoped>
+.payment-confirmation-container {
+  padding: 20px;
+  margin: 20px auto; 
+}
+
 .empty-cart-message {
   text-align: center;
   padding: 20px;
@@ -260,7 +266,7 @@ body {
 .checkout-btn {
   width: 220px;
   height: 45px;
-  background-color: #007bff;
+  background-color: #2c685e !important;
   color: #ffffff;
   font-size: 16px;
   font-weight: bold;
@@ -309,6 +315,15 @@ body {
     width: 90px;
     text-align: right;
   }
+
+   .checkout-button-container {
+    justify-content: center;
+  }
+
+  .checkout-btn {
+    width: 80%;
+    max-width: 300px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -339,6 +354,13 @@ body {
 @media (min-width: 992px) {
   .shopping-cart {
     width: 800px;
+  }
+   .checkout-button-container {
+    justify-content: flex-end;
+  }
+
+  .checkout-btn {
+    width: 220px;
   }
 }
 

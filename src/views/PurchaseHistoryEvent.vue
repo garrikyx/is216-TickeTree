@@ -15,7 +15,7 @@
     <!-- Show QR Code Button -->
     <div class="ticket-section">
       <div class="ticket-info">
-        <button class="show-qr-btn" @click="getTicket">Show QR Code</button>
+        <button class="show-qr-btn animate-pulse" @click="getTicket">Show QR Code</button>
       </div>
     </div>
 
@@ -215,7 +215,7 @@ function getTicket() {
 }
 
 .show-qr-btn {
-  background-color: #4caf50;
+  background-color: #2c685e !important;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -318,5 +318,9 @@ function getTicket() {
   font-size: 1.2rem;
   color: #666;
   margin-top: 50px;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
 }
 </style>
