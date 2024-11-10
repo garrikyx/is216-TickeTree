@@ -1,15 +1,11 @@
 <template>
   <nav
     class="navbar navbar-expand-md custom-navbar"
-    :class="{'navbar-white': !isDarkMode, 'navbar-dark': isDarkMode}"
+    :class="{ 'navbar-white': !isDarkMode, 'navbar-dark': isDarkMode }"
   >
     <div class="container-fluid">
       <!-- Left Section with Logo -->
-      <RouterLink
-        class="navbar-brand d-flex align-items-center me-auto"
-        to="/"
-        style="z-index: 2"
-      >
+      <RouterLink class="navbar-brand d-flex me-auto" to="/">
         <div class="shape">
           <img src="../assets/logo.png" alt="Logo" style="width: 50px" />
           <span class="brand-text">TickeTree</span>
@@ -30,7 +26,11 @@
       </button>
 
       <!-- Collapsible Center Section with Navigation Items and Right Section -->
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div
+        class="collapse navbar-collapse"
+        id="navbarNav"
+        :class="{ light: !isDarkMode, dark: isDarkMode }"
+      >
         <!-- Center Navigation Items -->
         <ul class="navbar-nav mx-auto d-flex justify-content-center">
           <div class="nav-background" :style="backgroundStyle"></div>
@@ -55,6 +55,7 @@
         <div class="d-flex align-items-center ms-auto">
           <!-- Dark Mode Toggle Icon -->
           <div
+          class="ms-auto"
             :class="['dark-mode-icon', { dark: isDarkMode }]"
             @click="$emit('toggleDarkMode')"
           >
@@ -93,6 +94,7 @@ const loading = ref(true);
 const navContainer = ref(null);
 const activeIndex = ref(0);
 const hoverIndex = ref(null);
+
 
 const props = defineProps({
   isDarkMode: {
@@ -152,8 +154,8 @@ const goToLogin = () => {
 </script>
 
 <style scoped>
-.navbar-toggler-icon {
-  color-scheme: red;
+.navbar {
+  padding: 0;
 }
 
 .custom-navbar {
@@ -265,7 +267,31 @@ const goToLogin = () => {
 }
 
 .navbar-nav {
-  flex-direction: column;
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .collapsing.light {
+    background: #e8d0c6;
+  }
+  .collapsing.dark {
+    background-color: black;
+  }
+  .navbar-nav {
+    width: 100%;
+  }
+
+  .navbar-collapse {
+    border-radius: 10px;
+  }
+  .navbar-collapse.collapse.show.light {
+    background: #e8d0c6;
+  }
+  .navbar-collapse.collapse.show.dark {
+    background-color: black;
+  }
+  .d-flex.align-items-center.ms-auto{
+    padding: 10px 10px 10px 0px;
+  }
 }
 </style>
