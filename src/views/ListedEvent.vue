@@ -82,6 +82,13 @@ export default {
 </script>
   
   <style scoped>
+  .btn-success {
+    background-color: #2c685e !important;
+  }
+
+  .dark-mode .h5 {
+    color: white;
+  }
   .poster-img {
     max-height: 400px;
     border-radius: 10px;
