@@ -209,7 +209,7 @@ export default {
 }
 
 .badge {
-  background-color: #9c565c !important; /* Customize with your preferred color */
+  background-color: #b7765c !important; /* Customize with your preferred color */
   color: white !important;
   margin-left: 0.5em;
   display: inline-flex;
@@ -221,8 +221,9 @@ export default {
   margin-left: 0.5em;
 }
 .btn-secondary {
-  background-color: #9c565c !important;
-  border: #9c565c;
+  background-color: #b7765c !important;
+  color: white !important;
+  border: #b7765c;
 }
 
 :deep(.noUi-target) {

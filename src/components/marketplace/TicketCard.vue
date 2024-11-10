@@ -32,9 +32,17 @@
   </script>
   
   <style scoped>
+  .text-success {
+    color: #2c685e !important;
+  }
+
   .card {
     height: 100%;
     margin: 10px; 
+  }
+
+  .dark-mode .card {
+    background-color: #f1e6e2;
   }
   
   .event-image {
@@ -44,8 +52,8 @@
   }
 
   .btn-primary {
-    background-color: #2c647c;
-    border: #2c647c;
+    background-color: #2c685e;
+    border: #2c685e;
   }
   </style>
   

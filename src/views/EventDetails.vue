@@ -215,6 +215,14 @@ hr.custom-hr {
   animation: pulse 1.5s infinite;
 }
 
+.btn-success {
+  background-color: #2c685e !important;
+}
+
+.text-success {
+  color: #2c685e !important;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

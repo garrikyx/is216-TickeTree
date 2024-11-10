@@ -200,7 +200,7 @@ watch(filteredEvents, () => {
 <style>
 .custom-card {
   background-color: rgb(255, 255, 255);
-  height: 550px;
+  height: 100%;
   border-radius: 0px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -272,9 +272,19 @@ watch(filteredEvents, () => {
   font-family: Arial, sans-serif;
 }
 
+.btn-outline-primary {
+  color: #b7765c !important;
+  border: #f5e8e3 solid 0.5px !important;
+}
+
+.btn-outline-primary:hover{
+  background-color: #b9806a37 !important;
+}
+
 .btn-outline-primary.active {
-  background-color: var(--bs-primary);
-  color: white;
+  background-color: #b7765c !important;
+  color: white !important;
+  border: #b7765c;
 }
 
 .custom-link {

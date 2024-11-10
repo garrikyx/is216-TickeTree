@@ -174,7 +174,7 @@ export default {
 }
 
 .card-header {
-  background-color: #2c647c;
+  background-color: #5b6175;
   color: #fff;
   cursor: pointer;
   padding: 1rem 1.5rem;
@@ -185,12 +185,16 @@ export default {
 }
 
 .card-header:hover {
-  background-color: #2c647c;
+  background-color: #5b6175ed;
 }
 
 .card-body {
   background-color: #f1f1f1;
   padding: 1.5rem;
+}
+
+.dark-mode .card-body{
+  background-color: #f1e6e2;
 }
 
 .faq-item {

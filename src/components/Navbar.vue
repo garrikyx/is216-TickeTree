@@ -139,7 +139,7 @@ const goToLogin = () => {
 
 <style scoped>
 .custom-navbar {
-  background: #6d161d;
+  background: #e8d0c6;
   height: 60px;
   width: 100%;
 }
@@ -149,7 +149,7 @@ const goToLogin = () => {
 }
 
 .brand-text {
-  color: white;
+  color: #b7765c;
   font-weight: 600;
   font-size: 1.3rem;
   margin-left: 1rem;
@@ -169,7 +169,7 @@ const goToLogin = () => {
 
 .nav-link {
   font-size: 16px;
-  color: white;
+  color:#b7765c;
   font-weight: 600;
   padding: 20px;
   display: flex;
@@ -179,20 +179,20 @@ const goToLogin = () => {
 }
 
 .nav-link:hover {
-  color: #ffffff !important;
+  color: #b7765c !important;
   background-color: rgba(255, 255, 255, 0.2);
 }
 
 .nav-link.active {
-  color: #ffffff !important;
-  background-color: #490000;
+  color: #efded7 !important;
+  background-color: #b7765c;
 }
 
 .user-info-wrapper {
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.377);
   transition: all 0.2s ease;
 }
 
@@ -206,7 +206,7 @@ const goToLogin = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: #b7765c;
 }
 
 .dark-mode-icon {
@@ -215,7 +215,7 @@ const goToLogin = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #ccc;
+  border: 2px solid #b7765c;
   border-radius: 8px;
   cursor: pointer;
   margin-right: 1rem;
@@ -224,16 +224,16 @@ const goToLogin = () => {
 
 .dark-mode-icon i {
   font-size: 20px;
-  color: wheat;
+  color: #b7765c;
 }
 
 .dark-mode-icon.dark i {
-  color: white;
+  color: #b7765c;
 }
 
 .login-btn {
-  background-color: #fadcb8;
-  color: #b87333;
+  background-color: #b7765c;
+  color: #efded7;
   font-weight: 500;
   padding: 0.5rem 1.5rem;
   border: none;
@@ -241,7 +241,7 @@ const goToLogin = () => {
 }
 
 .login-btn:hover {
-  background-color: #ffffff;
+  background-color: #efded78f;
   transform: translateY(-1px);
 }
   .navbar-nav {
