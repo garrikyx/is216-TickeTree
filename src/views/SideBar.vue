@@ -206,7 +206,7 @@ ul li.active i {
 
 .logout-btn {
   margin-top: 20px;
-  background-color: #6c757d;
+  background-color: #b7765c;
   color: white;
   border: none;
   padding: 10px;
@@ -284,7 +284,7 @@ ul li.active i {
 }
 
 .fas {
-  color: gray;
+  color: #b7765c;
 }
 
 .dark-icon {
