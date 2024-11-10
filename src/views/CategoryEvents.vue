@@ -1,15 +1,25 @@
 <template>
-  <div>
+  <div class="container-fluid">
+    <!-- Loading Spinner -->
     <div v-if="loading" class="text-center">
-      <p>Loading events...</p>
+      <span class="back d-flex align-items-center justify-content-center">
+        <span>L</span>
+        <span>o</span>
+        <span>a</span>
+        <span>d</span>
+        <span>i</span>
+        <span>n</span>
+        <span>g</span>
+      </span>
     </div>
 
     <div v-else>
-      <!-- No events found -->
+      <!-- No Events Found -->
       <div v-if="visibleEvents.length === 0" class="text-center">
         <p>No events found for this category.</p>
       </div>
 
+      <!-- Category Title and Description -->
       <div id="category-events" class="container mt-4">
         <div class="row mt-4">
           <div class="col text-center mb-4">
@@ -19,41 +29,53 @@
         </div>
       </div>
 
-        <div class="row text-center mx-4">
-          <router-link
-            v-for="event in visibleEvents"
-            :key="event.id"
-            :to="{ name: 'EventDetail', params: { id: event.id } }"
-            class="col-md-4 mb-4"
-            style="text-decoration: none; color: inherit;"
-          >
-            <div class="card h-100">
+      <!-- Event Cards -->
+      <div class="row mx-5">
+        <router-link
+          v-for="event in visibleEvents"
+          :key="event.id"
+          :to="{ name: 'EventDetail', params: { id: event.id } }"
+          class="col-md-6 col-lg-4 mb-4 custom-link"
+        >
+          <Card class="custom-card" :class="isDarkMode ? 'dark' : 'light'">
+            <div class="image-container">
               <img
                 :src="event.images?.images?.[0]?.original_url || '/images/noimage.png'"
                 class="card-img-top"
                 :alt="event.name"
               />
-              <div class="card-body">
-                <p class="fw-bold text-start mb-0">
-                  <span class="fs-4">{{ event.datetime_summary }}</span>
-                </p>
-                <h5 class="card-title text-start">{{ event.name }}</h5>
-                <p class="card-text text-start">
-                  {{ event.location_summary }}<br />
-                </p>
+              <div class="overlay">
+                <span>{{ event.datetime_summary }}</span>
               </div>
             </div>
-          </router-link>
-        </div>
+            <CardHeader class="p-2">
+              <CardTitle>{{ event.name }}</CardTitle>
+            </CardHeader>
+            <CardContent class="px-2 mb-3">
+              <p class="card-text">
+                📍{{ event.location_summary }}
+              </p>
+            </CardContent>
+            <CardFooter></CardFooter>
+          </Card>
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { inject, nextTick, onMounted, ref } from 'vue';
 import { fetchEvents } from '@/api/eventsApi';
 import { useEventStore } from '@/stores/eventStore';
+import CardHeader from '@/components/ui/card/CardHeader.vue';
+import Card from '@/components/ui/card/Card.vue';
+import CardTitle from '@/components/ui/card/CardTitle.vue';
+import CardContent from '@/components/ui/card/CardContent.vue';
+import CardFooter from '@/components/ui/card/CardFooter.vue';
+import anime from 'animejs';
 
+const isDarkMode = inject('isDarkMode');
 const categoryMapping = {
   1: [190, 6],
   2: [7],
@@ -73,6 +95,7 @@ const props = defineProps(["categoryId"]);
 const visibleEvents = ref([]);
 const categoryName = ref("");
 const loading = ref(true);
+
 
 const eventStore = useEventStore(); // Access the event store
 
@@ -101,10 +124,22 @@ const fetchEventsForCategory = async (categoryIds) => {
   }
 };
 
+const animateCards = () => {
+  anime({
+    targets: ".custom-card",
+    translateY: [50, 0],
+    delay: anime.stagger(100),
+    easing: "easeOutExpo",
+  });
+};
+
 onMounted(() => {
   const apiCategoryIds = categoryMapping[props.categoryId] || [];
   categoryName.value = categoryNames[props.categoryId];
   fetchEventsForCategory(apiCategoryIds);
+  nextTick(() => {
+    animateCards();
+  });
 });
 </script>
 
@@ -125,4 +160,169 @@ onMounted(() => {
   height: 250px;
   object-fit: cover;
 }
+
+.back {
+  margin: 1em auto;
+  font-family: "Roboto";
+  height: 100vh;
+}
+.back span {
+  font-size: 3em;
+  color: #ffd5b4;
+  background: #262b37;
+  display: table-cell;
+  box-shadow: inset 0 0 5px rgba(38, 38, 38, 0.3), 0 5px 0 #000000;
+  padding: 0 15px;
+  line-height: 100px;
+  animation: jumb 2s infinite;
+  border-radius: 10px;
+}
+@keyframes jumb {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-30px);
+    box-shadow: 0 15px 0 rgb(92, 44, 0);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+.back span:nth-child(1) {
+  animation-delay: 0s;
+}
+.back span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.back span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.back span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.back span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.back span:nth-child(6) {
+  animation-delay: 0.5s;
+}
+.back span:nth-child(7) {
+  animation-delay: 0.6s;
+}
+
+.custom-card.light {
+  background-color: rgb(255, 255, 255);
+  height: 100%;
+  border-radius: 0px;
+  box-shadow: 7px 10px 10px rgba(15, 15, 15, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: translateY(50px);
+  color: black;
+}
+
+.custom-card.dark {
+  background-color: rgb(0, 0, 0);
+  height: 100%;
+  border-radius: 0px;
+  box-shadow: 7px 10px 10px rgba(240, 240, 240, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: translateY(50px);
+  color: rgb(245, 245, 245);
+}
+
+.animate-in {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 1;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.25);
+}
+
+.image-container {
+  position: relative;
+}
+
+.card-img-top {
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+  background-color: #ffffff;
+  border-radius: 0px;
+}
+
+/* Responsive Image Height */
+@media (max-width: 768px) {
+  .card-img-top {
+    height: 150px;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-img-top {
+    height: 120px;
+  }
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+  color: #ffffffdd;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  font-family: Arial, sans-serif;
+}
+
+.btn-outline-primary {
+  color: #b7765c !important;
+  border: #b7765c solid 0.5px !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: #b9806a37 !important;
+}
+
+.btn-outline-primary.active {
+  background-color: #b7765c !important;
+  color: white !important;
+}
+
+.custom-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.custom-link:hover {
+  text-decoration: none;
+}
+
+.placeholder-box {
+  margin: auto;
+  height: 550px;
+  font-size: 1rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 </style>
