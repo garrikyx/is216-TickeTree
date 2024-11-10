@@ -274,7 +274,7 @@ watch(filteredEvents, () => {
 
 .btn-outline-primary {
   color: #b7765c !important;
-  border: #f5e8e3 solid 0.5px !important;
+  border: #b7765c solid 0.5px !important;
 }
 
 .btn-outline-primary:hover{
