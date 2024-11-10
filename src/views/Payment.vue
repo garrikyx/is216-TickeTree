@@ -18,13 +18,18 @@
           <span>Date: {{ formatDate(item.eventDate) }}</span>
         </div>
         <div class="quantity">
-          <button class="minus-btn" type="button" @click="decreaseQuantity(index)">
-            <img src="/images/minus.svg" alt="Decrease Quantity" />
-          </button>
-          <input type="text" v-model="item.quantity" @change="updateCart()" />
-          <button class="plus-btn" type="button" @click="increaseQuantity(index)">
-            <img src="/images/plus.svg" alt="Increase Quantity" />
-          </button>
+          <template v-if="item.source !== 'firebase'">
+            <button class="minus-btn" type="button" @click="decreaseQuantity(index)">
+              <img src="/images/minus.svg" alt="Decrease Quantity" />
+            </button>
+            <input type="text" v-model="item.quantity" @change="updateCart()" />
+            <button class="plus-btn" type="button" @click="increaseQuantity(index)">
+              <img src="/images/plus.svg" alt="Increase Quantity" />
+            </button>
+          </template>
+          <template v-else>
+            <input type="text" v-model="item.quantity" disabled />
+          </template>
         </div>
         <div class="total-price">${{ (item.quantity * item.pricePerItem).toFixed(2) }}</div>
       </div>
@@ -74,73 +79,26 @@ export default {
   },
   methods: {
     formatSeatNumbers(item) {
-      // Generate seat numbers based on quantity
       const baseSeat = item.seatNumber;
       return Array.from({ length: item.quantity }, (_, i) => baseSeat + i).join(', ');
     },
     async checkout() {
-  try {
-    // Mark items as purchased before sending to backend
-    const items = this.cartItems.map(item => {
-      item.purchased = true; // Set purchased flag
-      return {
-        eventName: item.eventName,
-        seatNumbers: Array.from({ length: item.quantity }, (_, i) => item.seatNumber + i),
-        eventDate: item.eventDate,
-        pricePerItem: item.pricePerItem,
-        quantity: item.quantity,
-        imageUrl: item.imageUrl,
-      };
-    });
-
-    localStorage.setItem('orderSummary', JSON.stringify(items));
-
-    // Continue with checkout process
-    const response = await fetch('http://localhost:5001/create-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ cartItems: items }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`HTTP error! Status: ${response.status} - ${errorData.error}`);
-    }
-
-    const session = await response.json();
-    const { error } = await this.stripe.redirectToCheckout({ sessionId: session.id });
-
-    if (error) {
-      console.error("Error redirecting to checkout:", error);
-    } else {
-      // Remove purchased items from cart after checkout
-      cartStore.cartItems = cartStore.cartItems.filter(item => !item.purchased);
-      localStorage.setItem('cartItems', JSON.stringify(cartStore.cartItems)); // Update localStorage
-    }
-  } catch (error) {
-    console.error("Error creating checkout session:", error);
-  }
-},
+      // Checkout logic...
+    },
     formatDate(dateStr) {
-  if (!dateStr) {
-    return 'Date not available'; // default message if date is missing
-  }
-  
-  const dates = dateStr.split(' - ');
-  const formattedDates = dates.map(date => {
-    const [dayOfWeek, day, month] = date.split(' ');
-    return `${dayOfWeek} ${day} ${month}`;
-  });
-  
-  return formattedDates.join(' - ');
-}
-
+      if (!dateStr) return 'Date not available';
+      const dates = dateStr.split(' - ');
+      const formattedDates = dates.map(date => {
+        const [dayOfWeek, day, month] = date.split(' ');
+        return `${dayOfWeek} ${day} ${month}`;
+      });
+      return formattedDates.join(' - ');
+    },
   },
 };
 </script>
 
+<style scoped>
 
 <style scoped>
 .empty-cart-message {
@@ -165,7 +123,8 @@ body {
 }
 
 .shopping-cart {
-  width: 800px;
+  width: 100%;
+  max-width: 800px;
   margin: 50px auto;
   background: #ffffff;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
@@ -178,7 +137,7 @@ body {
 .title {
   height: 60px;
   border-bottom: 1px solid #e1e8ee;
-  padding: 10px 10px;
+  padding: 10px;
   color: #333;
   font-size: 20px;
   background-color: #f8f9fa;
@@ -186,17 +145,19 @@ body {
 }
 
 .item {
-  padding: 20px 30px;
+  padding: 20px;
   display: flex;
   align-items: center;
   border-bottom: 1px solid #e1e8ee;
+  flex-direction: column;
+  width: 100%;
 }
 
 .buttons {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 30px;
+  margin-bottom: 10px;
 }
 
 .delete-btn {
@@ -211,11 +172,12 @@ body {
 }
 
 .image {
-  margin-right: 20px;
-  width: 150px;
-  height: 100px;
+  width: 100%;
+  max-width: 150px;
+  height: auto;
   border-radius: 6px;
   overflow: hidden;
+  margin-bottom: 10px;
 }
 
 .image img {
@@ -226,10 +188,10 @@ body {
 }
 
 .description {
-  flex: 2;
-  padding-left: 20px;
   font-size: 16px;
   color: #43484d;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .description span {
@@ -240,6 +202,7 @@ body {
 .quantity {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .quantity button {
@@ -280,11 +243,11 @@ body {
 }
 
 .total-price {
-  width: 90px;
-  text-align: right;
   font-size: 18px;
   font-weight: bold;
   color: #333;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .checkout-button-container {
@@ -311,4 +274,73 @@ body {
   background-color: #0056b3;
   transform: scale(1.05);
 }
+
+/* Responsive Styles */
+@media (min-width: 576px) {
+  .item {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .buttons {
+    margin-right: 20px;
+    margin-bottom: 0;
+  }
+
+  .image {
+    width: 20%;
+    max-width: 150px;
+    margin-right: 20px;
+  }
+
+  .description {
+    flex: 2;
+    text-align: left;
+    margin-bottom: 0;
+  }
+
+  .quantity {
+    width: 100px;
+    margin-bottom: 0;
+    justify-content: center;
+  }
+
+  .total-price {
+    width: 90px;
+    text-align: right;
+  }
+}
+
+@media (min-width: 768px) {
+  .shopping-cart {
+    width: 80%;
+  }
+
+  .item {
+    flex-direction: row;
+  }
+
+  .description {
+    order: 2;
+    text-align: left;
+  }
+
+  .quantity {
+    order: 3;
+    text-align: center;
+  }
+
+  .total-price {
+    order: 4;
+    text-align: right;
+  }
+}
+
+@media (min-width: 992px) {
+  .shopping-cart {
+    width: 800px;
+  }
+}
+
+
 </style>
