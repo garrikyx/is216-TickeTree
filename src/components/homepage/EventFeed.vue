@@ -25,20 +25,20 @@
     </div>
 
     <div
-    v-if="filteredEvents.length === 0 && currentFilter === 'Recently Viewed'"
-    class="col-md-6 col-lg-4 mb-4 placeholder-box"
+      v-if="filteredEvents.length === 0 && currentFilter === 'Recently Viewed'"
+      class="col-md-6 col-lg-4 mb-4 placeholder-box"
     >
-    No events have been recently viewed
-  </div>
+      No events have been recently viewed
+    </div>
     <!-- New Card -->
     <div v-else class="row mx-5">
       <div
-      v-for="event in filteredEvents"
-      :key="event.id"
-      class="col-md-6 col-lg-4 mb-4"
+        v-for="event in filteredEvents"
+        :key="event.id"
+        class="col-md-6 col-lg-4 mb-4"
       >
-<Card class="custom-card" :class="isDarkMode ? 'dark' : 'light'">
-        <RouterLink
+        <Card class="custom-card" :class="isDarkMode ? 'dark' : 'light'">
+          <RouterLink
             :to="{ name: 'EventDetail', params: { id: event.id } }"
             class="custom-link"
           >
@@ -103,9 +103,9 @@ import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { useEventStore } from "@/stores/eventStore";
 import anime from "animejs";
 
-import { inject } from 'vue';
+import { inject } from "vue";
 
-const isDarkMode = inject('isDarkMode');
+const isDarkMode = inject("isDarkMode");
 
 const filters = ["Popular", "Recently Viewed"];
 const currentFilter = ref("Popular");
@@ -190,37 +190,28 @@ watch(filteredEvents, () => {
   background-color: rgb(255, 255, 255);
   height: 100%;
   border-radius: 0px;
-  box-shadow: 7px 10px 10px rgba(15, 15, 15, 15);
+  box-shadow: 3px 5px 10px rgba(15, 15, 15, 15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  opacity: 0;
   transform: translateY(50px);
-  color:black
+  color: black;
 }
 .custom-card.dark {
   background-color: rgb(0, 0, 0);
   height: 100%;
   border-radius: 0px;
-  box-shadow: 7px 10px 10px rgba(240, 240, 240, 240) ;
+  box-shadow: 3px 5px 10px rgba(240, 240, 240, 240);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  opacity: 0;
   transform: translateY(50px);
-  color:rgb(245, 245, 245)
+  color: rgb(245, 245, 245);
 }
 
-.custom-card:hover {
-  transform: translateY(-5px); /* Lift the card on hover */
-  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.25); /* Darker shadow on hover */
+.custom-card.light:hover {
+  box-shadow: 7px 11px 20px rgba(15, 15, 15, 15); /* Hard shadow */
+  transform: translateY(-10px); /* Lift the card on hover */
 }
-
-.card {
-  transition: transform 0.2s;
-  border: none;
-  box-shadow: black;
-  height: 450px;
-}
-
-.card:hover {
-  transform: translateY(-5px);
+.custom-card.dark:hover {
+  transform: translateY(-10px); /* Lift the card on hover */
+  box-shadow: 7px 11px 20px rgb(255, 255, 255); /* Hard shadow */
 }
 
 .image-container {
@@ -275,7 +266,7 @@ watch(filteredEvents, () => {
   border: #b7765c solid 0.5px !important;
 }
 
-.btn-outline-primary:hover{
+.btn-outline-primary:hover {
   background-color: #b9806a37 !important;
 }
 
@@ -297,7 +288,7 @@ watch(filteredEvents, () => {
 
 .placeholder-box {
   margin: auto;
-  height: 550px; 
+  height: 550px;
   font-size: 1rem;
   text-align: center;
   display: flex;
