@@ -81,6 +81,18 @@ const router = createRouter({
       component: () => import("@/views/ListedEvent.vue"),
       props: true,
     },
+    {
+      path: "/profile",
+      name: "profile",
+      component: () => import("@/views/Profile.vue"),
+      props: true,
+    },
+    {
+      path: "/settings",
+      name: "settings",
+      component: () => import("@/views/Setting.vue"),
+      props: true,
+    },
   ],
   scrollBehavior(to,from,savedPosition) {
     return savedPosition || { top: 0}; // Default scroll behavior
