@@ -1,72 +1,100 @@
 <template>
-  <div>
-    <!-- Poster Section -->
+<div class="poster-section">
     <div
-      class="blurred-background container-fluid  d-flex justify-content-center align-items-center"
-      :style="{ backgroundImage: `url(${event?.images?.images[0]?.original_url || '/images/noimage.png'})` }"
-    >
-      <div class="poster">
-        <img
-          :src="event?.images?.images[0]?.original_url || '/images/noimage.png'"
-          class="img-fluid shadow-lg rounded poster-img"
-          alt="Event Poster"
-        />
-      </div>
+      class="background-layer"
+      :style="{
+        backgroundImage: `url(${event?.images?.images[0]?.original_url || '/images/noimage.png'})`
+      }"
+    ></div>
+
+    <div class="poster d-flex justify-content-center align-items-center">
+      <img
+        :src="event?.images?.images[0]?.original_url || '/images/noimage.png'"
+        class="img-fluid shadow-lg rounded poster-img"
+        alt="Event Poster"
+      />
     </div>
-    <hr class="custom-hr" />
+    <hr class="custom-hr" /> 
+  </div>
 
-    <div class="container justify-content-center align-items-start gap-4 mt-4">
-  <div class="card w-100">
-    <!-- Event Details -->
-    <div class="container mt-4 text-center event-details">
-      <h2 class="event-title">{{ event?.name || "Event Title" }}</h2>
-      <div class="d-block justify-content-center gap-5 text-muted">
-        <p class="h5"><i class="fa fa-calendar"></i> {{ event?.datetime_summary || "November 30, 2024" }}</p>
-        <p class="h5"><i class="fa fa-clock-o" ></i> {{ event?.time || "6:00 PM" }}</p>
-        <p class="h5"><i class="fa fa-map-marker"></i> {{ event?.location_summary }}</p>
-      </div>
-    </div>
 
-    <div class="card-body d-flex justify-content-between align-items-start">
-      <!-- About Section -->
-      <div class="about-section p-3">
-        <h5>About:</h5>
-        <p>{{ event?.description || "Detailed event description goes here." }}</p>
-      </div>
+    <div class="container justify-content-center  gap-4 mb-4">
+      <div class="card w-100">
+        <!-- Event Details -->
+        <div class="container mt-4 text-center event-details">
+          <h2 class="event-title">{{ event?.name || "Event Title" }}</h2>
+          <div class="d-block justify-content-center gap-5 text-muted">
+            <p class="h5">
+              <i class="fa fa-calendar"></i>
+              {{ event?.datetime_summary || "November 30, 2024" }}
+            </p>
+            <p class="h5">
+              <i class="fa fa-clock"></i> {{ event?.time || "6:00 PM" }}
+            </p>
+            <p class="h5">
+              <i class="fa fa-map-marker"></i> {{ event?.location_summary }}
+            </p>
+          </div>
+        </div>
 
-      <!-- Price Section -->
-      <div class="price-section text-center p-3">
-        <h4 class="text-success">Price: {{ event?.price || "$50.00" }}</h4>
-        <button @click="handleTicketPurchase" class="btn btn-success btn-lg animate-pulse">Get Tickets</button>
-        <div class="marketplace mt-3">
-          <router-link to="/marketplace">
-            <button class="btn btn-outline-primary btn-lg">See Resale Price</button>
-          </router-link>
+        <div class="card-body d-flex row">
+          <!-- About Section -->
+          <div class="about-section col-8 p-3">
+            <h5>About:</h5>
+            <p>
+              {{
+                event?.description || "Detailed event description goes here."
+              }}
+            </p>
+          </div>
+
+          <!-- Price Section -->
+          <div class="price-section col-4 text-center p-3">
+            <h4 class="text-success">Price: {{ event?.price || "$50.00" }}</h4>
+            <button
+              @click="handleTicketPurchase"
+              class="btn btn-success btn-lg animate-pulse"
+            >
+              Get Tickets
+            </button>
+            <div class="marketplace mt-3">
+              <router-link to="/marketplace">
+                <button class="btn btn-outline-primary btn-lg">
+                  See Resale Price
+                </button>
+              </router-link>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Error Modal -->
+        <div v-if="showModal" class="modal-overlay">
+          <div class="modal-content animate-fade-in">
+            <h5>Login Required</h5>
+            <p class="text-muted">{{ errorMessage }}</p>
+            <div class="modal-actions">
+              <button @click="closeModal" class="btn btn-primary">
+                Go to Login
+              </button>
+              <button @click="showModal = false" class="btn btn-close">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Location Map Section -->
+        <div class="container m-4 location-map col-12">
+          <h5>Location:</h5>
+          <div
+          id="map"
+          class="rounded shadow"
+          style="width: 96%; height: 300px"
+          ></div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-    <!-- Error Modal -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content animate-fade-in">
-        <h5>Login Required</h5>
-        <p class="text-muted">{{ errorMessage }}</p>
-        <div class="modal-actions">
-          <button @click="closeModal" class="btn btn-primary">Go to Login</button>
-          <button @click="showModal = false" class="btn btn-close">Close</button>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Location Map Section -->
-    <div class="container mt-4 mb-4 location-map">
-      <h5>Location:</h5>
-      <div id="map" class="rounded shadow" style="width: 100%; height: 300px"></div>
-    </div>
-  </div>
 </template>
 
 <script setup>
@@ -111,9 +139,13 @@ function loadGoogleMaps() {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   // Check if the Google Maps script is already loaded
-  if (document.querySelector(`script[src*="maps.googleapis.com/maps/api/js?key=${apiKey}"]`)) {
+  if (
+    document.querySelector(
+      `script[src*="maps.googleapis.com/maps/api/js?key=${apiKey}"]`
+    )
+  ) {
     if (!googleMapsLoaded.value) {
-      initMap();  
+      initMap();
     }
     return;
   }
@@ -126,7 +158,6 @@ function loadGoogleMaps() {
   document.head.appendChild(script);
   googleMapsLoaded.value = true;
 }
-
 
 async function initMap() {
   const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
@@ -141,7 +172,7 @@ async function initMap() {
 
   const marker = new AdvancedMarkerElement({
     map,
-    position: location
+    position: location,
   });
 }
 
@@ -172,24 +203,76 @@ function addToCart() {
 
 <style scoped>
 /* General Styling */
-* {
-  box-sizing: border-box;
-  transition: all 0.3s ease;
+
+
+.poster-section {
+  position: relative;
+  overflow: hidden;
+  height: 500px; 
 }
 
-.card {
-  background-color: whitesmoke;
+/* Background Layer with Blur and Overlay */
+.background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80%; 
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px);
+  -webkit-filter: blur(5px); 
+  z-index: 1; 
+  background-color: rgba(0, 0, 0, 0.4); 
+  mix-blend-mode: darken;
 }
 
-hr.custom-hr {
-  border: 1px solid #ddd;
-  width: 80%;
+.poster {
+  position: relative;
+  z-index: 2; 
 }
 
 .poster-img {
   max-height: 400px;
+  height: fit-content;
   border-radius: 10px;
-  transition: transform 0.5s;
+}
+
+.custom-hr {
+  border: 1px solid #ddd;
+  width: 80%;
+  margin: 20px auto;
+}
+
+@media (max-width: 575px) {
+  .poster-section {
+    height: 40vh; /* Full viewport height */
+  }
+
+  .background-layer {
+    height: 100%;
+    filter: blur(0); 
+    background-size: cover; 
+    background-position: center;
+  }
+  .poster {
+    display: none;
+  }
+
+  .poster-img {
+    display: none;
+  }
+}
+
+.card {
+  background-color: whitesmoke;
+  border-radius: 10px;
+}
+
+.card-body {
+  margin: auto;
+  width: 100%;
 }
 
 .event-title {
@@ -199,7 +282,7 @@ hr.custom-hr {
 }
 
 .about-section {
-  width: 500px;
+  margin: auto;
 }
 
 .text-muted {
@@ -260,6 +343,7 @@ hr.custom-hr {
 /* Map Section */
 .location-map {
   margin-top: 1.5rem;
+  margin: auto;
 }
 
 #map {
@@ -280,7 +364,8 @@ hr.custom-hr {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
