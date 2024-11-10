@@ -22,9 +22,8 @@
 
 
 <script setup>
-import Loading from "@/components/homepage/loading.vue";
+import Loading from "@/components/EventDetail/loading.vue"
 </script>
-
 <style scoped>
 main {
   min-height: 40vh;
