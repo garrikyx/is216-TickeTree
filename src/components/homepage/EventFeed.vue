@@ -185,7 +185,7 @@ watch(filteredEvents, () => {
 </script>
 
 
-<style>
+<style scoped>
 .custom-card.light {
   background-color: rgb(255, 255, 255);
   height: 100%;
