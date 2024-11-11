@@ -1,29 +1,76 @@
-# wad2-ticketing-app
+# TickeTree
 
-This template should help get you started developing with Vue 3 in Vite.
+View our deployed website using Vercel [here](https://wad2-project-g5t7-2024.vercel.app/)
 
-## Recommended IDE Setup
+<div align="center">
+  <a href="https://github.com/garrikyx/is216-TickeTree">
+    <img src="./src/assets/logo.png" alt="Logo" width="80" height="80">
+  </a>
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+  <h3 align="center">TickeTree</h3>
+  <p align="center">
+    In this project, we aim to build a web-based application designed to combat ticketing scams and scalping in Singapore’s event industry.
+    <br />
+    </p>
+</div>
 
-## Customize configuration
+## About The Project
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### Built With
+
+- [Vue.js](https://vuejs.org/)
 
 ## Project Setup
 
+### Prerequisites
+
+Check that you have Node.js and npm installed by running the following commands:
+
 ```sh
-npm install
+node -v
+npm -v
+```
+To download the latest version of npm, on the command line, run the following command:
+
+
+```sh
+npm install -g npm
 ```
 
-### Compile and Hot-Reload for Development
+### Installation
+
+1. Clone the project
+
+
+```sh
+git clone https://github.com/garrikyx/is216-TickeTree.git
+```
+
+2. Create a .env file from the .env.example
+
+
+3. Install dependencies
+
+```sh
+npm ci
+```
+
+## Launch Backend Server
+
+```sh
+node server.js
+```
+
+## Launch Development Environment
 
 ```sh
 npm run dev
 ```
 
-### Compile and Minify for Production
 
-```sh
-npm run build
-```
+## Acknowledgments
+- [Garrison Koh](https://github.com/garrikyx)
+- [Daniel Widjaja](https://github.com/Danwidj)
+- [Panhchaknut Tou](https://github.com/Panhchaknut11)
+- [Lim Yixuan](https://github.com/yixuanyxx)
+- [Ryan Chua](https://github.com/ryannchuaa)
