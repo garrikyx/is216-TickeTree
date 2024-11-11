@@ -86,15 +86,15 @@
           <h5>Login Required</h5>
           <p class="text-muted">{{ errorMessage }}</p>
           <div class="modal-actions">
-            <button @click="closeModal" class="btn login-btn">
+            <button @click="closeModal" class="btn btn-primary">
               Go to Login
             </button>
             <button @click="showModal = false" class="btn btn-close">
+              Close
             </button>
           </div>
         </div>
       </div>
-
 
       <!-- Location Map Section -->
       <div
@@ -195,12 +195,12 @@ onMounted(async () => {
   if (event.value && event.value.location?.point) {
     loadGoogleMaps();
   }
-  anime({
-    targets: ".poster-section",
-    scale: [0.9, 1],
+    anime({
+    targets: ".poster-img",
+    scale: [0.1, 1],
     opacity: [0, 1],
     easing: "easeOutExpo",
-    duration: 1500,
+    duration: 3000,
   });
 
   anime({
@@ -208,8 +208,7 @@ onMounted(async () => {
     scale: [0.95, 1],
     opacity: [0, 1],
     easing: "easeOutExpo",
-    duration: 1500,
-    delay: 1000,
+    duration: 5000,
   });
 
   anime({
@@ -218,8 +217,8 @@ onMounted(async () => {
     translateY: [20, 0],
     opacity: [0, 1],
     easing: "easeOutExpo",
-    duration: 10000,
-    delay: anime.stagger(200, { start: 1200 }),
+    duration: 6000,
+    delay: anime.stagger(200, { start: 300 }),
   });
 });
 
@@ -356,17 +355,10 @@ function openDirections(mode) {
   }
 
   .background-layer {
-    height: 100%;
-    filter: blur(0);
-    background-size: cover;
-    background-position: center;
+    display:none
   }
-  .poster {
-    display: none;
-  }
-
   .poster-img {
-    display: none;
+    height: 40vh;
   }
 }
 
@@ -401,7 +393,7 @@ function openDirections(mode) {
 }
 
 .text-muted {
-  font-size: 1em;
+  font-size: 0.9em;
   color: #6c757d !important;
 }
 
@@ -421,64 +413,38 @@ function openDirections(mode) {
   color: #2c685e !important;
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* High z-index to appear on top */
+  z-index: 1000;
 }
 
-/* Modal Content Styling */
 .modal-content {
-  background-color: white;
-  padding: 20px;
+  background-color: #fff;
+  padding: 25px;
   border-radius: 8px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-  width: 50%;
-  max-width: 500px;
-  position: relative;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
+  animation: fade-in 0.5s;
 }
 
-/* Responsive Modal Width */
-@media (max-width: 768px) {
-  .modal-content {
-    width: 90%; /* Full width for smaller screens */
-  }
-}
-
-/* Close Button Styling */
-.modal-content .btn-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: transparent;
-  border: none;
-  font-size: 0.8rem;
-  cursor: pointer;
-  color: #666;
-  margin-right: 10px;
-}
-
-.modal-content .btn-close:hover {
-  color: #333;
-}
-
-/* Modal Actions */
 .modal-actions button {
   margin-top: 10px;
 }
 
-.login-btn {
-  color: white;
-  background-color: #b7765c;
+.modal-content .btn-close {
+  background-color: #ccc;
+}
+
+.modal-content .btn-close:hover {
+  background-color: #bbb;
 }
 
 /* Map Section */
@@ -503,7 +469,7 @@ function openDirections(mode) {
     transform: scale(1);
   }
 }
-
+*/
 @keyframes pulse {
   0%,
   100% {
@@ -512,7 +478,7 @@ function openDirections(mode) {
   50% {
     transform: scale(1.05);
   }
-} */
+}
 
  .back {
   margin: 1em auto;
@@ -567,14 +533,9 @@ function openDirections(mode) {
   animation-delay: 0.7s;
 }
 
-.how-to-get-there h5{
+.how-to-get-there {
   margin-top: 2rem;
   text-align: center;
-
-}
-
-.dark h5{
-  color: white;
 }
 
 .transport-options {
