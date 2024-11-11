@@ -6,11 +6,22 @@
       <form @submit.prevent="signin">
         <div class="form-group">
           <label for="email"><i class="fas fa-envelope"></i></label>
-          <input type="email" v-model="email" placeholder="Email Address" required />
+          <input 
+            type="email" 
+            v-model="email" 
+            placeholder="Email Address" 
+            required 
+            @input="validateEmail"
+          />
         </div>
         <div class="form-group">
           <label for="password"><i class="fas fa-lock"></i></label>
-          <input type="password" v-model="password" placeholder="Password" required />
+          <input 
+            type="password" 
+            v-model="password" 
+            placeholder="Password" 
+            required 
+          />
         </div>
         <button type="submit">Log In</button>
         <button class="guest-button" @click="continueAsGuest">Continue as Guest</button>
@@ -38,6 +49,15 @@ export default {
     const errorMessage = ref('');
     const router = useRouter();
 
+    const validateEmail = () => {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email.value)) {
+        errorMessage.value = "Please enter a valid email address.";
+      } else {
+        errorMessage.value = "";
+      }
+    };
+
     const signin = async () => {
       const auth = getAuth();
       try {
@@ -53,7 +73,7 @@ export default {
         // Retrieve stored temporary user information
         const tempUserInfo = localStorage.getItem('tempUserInfo');
         if (tempUserInfo) {
-          const { userId, name, email, mobile, password, createdAt } = JSON.parse(tempUserInfo);
+          const { userId, name, email, mobile, createdAt } = JSON.parse(tempUserInfo);
 
           // Add user to Firestore
           const userDocRef = doc(db, 'users', userId);
@@ -62,7 +82,6 @@ export default {
             name: name,
             email: email,
             mobile: mobile,
-            password: password, // Save password (ensure it's securely stored)
             createdAt: createdAt,
           });
 
@@ -75,19 +94,21 @@ export default {
         console.log("Successful sign in");
         router.push("/");
       } catch (error) {
-        console.error("Login error:", error);
         switch (error.code) {
           case "auth/invalid-email":
-            errorMessage.value = "Invalid email";
+            errorMessage.value = "Invalid email format.";
+            break;
+          case "auth/invalid-credential":
+            errorMessage.value = "Invalid email or password.";
             break;
           case "auth/user-not-found":
-            errorMessage.value = "No account with that email was found";
+            errorMessage.value = "No account with that email was found.";
             break;
           case "auth/wrong-password":
-            errorMessage.value = "Incorrect password";
+            errorMessage.value = "Incorrect password.";
             break;
           default:
-            errorMessage.value =  "An error occurred. Please try again.";
+            errorMessage.value = "An error occurred. Please try again.";
         }
       }
     };
@@ -102,6 +123,7 @@ export default {
       errorMessage,
       signin,
       continueAsGuest,
+      validateEmail,
     };
   }
 };
