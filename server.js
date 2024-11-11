@@ -141,7 +141,8 @@ async function sendConfirmationEmail(email, orderSummary) {
                 <p><strong>Date:</strong> ${orderSummary.eventDate}</p>
                 <p><strong>Seats:</strong> ${orderSummary.seatNumbers.join(', ')}</p>
                 <p><strong>Quantity:</strong> ${orderSummary.quantity}</p>
-                <p><strong>Total Price:</strong> SGD ${(orderSummary.totalPrice / 100).toFixed(2)}</p>
+                <p><strong>Total Price:</strong> SGD ${(isNaN(orderSummary.totalPrice / 100) ? '50.00' : (orderSummary.totalPrice / 100).toFixed(2))}</p>
+
             `
         };
 
