@@ -1,76 +1,48 @@
 <template>
-  <div id="app" v-if="event">
-    <!-- Main Event Details Section -->
-    <div class="event-details">
-      <!-- Poster and Event Info Section -->
-      <div class="poster-section">
-        <img :src="event?.imageUrl" class="poster-img" alt="Event Poster" @error="handleImageError" />
-        
-        <!-- Event Description Section -->
-        <div class="event-info">
-          <h1 class="event-title"><strong>{{ event.eventName }}</strong></h1>
+  <!-- Wrap the entire content in a transition -->
+  <transition name="fade" mode="out-in">
+    <div v-if="event" id="app">
+      <!-- Main Event Details Section -->
+      <div class="event-details">
+        <!-- Poster and Event Info Section -->
+        <div class="poster-section">
+          <img :src="event?.imageUrl" class="poster-img" alt="Event Poster" @error="handleImageError" />
 
-          <div class="d-block justify-content-center gap-5 text-muted">
-          <!-- Ticket ID with Icon -->
-          <p class="h5">
-            <i class="fas fa-ticket-alt"></i>     {{ orderId }}
-          </p>
+          <!-- Event Description Section -->
+          <div class="event-info">
+            <h1 class="event-title"><strong>{{ event.eventName }}</strong></h1>
 
-          <!-- Event Date with Icon -->
-          <p class="h5">
-            <i class="fas fa-calendar-alt"></i>   {{ formattedDate }}
-          </p>
+            <div class="d-block justify-content-center gap-5 text-muted">
+              <!-- Ticket ID with Icon -->
+              <p class="h5">
+                <i class="fas fa-ticket-alt"></i>     {{ orderId }}
+              </p>
 
-          <!-- Seat Number with Icon -->
-          <p class="h5">
-            <i class="fas fa-chair"></i>     {{ event.seat.join(', ') }}
-          </p>
+              <!-- Event Date with Icon -->
+              <p class="h5">
+                <i class="fas fa-calendar-alt"></i>   {{ formattedDate }}
+              </p>
+
+              <!-- Seat Number with Icon -->
+              <p class="h5">
+                <i class="fas fa-chair"></i>     {{ event.seat.join(', ') }}
+              </p>
+            </div>
+
+            <!-- Show QR Code Button -->
+            <button class="show-qr-btn animate-pulse" @click="getTicket">Show QR Code</button>
           </div>
-
-          <!-- Show QR Code Button -->
-          <button class="show-qr-btn animate-pulse" @click="getTicket">Show QR Code</button>
         </div>
       </div>
     </div>
 
-    <!-- Digital Ticket Modal -->
-    <transition name="fade">
-      <div v-if="showTicket" class="modal-overlay" @click.self="showTicket = false">
-        <div class="digital-ticket">
-          <div class="ticket-header">
-            <button class="close-btn" @click="showTicket = false">×</button>
-            <h3 class="ticket-title">TickeTree</h3>
-          </div>
-          <div class="ticket-content">
-            <h1 class="standard-ticket">{{ event?.eventName }}</h1>
-            <div class="seat-info">
-              <div class="seat-detail">
-                <span class="label">SEC</span><br />
-                <span class="value">{{ event.ticket.section }}</span>
-              </div>
-              <div class="seat-detail">
-                <span class="label">ROW</span><br />
-                <span class="value">{{ event.ticket.row }}</span>
-              </div>
-            </div>
-            <br />
-            <p v-if="message" class="unavailable-message">{{ message }}</p>
-            <template v-else-if="qrCode">
-              <img :src="qrCode" alt="QR Code" class="qr-code" />
-              <p class="expiration-message">
-                This ticket refreshes every 10 minutes for security
-              </p>
-            </template>
-          </div>
-        </div>
-      </div>
-    </transition>
-  </div>
-
+  <!-- Loading message when event is not available -->
   <div v-else>
     <p class="loading-message">Loading event details...</p>
   </div>
+  </transition>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted, defineProps, onUnmounted } from 'vue';
@@ -213,14 +185,42 @@ function getTicket() {
 
 <style scoped>
 /* General Styles */
+
+/* Transition Fade-In */
+/* Fade-in transition for the entire app */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 1s ease-out;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
+
+
+.fade-enter-active #app {
+  transform: scale(1);
+}
+
+body, html {
+  height: 100%;
+  margin: 0;
+}
+
 #app {
+  transform: scale(0.98);
+  transition: transform 0.5s ease-out;
   font-family: 'Arial', sans-serif;
   color: #333;
   margin: 0;
   padding: 0;
   background-color: #f9eae6;
-  min-height: 100vh;
   padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  margin-top: auto; /* Pushes the footer to the bottom */
 }
 
 /* Event Details Container */
