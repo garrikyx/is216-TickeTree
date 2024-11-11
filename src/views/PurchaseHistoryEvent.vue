@@ -34,6 +34,38 @@
           </div>
         </div>
       </div>
+      <!-- Digital Ticket Modal -->
+    <transition name="fade">
+      <div v-if="showTicket" class="modal-overlay" @click.self="showTicket = false">
+        <div class="digital-ticket">
+          <div class="ticket-header">
+            <button class="close-btn" @click="showTicket = false">×</button>
+            <h3 class="ticket-title">TickeTree</h3>
+          </div>
+          <div class="ticket-content">
+            <h1 class="standard-ticket">{{ event?.eventName }}</h1>
+            <div class="seat-info">
+              <div class="seat-detail">
+                <span class="label">SEC</span><br />
+                <span class="value">{{ event.ticket.section }}</span>
+              </div>
+              <div class="seat-detail">
+                <span class="label">ROW</span><br />
+                <span class="value">{{ event.ticket.row }}</span>
+              </div>
+            </div>
+            <br />
+            <p v-if="message" class="unavailable-message">{{ message }}</p>
+            <template v-else-if="qrCode">
+              <img :src="qrCode" alt="QR Code" class="qr-code" />
+              <p class="expiration-message">
+                This ticket refreshes every 10 minutes for security
+              </p>
+            </template>
+          </div>
+        </div>
+      </div>
+    </transition>
     </div>
 
   <!-- Loading message when event is not available -->
