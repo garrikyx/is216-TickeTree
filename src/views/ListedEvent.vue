@@ -59,6 +59,17 @@
         </div>
       </div>
 
+       <!-- Error Modal -->
+      <div v-if="showModal" class="modal-overlay">
+        <div class="modal-content animate-fade-in">
+          <h5>Login Required</h5>
+          <p class="text-muted">{{ errorMessage }}</p>
+          <div class="modal-actions">
+            <button @click="closeModal" class="btn login-btn">Go to Login</button>
+            <button @click="showModal = false" class="btn btn-close"></button>
+          </div>
+        </div>
+      </div>
 
       <!-- Price History Chart Section -->
       <div class="container price-history col-12" v-if="event">
