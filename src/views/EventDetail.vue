@@ -541,9 +541,14 @@ function openDirections(mode) {
   animation-delay: 0.7s;
 }
 
-.how-to-get-there {
+.how-to-get-there h5{
   margin-top: 2rem;
   text-align: center;
+
+}
+
+.dark h5{
+  color: white;
 }
 
 .transport-options {

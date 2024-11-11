@@ -1,4 +1,4 @@
-<template>
+ <template>
   <nav
     class="navbar navbar-expand-md custom-navbar"
     :class="{ 'navbar-white': !isDarkMode, 'navbar-dark': isDarkMode }"
@@ -139,6 +139,11 @@ onMounted(() => {
 
 const handleClick = (index) => {
   activeIndex.value = index;
+
+  const navbarToggler = document.querySelector('.navbar-toggler');
+  if (navbarToggler && window.getComputedStyle(navbarToggler).display !== 'none' && !navbarToggler.classList.contains('collapsed')) {
+    navbarToggler.click();
+  }
 };
 
 const handleHover = (index) => {
