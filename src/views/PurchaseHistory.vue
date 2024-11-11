@@ -375,10 +375,11 @@ h1 {
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  color: #b7765c;
 }
 
 .nav-pills .nav-link.active {
-  background-color: #007bff;
+  background-color: #b7765c;
   color: white;
 }
 

@@ -140,7 +140,7 @@ onMounted(() => {
 
 .user-icon {
   font-size: 36px;
-  color: #007bff;
+  color: #b7765c;
   margin-right: 15px;
 }
 
@@ -180,7 +180,7 @@ ul li:hover {
 }
 
 ul li.active {
-  background-color: #007bff;
+  background-color: #b7765c;
   color: white;
 }
 
@@ -252,7 +252,7 @@ ul li.active i {
 }
 
 #toggle:checked {
-  background-color: #007bff;
+  background-color: #b7765c;
 }
 
 #toggle::before {
