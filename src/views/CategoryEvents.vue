@@ -60,8 +60,8 @@
                 <CardTitle>{{ event.name }}</CardTitle>
               </CardHeader>
               <CardContent class="px-2 mb-3">
-                <p class="card-text">📍{{ event.location_summary }}</p>
-              </CardContent>
+              <div>📍{{ event.location_summary }}</div>
+            </CardContent>
               <CardFooter></CardFooter>
             </RouterLink>
           </Card>
@@ -112,12 +112,10 @@ const eventStore = useEventStore();
 
 const animateCards = () => {
     anime({
-    targets: ".col-md-6.col-lg-4.mb-4",
+    targets: ".custom-card",
     translateY: [50, 0],
     opacity: [0, 1],
-    height: [0,300],
-    duration: 1000,
-    delay: anime.stagger(800),
+    delay: anime.stagger(500),
     easing: "easeOutExpo",
   });
 }
@@ -163,12 +161,11 @@ onMounted(() => {
 .custom-card.light {
   background-color: rgb(255, 255, 255);
   height: 100%;
-  border-radius: 8px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  color: black;
-  margin-bottom: 20px; /* Space between cards */
+  border-radius: 0px;
   box-shadow: 3px 5px 10px rgba(15, 15, 15, 15); /* Soft shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   transform: translateY(10px);
+  color: black;
 }
 .custom-card.dark {
   background-color: rgb(0, 0, 0);
@@ -189,7 +186,6 @@ onMounted(() => {
   box-shadow: 7px 11px 20px rgb(255, 255, 255); /* Hard shadow */
 }
 .custom-link {
-  position: relative;
   display: block;
   color: inherit;
   text-decoration: none;
@@ -199,9 +195,17 @@ onMounted(() => {
   text-decoration: none;
 }
 
+.image-container {
+  position: relative;
+}
+
 .card-img-top {
   height: 250px;
+  width: 100%;
   object-fit: cover;
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 0px;
 }
 
 /* Adjust height for smaller screens */
