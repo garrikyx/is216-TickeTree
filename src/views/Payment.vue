@@ -173,6 +173,7 @@ export default {
   padding: 20px;
   margin: 20px auto;
   position: relative;
+  width: 100%;
 }
 
 .discard-mode-toggle {
@@ -190,6 +191,32 @@ export default {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 1315px) {
+  .discard-mode-toggle {
+    right: auto;
+    left: 20px;
+    top: -20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .payment-confirmation-container {
+    padding: 30px 10px 20px;
+  }
+
+  .discard-mode-toggle {
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+    top: -15px;
+    left: 10px;
+  }
+
+  .trash-bin {
+    margin-top: 30px;
+  }
 }
 
 .discard-mode-toggle:hover {
