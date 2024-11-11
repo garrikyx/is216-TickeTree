@@ -19,11 +19,6 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.static(path.resolve('dist')));
 
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
-fetch(`${apiUrl}/api/your-endpoint`)
-    .then(response => response.json())
-    .then(data => console.log(data));
-
 // API endpoint for fetching events
 app.get('/api/events', async (req, res) => {
     try {
