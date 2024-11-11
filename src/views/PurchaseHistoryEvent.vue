@@ -334,8 +334,13 @@ function getTicket() {
 }
 
 .unavailable-message {
-  color: red;
-  text-align: center;
+   text-align: center;
+  color: #ad3939;
+  font-size: 14px;
+  margin-top: 16px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
 
 .qr-code {
