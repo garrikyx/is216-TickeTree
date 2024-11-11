@@ -193,6 +193,11 @@ button {
   text-decoration: none;
 }
 
+.signup-link a:hover {
+  text-decoration: underline;
+  color: #1a5bb8;
+}
+
 .guest-button {
   margin-top: 10px;
   padding: 10px;

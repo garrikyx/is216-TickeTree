@@ -233,7 +233,7 @@ export default {
 button {
   width: 100%;
   padding: 10px;
-  background-color: #007bff;
+  background-color: #b7765c;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -260,13 +260,13 @@ button:hover:not(:disabled) {
 .login-link {
   margin-top: 15px;
   font-size: 14px;
-  color: #2575fc;
+  color: black;
   font-weight: bold;
   text-decoration: none;
 }
 
 .login-link a {
-  color: #007bff;
+  color: #b7765c;
   text-decoration: none;
 }
 
