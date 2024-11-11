@@ -15,12 +15,5 @@
             "source": "/(.*)", 
             "destination": "/backend" 
         } 
-    ],
-    "routes": [
-        { 
-            "src": "/[^.]+", 
-            "dest": "/", 
-            "status": 200 
-        }
     ]
 }
