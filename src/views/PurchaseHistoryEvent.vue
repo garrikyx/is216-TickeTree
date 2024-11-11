@@ -1,21 +1,35 @@
 <template>
   <div id="app" v-if="event">
-    <!-- Poster and Event Info Section -->
-    <div class="poster-section">
-      <img :src="event?.imageUrl" class="poster-img" alt="Event Poster" @error="handleImageError" />
-      <div class="event-info">
-        <h1 class="event-title"><strong>{{ event.eventName }}</strong></h1>
-        <p class="order-id">Ticket ID: {{ orderId }}</p>
-        <p class="event-date">Date: {{ formattedDate }}</p>
-        <p class="event-location">{{ event.location }}</p>
-        <p class="seat-number">Seat: {{ event.seat.join(', ') }}</p>
-      </div>
-    </div>
+    <!-- Main Event Details Section -->
+    <div class="event-details">
+      <!-- Poster and Event Info Section -->
+      <div class="poster-section">
+        <img :src="event?.imageUrl" class="poster-img" alt="Event Poster" @error="handleImageError" />
+        
+        <!-- Event Description Section -->
+        <div class="event-info">
+          <h1 class="event-title"><strong>{{ event.eventName }}</strong></h1>
 
-    <!-- Show QR Code Button -->
-    <div class="ticket-section">
-      <div class="ticket-info">
-        <button class="show-qr-btn animate-pulse" @click="getTicket">Show QR Code</button>
+          <div class="d-block justify-content-center gap-5 text-muted">
+          <!-- Ticket ID with Icon -->
+          <p class="h5">
+            <i class="fas fa-ticket-alt"></i>     {{ orderId }}
+          </p>
+
+          <!-- Event Date with Icon -->
+          <p class="h5">
+            <i class="fas fa-calendar-alt"></i>   {{ formattedDate }}
+          </p>
+
+          <!-- Seat Number with Icon -->
+          <p class="h5">
+            <i class="fas fa-chair"></i>     {{ event.seat.join(', ') }}
+          </p>
+          </div>
+
+          <!-- Show QR Code Button -->
+          <button class="show-qr-btn animate-pulse" @click="getTicket">Show QR Code</button>
+        </div>
       </div>
     </div>
 
@@ -42,15 +56,15 @@
             <br />
             <p v-if="message" class="unavailable-message">{{ message }}</p>
             <template v-else-if="qrCode">
-          <img :src="qrCode" alt="QR Code" class="qr-code" />
-          <p class="expiration-message">
-            This ticket refreshes every 10 minutes for security
-          </p>
-        </template>
+              <img :src="qrCode" alt="QR Code" class="qr-code" />
+              <p class="expiration-message">
+                This ticket refreshes every 10 minutes for security
+              </p>
+            </template>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</transition>
+    </transition>
   </div>
 
   <div v-else>
@@ -178,7 +192,7 @@ async function updateQRCode() {
   try {
     qrCode.value = await QRCode.toDataURL(JSON.stringify(qrData), {
       width: 200,
-      errorCorrectionLevel: 'H' // Highest error correction level
+      errorCorrectionLevel: 'H'
     });
     message.value = '';
   } catch (err) {
@@ -204,60 +218,187 @@ function getTicket() {
   color: #333;
   margin: 0;
   padding: 0;
+  background-color: #f9eae6;
+  min-height: 100vh;
+  padding-bottom: 20px;
+}
+
+/* Event Details Container */
+.event-details {
+  display: flex;
+  justify-content: center;
+  padding: 50px;
 }
 
 /* Poster Section */
 .poster-section {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #f8f8f8;
-  padding: 20px;
+  flex-direction: row;
+  gap: 20px;
+  background-color: #ffffff;
+  padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  width: 80%;
+  max-width: 900px;
 }
 
+/* Responsive Layout Adjustments */
+@media (max-width: 768px) { /* Medium devices */
+  .poster-section {
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+  }
+  
+  .poster-img {
+    width: 70%;
+    margin-bottom: 20px;
+  }
+
+  .event-title {
+    font-size: 24px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) { /* Small devices */
+  .poster-section {
+    width: 100%;
+    padding: 16px;
+  }
+  
+  .poster-img {
+    width: 100%;
+  }
+
+  .event-title {
+    font-size: 22px;
+  }
+  
+  .event-details-item {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 400px) { /* Extra small devices */
+  .poster-section {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .event-info {
+    gap: 10px;
+  }
+
+  .event-title {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .show-qr-btn {
+    font-size: 16px;
+    padding: 6px 10px;
+  }
+
+  .event-details-item {
+    font-size: 14px;
+  }
+
+  .event-details-item i {
+    font-size: 18px;
+  }
+}
+
+.text-muted {
+  font-size: 0.8em;
+  color: #6c757d !important;
+}
+
+.event-info .d-block {
+  display: block;
+  justify-content: center;
+  gap: 15px;  /* Increase the gap between each icon/description pair */
+}
+
+.event-info .d-block p {
+  margin-bottom: 15px;  /* Add margin between each <p> tag */
+}
+
+.event-info .d-block i {
+  margin-right: 8px;  /* Increase the space between icon and text */
+}
+
+/* Iconized Information Styling */
+.event-details-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.event-details-item i {
+  font-size: 20px;
+  color: #8c5a53;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+/* Image Styling */
 .poster-img {
-  width: 100%;
-  max-width: 800px;
+  width: 45%;
   border-radius: 12px;
   object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.event-title {
-  margin-bottom: 15px;
-}
-
+/* Event Info Section */
 .event-info {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 18px;
-}
-
-/* Ticket Section */
-.ticket-section {
-  margin-top: 20px;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  gap: 16px;
 }
 
+/* Event Title */
+.event-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+/* Button */
 .show-qr-btn {
+  align-self: flex-start;
   background-color: #2c685e !important;
   color: white;
   border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s;
 }
 
 .show-qr-btn:hover {
-  background-color: #45a049;
+  background-color: #7a5046;
+}
+
+.animate-pulse {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 /* Modal Styles */
@@ -333,16 +474,6 @@ function getTicket() {
   font-weight: bold;
 }
 
-.unavailable-message {
-   text-align: center;
-  color: #ad3939;
-  font-size: 14px;
-  margin-top: 16px;
-  padding: 8px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-}
-
 .qr-code {
   display: block;
   margin: 0 auto;
@@ -357,11 +488,17 @@ function getTicket() {
   margin-top: 50px;
 }
 
-.animate-pulse {
-  animation: pulse 1.5s infinite;
+.expiration-message {
+  text-align: center;
+  color: #ad3939;
+  font-size: 14px;
+  margin-top: 16px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
 
-.expiration-message {
+.unavailable-message {
   text-align: center;
   color: #ad3939;
   font-size: 14px;
