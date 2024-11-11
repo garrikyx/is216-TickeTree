@@ -108,9 +108,55 @@
           style="width: 96%; height: 300px"
         ></div>
       </div>
-    </div>
+
+    <div class="how-to-get-there mt-4">
+          <h5>How to Get There:</h5>
+          <div class="transport-options d-flex justify-content-center gap-4 mt-3">
+            <a 
+              @click="openDirections('driving')"
+              class="transport-option"
+              title="Drive there"
+            >
+              <div class="transport-icon">
+                <i class="fa fa-car"></i>
+              </div>
+              <span>Drive</span>
+            </a>
+            <a 
+              @click="openDirections('transit')"
+              class="transport-option"
+              title="Public transit"
+            >
+              <div class="transport-icon">
+                <i class="fa fa-bus"></i>
+              </div>
+              <span>Transit</span>
+            </a>
+            <a 
+              @click="openDirections('walking')"
+              class="transport-option"
+              title="Walk there"
+            >
+              <div class="transport-icon">
+                <i class="fa fa-walking"></i>
+              </div>
+              <span>Walk</span>
+            </a>
+            <a 
+              @click="openDirections('bicycling')"
+              class="transport-option"
+              title="Cycle there"
+            >
+              <div class="transport-icon">
+                <i class="fa fa-bicycle"></i>
+              </div>
+              <span>Cycle</span>
+            </a>
+          </div>
+          </div>
+        </div>
+      </div>
   </div>
-</div>
 </template>
 
 <script setup>
@@ -168,7 +214,7 @@ onMounted(async () => {
 
   anime({
     targets:
-      ".event-title, .event-details p, .about-section,.price-section,.location-map",
+      ".event-title, .event-details p, .about-section,.price-section,.location-map,.how-to-get-there",
     translateY: [20, 0],
     opacity: [0, 1],
     easing: "easeOutExpo",
@@ -243,6 +289,21 @@ function addToCart() {
   if (event.value) {
     cartStore.addEventToCart(event.value);
   }
+}
+
+function openDirections(mode) {
+  if (!event.value?.location?.point) return;
+  
+  // Get destination coordinates
+  const { lat, lng } = event.value.location.point;
+  
+  // Construct Google Maps directions URL
+  const baseUrl = 'https://www.google.com/maps/dir/?api=1';
+  const destination = `${lat},${lng}`;
+  const transportMode = mode;
+  
+  // Open in new tab
+  window.open(`${baseUrl}&destination=${destination}&travelmode=${transportMode}`, '_blank');
 }
 </script>
 
@@ -475,5 +536,54 @@ function addToCart() {
 }
 .back span:nth-child(7) {
   animation-delay: 0.6s;
+}
+.back span:nth-child(8) {
+  animation-delay: 0.7s;
+}
+
+.how-to-get-there {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.transport-options {
+  padding: 1rem 0;
+}
+
+.transport-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #2c685e;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.transport-option:hover {
+  transform: translateY(-2px);
+}
+
+.transport-icon {
+  width: 48px;
+  height: 48px;
+  background-color: #e8f5f3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.transport-icon i {
+  font-size: 1.5rem;
+}
+
+.dark .transport-option {
+  color: #4fd1ba;
+}
+
+.dark .transport-icon {
+  background-color: #1a3d37;
 }
 </style>
