@@ -67,11 +67,6 @@ node server.js
 npm run dev
 ```
 
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
 
 ## Acknowledgments
 - [Garrison Koh](https://github.com/garrikyx)
