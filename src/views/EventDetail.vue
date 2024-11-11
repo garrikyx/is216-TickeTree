@@ -68,7 +68,7 @@
             @click="handleTicketPurchase"
             class="btn btn-success btn-lg animate-pulse"
           >
-            Get Tickets
+            Buy Ticket
           </button>
           <div class="marketplace mt-3">
             <router-link to="/marketplace">
