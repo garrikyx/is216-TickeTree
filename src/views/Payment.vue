@@ -1,15 +1,27 @@
 <template>
 <div class="payment-confirmation-container">
-  <div class="shopping-cart">
+    <div class="discard-mode-toggle" @click="toggleDiscardMode">
+      <i :class="['fas', 'fa-trash', discardMode ? 'active' : '']"></i>
+    </div>
+
+    <!-- Trash Bin Area for Drag and Drop -->
+    <div
+      v-if="discardMode"
+      class="trash-bin"
+      @dragover.prevent
+      @drop="handleDrop"
+    >
+      Drop here to delete
+    </div>
+  <div class="shopping-cart" :class="{ 'discard-mode-active': discardMode }">
     <div class="title">Payment Confirmation</div>
     <div v-if="cartItems.length === 0" class="empty-cart-message">
       <p>No items added in the cart</p>
     </div>
     <div v-else>
-      <div v-for="(item, index) in cartItems" :key="index" class="item">
-        <div class="buttons">
-          <i class="fas fa-times delete-btn" @click="deleteItem(index)"></i>
-        </div>
+      <div v-for="(item, index) in cartItems" :key="index" class="item" draggable="true"
+          @dragstart="startDrag(index)"
+          :class="{ 'discard-mode': discardMode }">
         <div class="image">
           <img :src="item.imageUrl" width="150px" height="100px" alt="Event Image" />
         </div>
@@ -45,16 +57,30 @@
 <script>
 import { loadStripe } from '@stripe/stripe-js';
 import { useCartStore } from "@/stores/cartStore";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 export default {
   setup() {
     const cartStore = useCartStore();
     const cartItems = computed(() => cartStore.cartItems);
+    const discardMode = ref(false);
+    const draggedItemIndex = ref(null);
 
-    const updateCart = () => {
-      cartStore.saveCartItems();
+    const toggleDiscardMode = () => {
+      discardMode.value = !discardMode.value;
     };
+
+    const startDrag = (index) => {
+      draggedItemIndex.value = index;
+    };
+
+    const handleDrop = () => {
+      if (draggedItemIndex.value !== null) {
+        cartStore.deleteItem(draggedItemIndex.value);
+        draggedItemIndex.value = null;
+      }
+    };
+
 
     const deleteItem = (index) => {
       cartStore.deleteItem(index);
@@ -62,7 +88,7 @@ export default {
 
     const increaseQuantity = (index) => {
       cartStore.cartItems[index].quantity += 1;
-      updateCart();
+
     };
 
     const decreaseQuantity = (index) => {
@@ -71,10 +97,9 @@ export default {
       } else {
         deleteItem(index);
       }
-      updateCart();
     };
 
-    return { cartItems, deleteItem, increaseQuantity, decreaseQuantity, updateCart };
+    return { cartItems, deleteItem, increaseQuantity, decreaseQuantity, toggleDiscardMode, startDrag, handleDrop, discardMode};
   },
   async mounted() {
     this.stripe = await loadStripe('pk_test_51QAsReGgLeDXJUjvDrRwiHI6nisUuA7gSQw3AlX2UBqzlc4vPhbGCQCjcNiDel8pBfks9UhZGZXlO0jkvuNx1roP00zHKPl3aR');
@@ -146,7 +171,51 @@ export default {
 
 .payment-confirmation-container {
   padding: 20px;
-  margin: 20px auto; 
+  margin: 20px auto;
+  position: relative;
+}
+
+.discard-mode-toggle {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  color: #ff5252;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.discard-mode-toggle .active {
+  color: #d32f2f;
+}
+
+.trash-bin {
+  width: 100%;
+  max-width: 800px;
+  height: 60px;
+  margin: 20px auto;
+  background-color: #ffebee;
+  border: 2px dashed #f44336;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d32f2f;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.shopping-cart.discard-mode-active .item {
+  opacity: 0.8;
+  cursor: grab;
+}
+
+.item.discard-mode {
+  border: 2px dashed #f44336;
+}
+
+.item.discard-mode-active:active {
+  cursor: grabbing;
 }
 
 .empty-cart-message {
@@ -199,24 +268,6 @@ body {
   border-bottom: 1px solid #e1e8ee;
   flex-direction: column;
   width: 100%;
-}
-
-.buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.delete-btn {
-  font-size: 20px;
-  color: #C8C8C8; 
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-.delete-btn:hover {
-  transform: scale(1.2);
 }
 
 .image {
