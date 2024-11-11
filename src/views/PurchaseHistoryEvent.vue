@@ -245,7 +245,6 @@ body, html {
   color: #333;
   margin: 0;
   padding: 0;
-  background-color: #f9eae6;
   padding-bottom: 20px;
   display: flex;
   flex-direction: column;
