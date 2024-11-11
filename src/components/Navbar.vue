@@ -7,7 +7,7 @@
       <!-- Left Section with Logo -->
       <RouterLink class="navbar-brand d-flex me-auto" to="/">
         <div class="shape">
-          <img src="/images/logo.png" alt="Logo" style="width: 50px" />
+          <img src="../assets/logo.png" alt="Logo" style="width: 50px" />
           <span class="brand-text">TickeTree</span>
         </div>
       </RouterLink>
