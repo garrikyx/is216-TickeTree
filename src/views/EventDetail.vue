@@ -86,11 +86,10 @@
           <h5>Login Required</h5>
           <p class="text-muted">{{ errorMessage }}</p>
           <div class="modal-actions">
-            <button @click="closeModal" class="btn btn-primary">
+            <button @click="closeModal" class="btn login-btn">
               Go to Login
             </button>
             <button @click="showModal = false" class="btn btn-close">
-              Close
             </button>
           </div>
         </div>
@@ -413,38 +412,64 @@ function openDirections(mode) {
   color: #2c685e !important;
 }
 
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1000; /* High z-index to appear on top */
 }
 
+/* Modal Content Styling */
 .modal-content {
-  background-color: #fff;
-  padding: 25px;
+  background-color: white;
+  padding: 20px;
   border-radius: 8px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  width: 50%;
+  max-width: 500px;
+  position: relative;
   text-align: center;
-  animation: fade-in 0.5s;
 }
 
+/* Responsive Modal Width */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%; /* Full width for smaller screens */
+  }
+}
+
+/* Close Button Styling */
+.modal-content .btn-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #666;
+  margin-right: 10px;
+}
+
+.modal-content .btn-close:hover {
+  color: #333;
+}
+
+/* Modal Actions */
 .modal-actions button {
   margin-top: 10px;
 }
 
-.modal-content .btn-close {
-  background-color: #ccc;
-}
-
-.modal-content .btn-close:hover {
-  background-color: #bbb;
+.login-btn {
+  color: white;
+  background-color: #b7765c;
 }
 
 /* Map Section */
