@@ -179,7 +179,7 @@ export default {
               }
             },
             y: {
-              beginAtZero: true,
+              // beginAtZero: true,
               grid: { color: '#f3f4f6' },
               ticks: {
                 font: { size: 12, family: "'Inter', sans-serif" },

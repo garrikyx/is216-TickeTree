@@ -41,11 +41,16 @@
             </div>
             <br />
             <p v-if="message" class="unavailable-message">{{ message }}</p>
-            <img v-else-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
-          </div>
-        </div>
+            <template v-else-if="qrCode">
+          <img :src="qrCode" alt="QR Code" class="qr-code" />
+          <p class="expiration-message">
+            This ticket refreshes every 10 minutes for security
+          </p>
+        </template>
       </div>
-    </transition>
+    </div>
+  </div>
+</transition>
   </div>
 
   <div v-else>
@@ -54,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, defineProps } from 'vue';
+import { ref, computed, onMounted, defineProps, onUnmounted } from 'vue';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { getAuth } from 'firebase/auth';
@@ -66,6 +71,12 @@ const showTicket = ref(false);
 const qrCode = ref(null);
 const message = ref('');
 const orderId = ref(props.orderID);
+let qrInterval = null;
+
+function generateRandomKey() {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
+}
 
 onMounted(() => {
   const auth = getAuth();
@@ -76,6 +87,12 @@ onMounted(() => {
       console.log('User not authenticated, retrying...');
     }
   });
+});
+
+onUnmounted(() => {
+  if (qrInterval) {
+    clearInterval(qrInterval);
+  }
 });
 
 async function fetchEventDetails() {
@@ -137,21 +154,36 @@ async function generateQRCode() {
 
   if (currentDate >= qrCodeAvailableDate) {
     try {
-      const qrData = {
-        eventName: event.value.eventName,
-        date: event.value.date,
-        location: event.value.location,
-        orderId: props.orderID,
-      };
-
-      qrCode.value = await QRCode.toDataURL(JSON.stringify(qrData), { width: 200 });
-      message.value = '';
+      await updateQRCode();
+      qrInterval = setInterval(updateQRCode, 600000); 
     } catch (err) {
       console.error(err);
     }
   } else {
     message.value = `QR code will only be available on ${qrCodeAvailableDate.toDateString()}.`;
     qrCode.value = null;
+  }
+}
+
+async function updateQRCode() {
+  const qrData = {
+    eventName: event.value.eventName,
+    date: event.value.date,
+    location: event.value.location,
+    orderId: props.orderID,
+    timestamp: Date.now(),
+    randomKey: generateRandomKey(),
+  };
+
+  try {
+    qrCode.value = await QRCode.toDataURL(JSON.stringify(qrData), {
+      width: 200,
+      errorCorrectionLevel: 'H' // Highest error correction level
+    });
+    message.value = '';
+  } catch (err) {
+    console.error('Error generating QR code:', err);
+    message.value = 'Error generating QR code. Please try again.';
   }
 }
 
@@ -322,5 +354,15 @@ function getTicket() {
 
 .animate-pulse {
   animation: pulse 1.5s infinite;
+}
+
+.expiration-message {
+  text-align: center;
+  color: #ad3939;
+  font-size: 14px;
+  margin-top: 16px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
 </style>

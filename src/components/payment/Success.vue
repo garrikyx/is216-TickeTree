@@ -215,7 +215,6 @@ export default {
 
           const ticketSnapshot = await getDoc(ticketDocRef);
           if (!ticketSnapshot.exists()) {
-            console.error("No ticket document found for ID:", item.id);
             continue;
           }
 
