@@ -1,1 +1,26 @@
-{ "routes": [{ "src": "/[^.]+", "dest": "/", "status": 200 }] }
+{ 
+    "version": 2, 
+    "builds": [ 
+        { 
+            "src": "backend/index.js", 
+            "use": "@vercel/node" 
+        }, 
+        { 
+            "src": "frontend/package.json", 
+            "use": "@vercel/static-build"
+        } 
+    ], 
+    "rewrites": [ 
+        { 
+            "source": "/(.*)", 
+            "destination": "/backend" 
+        } 
+    ],
+    "routes": [
+        { 
+            "src": "/[^.]+", 
+            "dest": "/", 
+            "status": 200 
+        }
+    ]
+}
