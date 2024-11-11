@@ -357,14 +357,15 @@ function handleImageError(event) {
 
 function formatDate(date) {
   if (date instanceof Date) {
-    return date.toLocaleDateString("en-GB", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-    });
+    const dayOfWeek = date.toLocaleDateString("en-GB", { weekday: "short" });
+    const day = date.toLocaleDateString("en-GB", { day: "numeric" });
+    const month = date.toLocaleDateString("en-GB", { month: "short" });
+    
+    return `${dayOfWeek} ${day} ${month}`;
   }
   return date;
 }
+
 </script>
 
 <style scoped>

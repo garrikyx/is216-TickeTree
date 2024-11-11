@@ -154,15 +154,24 @@ export default {
     console.error("Error creating checkout session:", error);
   }
 },
-    formatDate(dateStr) {
-      if (!dateStr) return 'Date not available';
-      const dates = dateStr.split(' - ');
-      const formattedDates = dates.map(date => {
-        const [dayOfWeek, day, month] = date.split(' ');
-        return `${dayOfWeek} ${day} ${month}`;
-      });
-      return formattedDates.join(' - ');
-    },
+   formatDate(dateStr) {
+  if (!dateStr) return "Date not available";
+
+  const dates = dateStr.split(" - ");
+  const formattedDates = dates.map((date) => {
+    const parts = date.trim().split(" ");
+    
+    if (parts.length < 3) {
+      return "Invalid date format"; // handle unexpected formats
+    }
+
+    const [dayOfWeek, day, month] = parts;
+    return `${dayOfWeek} ${day} ${month}`;
+  });
+
+  return formattedDates.join(" - ");
+},
+
   },
 };
 </script>
