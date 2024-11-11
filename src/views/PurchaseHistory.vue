@@ -196,13 +196,8 @@ async function confirmListing(ticket) {
 
   try {
     const marketplaceDocRef = doc(collection(db, "ticket"));
-    const docRef = await setDoc(marketplaceDocRef, {
+    const ticketData = {
       category: "Arts & Culture",
-      date: ticket.startDate.toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-      }),
       eventName: ticket.eventName,
       imageUrl: ticket.imageUrl,
       location: ticket.location || "Parkview Museum, Bugis, Singapore",
@@ -210,8 +205,17 @@ async function confirmListing(ticket) {
       seatNumber: ticket.seatNumbers[0],
       userId: ticket.userId,
       listed: true,
-    });
+    };
 
+    // Format and store the date as a single string
+    if (ticket.startDate && ticket.endDate) {
+      ticketData.date = `${formatDate(ticket.startDate)} - ${formatDate(ticket.endDate)}`;
+    } else {
+      // If only start date is available, use it as the event date
+      ticketData.date = formatDate(ticket.startDate);
+    }
+
+    const docRef = await setDoc(marketplaceDocRef, ticketData);
 
     // Close form and reset price
     ticket.listed = true;
@@ -222,6 +226,8 @@ async function confirmListing(ticket) {
     alert("Failed to list ticket. Please try again.");
   }
 }
+
+
 
 function initializeAnimation() {
   const textWrapper = document.querySelector('.ml1 .letters');
