@@ -1,6 +1,6 @@
 <template>
   <div class="faq-container container my-5 container">
-    <h1 class="ml13 text-center">Frequently Asked Questions hi</h1>
+    <h1 class="ml13 text-center">Frequently Asked Questions hihi</h1>
 
     <div class="accordion" id="faqAccordion">
       <div class="faq-item" v-for="(faq, index) in faqs" :key="index">
