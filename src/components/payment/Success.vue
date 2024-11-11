@@ -125,7 +125,7 @@ export default {
     if (this.sessionId) {
       try {
         const response = await axios.get(
-          `http://localhost:5001/checkout-session`,
+          `http://localhost:5001/api/checkout-session`,
           {
             params: { session_id: this.sessionId },
           }
