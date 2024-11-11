@@ -18,7 +18,7 @@
         <p>No events found for this category.</p>
       </div>
 
-      <div id="category-events" class="container mt-4">
+      <div v-else id="category-events" class="container mt-4">
         <div class="row mt-4">
           <div class="col text-center mb-4">
             <h1>{{ categoryName }} Events</h1>
@@ -44,8 +44,7 @@
               <div class="image-container">
                 <img
                   :src="
-                    event.images?.images?.[0]?.original_url ||
-                    '/images/noimage.png'
+                    event.images?.images[0]?.transforms?.transforms[5]?.url || event.images?.images[0]?.original_url
                   "
                   class="card-img-top"
                 />

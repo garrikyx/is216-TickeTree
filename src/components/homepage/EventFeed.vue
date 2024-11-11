@@ -45,7 +45,7 @@
             <div class="image-container">
               <img
                 :src="
-                  event.images?.images[0]?.original_url || '/images/noimage.png'
+                  event.images?.images[0]?.transforms?.transforms[5]?.url || event.images?.images[0]?.original_url
                 "
                 class="card-img-top"
                 :alt="event.name"
