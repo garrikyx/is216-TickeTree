@@ -177,15 +177,33 @@ export default {
 
 .discard-mode-toggle {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  font-size: 24px;
-  color: #ff5252;
+  top: 45px;
+  left: 200px;
+  width: 50px;
+  height: 50px;
+  font-size: 28px;
+  background-color: #f8f9fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.discard-mode-toggle:hover {
+  background-color: #ffebee;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.discard-mode-toggle .fas.fa-trash {
+  color: #000000;
   transition: color 0.3s ease;
 }
 
-.discard-mode-toggle .active {
+.discard-mode-toggle .fas.fa-trash.active {
   color: #d32f2f;
 }
 

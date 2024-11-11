@@ -219,7 +219,7 @@ onMounted(async () => {
     opacity: [0, 1],
     easing: "easeOutExpo",
     duration: 10000,
-    delay: anime.stagger(200, { start: 1900 }),
+    delay: anime.stagger(200, { start: 1200 }),
   });
 });
 
