@@ -53,6 +53,7 @@
         <div
           v-if="searchQuery.trim()"
           class="position-absolute w-100 mt-2 bg-white rounded shadow-lg overflow-hidden"
+          :class="isDarkMode ? 'dark' : 'light'"
         >
           <div v-if="isSearching" class="p-4 text-muted text-center">
             Searching...
@@ -104,10 +105,11 @@
 
 <script setup>
 import { fetchEvents } from "@/api/eventsApi";
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, inject } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import anime from 'animejs/lib/anime.es.js';
 
+const isDarkMode = inject("isDarkMode");
 // State
 const backgroundImage = ref("/images/concert-hero.jpg");
 const searchQuery = ref("");
@@ -236,6 +238,10 @@ onMounted(() => {
 
 .custom-link:hover {
   text-decoration: none;
+}
+
+.position-absolute.w-100.mt-2.bg-white.rounded.shadow-lg.overflow-hidden.dark{
+  color: black;
 }
 
 </style>
