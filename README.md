@@ -43,7 +43,7 @@ npm install -g npm
 
 
 ```sh
-git clone https://github.com/Danwidj/TickeTree-frontend.git
+git clone https://github.com/garrikyx/is216-TickeTree.git
 ```
 
 2. Create a .env file from the .env.example
