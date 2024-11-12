@@ -26,7 +26,7 @@
   // to prevent promise rejection
   window.addEventListener("unhandledrejection", event => {
   console.warn("Unhandled promise rejection:", event.reason);
-  event.preventDefault();  
+  event.preventDefault();   
 });
 
   </script>

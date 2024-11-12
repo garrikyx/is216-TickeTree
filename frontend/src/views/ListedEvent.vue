@@ -4,7 +4,9 @@
     <div
       class="background-layer"
       :style="{
-        backgroundImage: `url(${event?.imageUrl || '/images/noimage.png'})`,
+        backgroundImage: `url(${
+          event?.imageUrl || '/images/noimage.png'
+        })`,
       }"
     ></div>
     <div class="poster d-flex justify-content-center align-items-center">
@@ -51,7 +53,10 @@
         <!-- Ticket Purchase Button Section -->
         <div class="price-section col-4 text-center p-3">
           <h4 class="text-success">Price: ${{ event?.price || "$500" }}</h4>
-          <button @click="handleTicketPurchase" class="btn btn-success btn-lg animate-pulse">
+          <button
+            @click="handleTicketPurchase"
+            class="btn btn-success btn-lg animate-pulse"
+          >
             Buy Ticket
           </button>
           <!-- Display message if ticket is already in the cart -->
@@ -99,32 +104,31 @@ export default {
     onMounted(async () => {
       event.value = await ticketStore.fetchTicketById(eventId);
 
+      anime({
+        targets: ".poster",
+        scale: [0.1, 1],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 3000,
+      });
 
-    anime({
-    targets: ".poster",
-    scale: [0.1, 1],
-    opacity: [0, 1],
-    easing: "easeOutExpo",
-    duration: 3000,
-  });
+      anime({
+        targets: ".container.justify-content-center.gap-4.mb-4",
+        scale: [0.95, 1],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 5000,
+      });
 
-  anime({
-    targets: ".container.justify-content-center.gap-4.mb-4",
-    scale: [0.95, 1],
-    opacity: [0, 1],
-    easing: "easeOutExpo",
-    duration: 5000,
-  });
-
-  anime({
-    targets:
-      ".event-title, .event-details p, .about-section,.price-section,.location-map,.how-to-get-there",
-    translateY: [20, 0],
-    opacity: [0, 1],
-    easing: "easeOutExpo",
-    duration: 6000,
-    delay: anime.stagger(200, { start: 300 }),
-  });
+      anime({
+        targets:
+          ".event-title, .event-details p, .about-section,.price-section,.location-map,.how-to-get-there",
+        translateY: [20, 0],
+        opacity: [0, 1],
+        easing: "easeOutExpo",
+        duration: 6000,
+        delay: anime.stagger(200, { start: 300 }),
+      });
     });
 
     // Handle ticket purchase action
@@ -153,7 +157,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .poster-section {
@@ -269,15 +272,15 @@ export default {
   margin: auto;
 }
 
-/* @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* @keyframes fade-in {  
+  from {  
+    opacity: 0;  
+    transform: scale(0.95);  
+  }  
+  to {  
+    opacity: 1;  
+    transform: scale(1);  
+  }  
 } */
 
 @keyframes pulse {
