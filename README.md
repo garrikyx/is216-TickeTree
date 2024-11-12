@@ -11,6 +11,7 @@ View our deployed website using Vercel [here](https://ticke-tree-frontend.vercel
   <p align="center">
     In this project, we aim to build a web-based application designed to combat ticketing scams and scalping in Singapore’s event industry.
     <br />
+    <a href="https://github.com/garrikyx/is216-TickeTree"><strong>Explore the docs »</strong></a>
     </p>
 </div>
 
@@ -67,6 +68,8 @@ node server.js
 npm run dev
 ```
 
+## Test account email/password/role
+ticketree07@gmail.com/password/normal_user
 
 ## Acknowledgments
 - [Garrison Koh](https://github.com/garrikyx)
