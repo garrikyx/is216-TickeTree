@@ -1,56 +1,56 @@
 <template>
   <div>
-  <div v-if="loading">
-    <span class="back d-flex align-items-center justify-content-center">
-      <span>L</span>
-      <span>o</span>
-      <span>a</span>
-      <span>d</span>
-      <span>i</span>
-      <span>n</span>
-      <span>g</span>
-    </span>
-  </div>
-  <div v-else class="poster-section">
-    <div
-      class="background-layer"
-      :style="{
-        backgroundImage: `url(${
-          event?.images?.images[0]?.original_url || '/images/noimage.png'
-        })`,
-      }"
-    ></div>
-
-    <div class="poster d-flex justify-content-center align-items-center">
-      <img
-        :src="event?.images?.images[0]?.original_url || '/images/noimage.png'"
-        class="img-fluid shadow-lg rounded poster-img"
-        alt="Event Poster"
-      />
+    <div v-if="loading">
+      <span class="back d-flex align-items-center justify-content-center">
+        <span>L</span>
+        <span>o</span>
+        <span>a</span>
+        <span>d</span>
+        <span>i</span>
+        <span>n</span>
+        <span>g</span>
+      </span>
     </div>
-    <hr class="custom-hr" />
-  </div>
+    <div v-else class="poster-section">
+      <div
+        class="background-layer"
+        :style="{
+          backgroundImage: `url(${
+            event?.images?.images[0]?.original_url || '/images/noimage.png'
+          })`,
+        }"
+      ></div>
 
-  <div class="container justify-content-center gap-4 mb-4 poster-content">
-    <div class="card w-100" :class="isDarkMode ? 'dark' : 'light'">
-      <!-- Event Details -->
-      <div class="container mt-4 text-center event-details">
-        <h2 class="event-title" :class="{ lighttext: isDarkMode }">
-          {{ event?.name || "Event Title" }}
-        </h2>
-        <div class="d-block justify-content-center gap-5 text-muted">
-          <p class="h5">
-            <i class="fa fa-calendar"></i>
-            {{ event?.datetime_summary || "November 30, 2024" }}
-          </p>
-          <p class="h5">
-            <i class="fa fa-clock"></i> {{ event?.time || "6:00 PM" }}
-          </p>
-          <p class="h5">
-            <i class="fa fa-map-marker"></i> {{ event?.location_summary }}
-          </p>
-        </div>
+      <div class="poster d-flex justify-content-center align-items-center">
+        <img
+          :src="event?.images?.images[0]?.original_url || '/images/noimage.png'"
+          class="img-fluid shadow-lg rounded poster-img"
+          alt="Event Poster"
+        />
       </div>
+      <hr class="custom-hr" />
+    </div>
+
+    <div class="container justify-content-center gap-4 mb-4 poster-content">
+      <div class="card w-100" :class="isDarkMode ? 'dark' : 'light'">
+        <!-- Event Details -->
+        <div class="container mt-4 text-center event-details">
+          <h2 class="event-title" :class="{ lighttext: isDarkMode }">
+            {{ event?.name || "Event Title" }}
+          </h2>
+          <div class="d-block justify-content-center gap-5 text-muted">
+            <p class="h5">
+              <i class="fa fa-calendar"></i>
+              {{ event?.datetime_summary || "November 30, 2024" }}
+            </p>
+            <p class="h5">
+              <i class="fa fa-clock"></i> {{ event?.time || "6:00 PM" }}
+            </p>
+            <p class="h5">
+              <i class="fa fa-map-marker"></i> {{ event?.location_summary }}
+            </p>
+          </div>
+        </div>
 
       <div class="card-body d-flex row">
         <!-- About Section -->
@@ -61,57 +61,59 @@
           </p>
         </div>
 
-        <!-- Price Section -->
-        <div class="price-section col-4 text-center p-3">
-          <h4 class="text-success">Price: {{ event?.price || "$50.00" }}</h4>
-          <button
-            @click="handleTicketPurchase"
-            class="btn btn-success btn-lg animate-pulse"
-          >
-            Buy Ticket
-          </button>
-          <div class="marketplace mt-3">
-            <router-link to="/marketplace">
-              <button class="btn btn-outline-primary btn-lg">
-                See Resale Price
+          <!-- Price Section -->
+          <div class="price-section col-4 text-center p-3">
+            <h4 class="text-success">Price: {{ event?.price || "$50.00" }}</h4>
+            <button
+              @click="handleTicketPurchase"
+              class="btn btn-success btn-lg animate-pulse"
+            >
+              Buy Ticket
+            </button>
+            <div class="marketplace mt-3">
+              <router-link to="/marketplace">
+                <button class="btn btn-outline-primary btn-lg">
+                  See Resale Price
+                </button>
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Modal -->
+        <div v-if="showModal" class="modal-overlay">
+          <div class="modal-content animate-fade-in">
+            <h5>Login Required</h5>
+            <p class="text-muted">{{ errorMessage }}</p>
+            <div class="modal-actions">
+              <button @click="closeModal" class="btn login-btn">
+                Go to Login
               </button>
-            </router-link>
+              <button @click="showModal = false" class="btn btn-close">
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Error Modal -->
-      <div v-if="showModal" class="modal-overlay">
-        <div class="modal-content animate-fade-in">
-          <h5>Login Required</h5>
-          <p class="text-muted">{{ errorMessage }}</p>
-          <div class="modal-actions">
-            <button @click="closeModal" class="btn login-btn">
-              Go to Login
-            </button>
-            <button @click="showModal = false" class="btn btn-close">
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Location Map Section -->
-      <div
-        class="container m-4 location-map col-12"
-        :class="{ lighttext: isDarkMode }"
-      >
-        <h5>Location:</h5>
+        <!-- Location Map Section -->
         <div
-          id="map"
-          class="rounded shadow"
-          style="width: 96%; height: 300px"
-        ></div>
-      </div>
+          class="container m-4 location-map col-12"
+          :class="{ lighttext: isDarkMode }"
+        >
+          <h5>Location:</h5>
+          <div
+            id="map"
+            class="rounded shadow"
+            style="width: 96%; height: 300px"
+          ></div>
+        </div>
 
-    <div class="how-to-get-there mt-4">
+        <div class="how-to-get-there mt-4">
           <h5>How to Get There:</h5>
-          <div class="transport-options d-flex justify-content-center gap-4 mt-3">
-            <a 
+          <div
+            class="transport-options d-flex justify-content-center gap-4 mt-3"
+          >
+            <a
               @click="openDirections('driving')"
               class="transport-option"
               title="Drive there"
@@ -121,7 +123,7 @@
               </div>
               <span>Drive</span>
             </a>
-            <a 
+            <a
               @click="openDirections('transit')"
               class="transport-option"
               title="Public transit"
@@ -131,7 +133,7 @@
               </div>
               <span>Transit</span>
             </a>
-            <a 
+            <a
               @click="openDirections('walking')"
               class="transport-option"
               title="Walk there"
@@ -141,7 +143,7 @@
               </div>
               <span>Walk</span>
             </a>
-            <a 
+            <a
               @click="openDirections('bicycling')"
               class="transport-option"
               title="Cycle there"
@@ -152,9 +154,9 @@
               <span>Cycle</span>
             </a>
           </div>
-          </div>
         </div>
       </div>
+    </div>
   </div>
 </template>
 
@@ -194,7 +196,7 @@ onMounted(async () => {
   if (event.value && event.value.location?.point) {
     loadGoogleMaps();
   }
-    anime({
+  anime({
     targets: ".poster-img",
     scale: [0.1, 1],
     opacity: [0, 1],
@@ -294,14 +296,17 @@ function openDirections(mode) {
   
   // Get destination coordinates
   const { lat, lng } = event.value.location.point;
-  
+
   // Construct Google Maps directions URL
-  const baseUrl = 'https://www.google.com/maps/dir/?api=1';
+  const baseUrl = "https://www.google.com/maps/dir/?api=1";
   const destination = `${lat},${lng}`;
   const transportMode = mode;
-  
+
   // Open in new tab
-  window.open(`${baseUrl}&destination=${destination}&travelmode=${transportMode}`, '_blank');
+  window.open(
+    `${baseUrl}&destination=${destination}&travelmode=${transportMode}`,
+    "_blank"
+  );
 }
 </script>
 
@@ -354,7 +359,7 @@ function openDirections(mode) {
   }
 
   .background-layer {
-    display:none
+    display: none;
   }
   .poster-img {
     height: 40vh;
@@ -412,39 +417,32 @@ function openDirections(mode) {
   color: #2c685e !important;
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* High z-index to appear on top */
+  z-index: 1000;
 }
 
-/* Modal Content Styling */
 .modal-content {
-  background-color: white;
-  padding: 20px;
+  background-color: #fff;
+  padding: 25px;
   border-radius: 8px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-  width: 50%;
-  max-width: 500px;
-  position: relative;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
-
 /* Responsive Modal Width */
 @media (max-width: 768px) {
   .modal-content {
     width: 90%; /* Full width for smaller screens */
   }
 }
-
 /* Close Button Styling */
 .modal-content .btn-close {
   position: absolute;
@@ -457,16 +455,13 @@ function openDirections(mode) {
   color: #666;
   margin-right: 10px;
 }
-
 .modal-content .btn-close:hover {
   color: #333;
 }
 
-/* Modal Actions */
 .modal-actions button {
   margin-top: 10px;
 }
-
 .login-btn {
   color: white;
   background-color: #b7765c;
@@ -505,7 +500,7 @@ function openDirections(mode) {
   }
 }
 
- .back {
+.back {
   margin: 1em auto;
   font-family: "Roboto";
   height: 100vh;

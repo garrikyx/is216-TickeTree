@@ -27,13 +27,13 @@ app.get('/api/events', async (req, res) => {
         const authHeader = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
 
         const queryParams = req.query;
-
+        
         const response = await axios.get('https://api.eventfinda.sg/v2/events.json', {
             headers: { Authorization: authHeader },
             params: { ...queryParams }
         });
-        
         res.json(response.data);
+        console.log(response.data)
     } catch (error) {
         console.error('Error fetching events:', error.message);
         res.status(500).send('Internal Server Error');
@@ -73,8 +73,9 @@ app.post('/create-checkout-session', async (req, res) => {
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
-            success_url: `http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: 'http://localhost:5173/error',
+            success_url: `https://ticke-tree-frontend.vercel.app/success?session_id={CHECKOUT_SESSION_ID}`,
+            
+            cancel_url: 'https://ticke-tree-frontend.vercel.app/error',
             allow_promotion_codes: true,
         });
 
@@ -84,7 +85,7 @@ app.post('/create-checkout-session', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
+ 
 app.get('/checkout-session', async (req, res) => {
     const { session_id } = req.query;
     try {

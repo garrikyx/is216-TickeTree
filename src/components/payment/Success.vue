@@ -125,7 +125,7 @@ export default {
     if (this.sessionId) {
       try {
         const response = await axios.get(
-          `http://localhost:5001/checkout-session`,
+          `https://ticke-tree-backend.vercel.app/checkout-session`,
           {
             params: { session_id: this.sessionId },
           }
