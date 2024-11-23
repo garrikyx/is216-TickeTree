@@ -53,7 +53,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../firebase'; // Ensure this imports your Firebase config
+import { db } from '../../firebase';
 import { getAuth } from 'firebase/auth';
 
 const currentTab = ref("upcoming");
@@ -67,7 +67,7 @@ async function fetchTickets() {
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
-    if (!currentUser || !currentUser.uid) return; // Check if the user is logged in
+    if (!currentUser || !currentUser.uid) return;
 
     const paymentCollectionRef = collection(db, 'payment');
     const userTicketsQuery = query(
@@ -133,18 +133,18 @@ function handleImageError(event) {
   event.target.src = "/images/noimage.png";
 }
 
-// Format date to a string
+// Format date to a string in "Mon Nov 4" format
 function formatDate(date) {
   if (date instanceof Date) {
     return date.toLocaleDateString('en-GB', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
+      weekday: 'short',  // Displays day of the week (e.g., Mon)
+      day: 'numeric',    // Displays the numeric day (e.g., 4)
+      month: 'short',    // Displays abbreviated month (e.g., Nov)
     });
   }
   return date;
 }
+
 </script>
 
 <style scoped>
@@ -220,15 +220,15 @@ h1 {
   font-size: 1.1rem;
   font-weight: bold;
   margin: 0;
-  color: black; /* Change event name color to black */
+  color: black;
 }
 
 .date,
 .seat {
   font-size: 0.9rem;
   color: #666;
-  margin-top: 5px; /* Adjusted margin for equal spacing */
-  margin-bottom: 5px; /* Added margin-bottom for consistency */
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .event-price {
@@ -242,27 +242,26 @@ h1 {
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 5px;
-  color: black; /* Change price color to black */
+  color: black;
 }
 
 .badge-status {
   font-size: 0.8rem;
   padding: 5px 10px;
   border-radius: 20px;
-  background-color: green; /* Change badge color to green */
-  color: #fff; /* Keep text color white for contrast */
+  background-color: green;
+  color: #fff;
   text-align: center;
 }
 
 .purchase-item-link {
-  text-decoration: none; /* Remove underline */
+  text-decoration: none;
 }
 
 .no-tickets-message {
   text-align: center;
   font-size: 1.2rem;
-  color: #666; /* Optional: change color as needed */
+  color: #666;
   margin-top: 20px;
 }
-
 </style>

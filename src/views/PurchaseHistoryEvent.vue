@@ -4,13 +4,11 @@
     <div class="poster-section">
       <img :src="event?.imageUrl" class="poster-img" alt="Event Poster" @error="handleImageError" />
       <div class="event-info">
-      <h1 class="event-title"><strong>{{ event.eventName }}</strong></h1>
+        <h1 class="event-title"><strong>{{ event.eventName }}</strong></h1>
         <p class="order-id">Ticket ID: {{ orderId }}</p>
         <p class="event-date">Date: {{ formattedDate }}</p>
         <p class="event-location">{{ event.location }}</p>
-        <p class="seat-number">
-          Seat: {{ event.ticket.seat }}
-        </p>
+        <p class="seat-number">Seat: {{ event.ticket.seat }}</p>
       </div>
     </div>
 
@@ -33,18 +31,18 @@
             <h1 class="standard-ticket">{{ event?.eventName }}</h1>
             <div class="seat-info">
               <div class="seat-detail">
-            <span class="label">SEC</span><br />
-            <span class="value">{{ event.ticket.section }}</span>
-          </div>
-          <div class="seat-detail">
-            <span class="label">ROW</span><br />
-            <span class="value">{{ event.ticket.row }}</span>
-          </div>
-          <div class="seat-detail">
-            <span class="label">SEAT</span><br />
-            <span class="value">{{ event.ticket.seat }}</span>
-          </div>
-        </div>
+                <span class="label">SEC</span><br />
+                <span class="value">{{ event.ticket.section }}</span>
+              </div>
+              <div class="seat-detail">
+                <span class="label">ROW</span><br />
+                <span class="value">{{ event.ticket.row }}</span>
+              </div>
+              <div class="seat-detail">
+                <span class="label">SEAT</span><br />
+                <span class="value">{{ event.ticket.seat }}</span>
+              </div>
+            </div>
             <br>
             <p v-if="message" class="unavailable-message">{{ message }}</p>
             <img v-else-if="qrCode" :src="qrCode" alt="QR Code" class="qr-code" />
@@ -70,7 +68,6 @@ const props = defineProps(['orderID']);
 const event = ref(null);
 const showTicket = ref(false); // Controls visibility of the ticket modal
 const qrCode = ref(null);
-const qrCodeAvailableDate = new Date("2024-11-03");
 const message = ref("");
 const orderId = ref(props.orderID);
 
@@ -127,19 +124,19 @@ const formattedDate = computed(() => {
 async function generateQRCode() {
   const currentDate = new Date();
 
-  // Parse event date based on whether it's a range or a single date
+  // Parse the event's start date
   let qrCodeAvailableDate;
   if (event.value.date.includes('-')) {
-    // Date range (e.g., "Sat 23 Nov - Sat 28 Dec")
+    // For a date range, extract the start date (first part before the dash)
     const startDateStr = event.value.date.split('-')[0].trim();
-    qrCodeAvailableDate = new Date(startDateStr + " 2024"); // Add a year if needed
+    qrCodeAvailableDate = new Date(startDateStr + " " + new Date().getFullYear());
   } else {
-    // Single date (e.g., "Sat 23 Nov")
-    qrCodeAvailableDate = new Date(event.value.date + " 2024"); // Add a year if needed
+    // For a single date event
+    qrCodeAvailableDate = new Date(event.value.date + " " + new Date().getFullYear());
   }
 
-  // Check if the current date is the same as the QR code available date
-  if (currentDate.toDateString() === qrCodeAvailableDate.toDateString()) {
+  // Display QR code if current date is on or after the event's start date
+  if (currentDate >= qrCodeAvailableDate) {
     try {
       qrCode.value = await QRCode.toDataURL("https://example.com", { width: 200 });
       message.value = "";
@@ -155,7 +152,6 @@ async function generateQRCode() {
 function handleImageError(event) {
   event.target.src = "/images/noimage.png";
 }
-
 
 function getTicket() {
   showTicket.value = true;
@@ -190,7 +186,7 @@ function getTicket() {
   object-fit: cover;
 }
 
-.event-title{
+.event-title {
   margin-bottom: 15px;
 }
 
